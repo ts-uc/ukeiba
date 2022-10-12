@@ -1,4 +1,7 @@
 //#![deny(warnings)]
+extern crate unicode_normalization;
+
+use unicode_normalization::UnicodeNormalization;
 use chrono::prelude::*;
 use scraper::Html;
 use scraper::Selector;
@@ -50,16 +53,16 @@ struct RaceDataBanei {
     race: Race,
     distance: String,
     weather: String,
-    track_condition: f64,
+    track_condition: String,
     name: String,
     class: String,
     class_sub: String,
     horse_condition: String,
-    prize1: i32,
-    prize2: i32,
-    prize3: i32,
-    prize4: i32,
-    prize5: i32,
+    prize1: String,
+    prize2: String,
+    prize3: String,
+    prize4: String,
+    prize5: String,
 }
 
 fn scrap_racedata_banei(doc: &Html, race: Race) -> RaceDataBanei {
@@ -70,16 +73,16 @@ fn scrap_racedata_banei(doc: &Html, race: Race) -> RaceDataBanei {
             "ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(2)",
             &doc,
         ),
-        track_condition: 1.5,
+        track_condition: scrap_str("ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(4)", &doc),
         name: scrap_str(".raceNote > h2:nth-child(3)", &doc),
         class: scrap_str(".raceNote > h2:nth-child(3)", &doc),
         class_sub: scrap_str(".raceNote > h2:nth-child(3)", &doc),
         horse_condition: scrap_str(".horseCondition > li:nth-child(1)", &doc),
-        prize1: 1,
-        prize2: 2,
-        prize3: 3,
-        prize4: 4,
-        prize5: 5,
+        prize1: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(1)", &doc),
+        prize2: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(2)", &doc),
+        prize3: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(3)", &doc),
+        prize4: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(4)", &doc),
+        prize5: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(5)", &doc),
     }
 }
 
@@ -87,7 +90,7 @@ fn scrap_str(selectors: &str, doc: &Html) -> String {
     let weatcher_selector = Selector::parse(selectors).unwrap();
     let hoge = doc.select(&weatcher_selector).next().unwrap();
     let r = hoge.text().collect::<Vec<_>>()[0];
-    r.to_string()
+    r.nfkc().collect::<String>()
 }
 
 fn scraping(race: Race) -> Result<(), Box<dyn std::error::Error>> {

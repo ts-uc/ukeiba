@@ -604,6 +604,7 @@ dependencies = [
  "log",
  "reqwest",
  "scraper",
+ "unicode-normalization",
 ]
 
 [[package]]
