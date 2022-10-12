@@ -51,38 +51,28 @@ impl Race {
 #[derive(Debug)]
 struct RaceDataBanei {
     race: Race,
-    distance: String,
     weather: String,
     track_condition: String,
+    post_time: String,
     name: String,
     class: String,
     class_sub: String,
     horse_condition: String,
-    prize1: String,
-    prize2: String,
-    prize3: String,
-    prize4: String,
-    prize5: String,
 }
 
 fn scrap_racedata_banei(doc: &Html, race: Race) -> RaceDataBanei {
     RaceDataBanei {
         race: race,
-        distance: scrap_str(".distance", &doc),
         weather: scrap_str(
             "ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(2)",
             &doc,
         ),
         track_condition: scrap_str("ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(4)", &doc),
+        post_time: scrap_str("ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(6)", &doc),
         name: scrap_str(".raceNote > h2:nth-child(3)", &doc),
         class: scrap_str(".raceNote > h2:nth-child(3)", &doc),
         class_sub: scrap_str(".raceNote > h2:nth-child(3)", &doc),
         horse_condition: scrap_str(".horseCondition > li:nth-child(1)", &doc),
-        prize1: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(1)", &doc),
-        prize2: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(2)", &doc),
-        prize3: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(3)", &doc),
-        prize4: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(4)", &doc),
-        prize5: scrap_str(".prizeMoney > dd:nth-child(2) > ol:nth-child(1) > li:nth-child(5)", &doc),
     }
 }
 
