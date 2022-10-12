@@ -3,10 +3,10 @@ extern crate unicode_normalization;
 use super::Race;
 use super::Racecourse;
 
-use unicode_normalization::UnicodeNormalization;
 use chrono::prelude::*;
 use scraper::Html;
 use scraper::Selector;
+use unicode_normalization::UnicodeNormalization;
 
 impl Race {
     fn race_id(&self) -> String {
@@ -19,9 +19,15 @@ impl Race {
             self.num
         )
     }
-    fn url(&self) -> String {
+    fn url_result(&self) -> String {
         format!(
-            "https://keiba.rakuten.co.jp/race_performance/list/RACEID/{}",
+            "https://keiba.rakuten.co.jp/race_performance/RACEID/{}",
+            self.race_id()
+        )
+    }
+    fn url_odds(&self) -> String {
+        format!(
+            "https://keiba.rakuten.co.jp/odds/tanfuku/RACEID/{}",
             self.race_id()
         )
     }
@@ -41,21 +47,31 @@ struct RaceDataBanei {
     horse_condition: String,
 }
 
-fn scrap_racedata_banei(doc: &Html, race: Race) -> RaceDataBanei {
-    RaceDataBanei {
-        date: race.date,
-        racecourse: race.racecourse,
-        num: race.num,
-        weather: scrap_str(
-            "ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(2)",
-            &doc,
-        ),
-        track_condition: scrap_str("ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(4)", &doc),
-        post_time: scrap_str("ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(6)", &doc),
-        name: scrap_str(".raceNote > h2:nth-child(3)", &doc),
-        class: scrap_str(".raceNote > h2:nth-child(3)", &doc),
-        class_sub: scrap_str(".raceNote > h2:nth-child(3)", &doc),
-        horse_condition: scrap_str(".horseCondition > li:nth-child(1)", &doc),
+impl RaceDataBanei {
+    fn scrap(body: &str, race: Race) -> RaceDataBanei {
+        let doc = scraper::Html::parse_document(&body);
+
+        RaceDataBanei {
+            date: race.date,
+            racecourse: race.racecourse,
+            num: race.num,
+            weather: scrap_str(
+                "ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(2)",
+                &doc,
+            ),
+            track_condition: scrap_str(
+                "ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(4)",
+                &doc,
+            ),
+            post_time: scrap_str(
+                "ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(6)",
+                &doc,
+            ),
+            name: scrap_str(".raceNote > h2:nth-child(3)", &doc),
+            class: scrap_str(".raceNote > h2:nth-child(3)", &doc),
+            class_sub: scrap_str(".raceNote > h2:nth-child(3)", &doc),
+            horse_condition: scrap_str(".horseCondition > li:nth-child(1)", &doc),
+        }
     }
 }
 
@@ -67,15 +83,12 @@ fn scrap_str(selectors: &str, doc: &Html) -> String {
 }
 
 pub fn scrap(race: Race) -> Result<(), Box<dyn std::error::Error>> {
-    let url = race.url();
-    eprintln!("Fetching {:?}...", url);
-    let res = reqwest::blocking::get(url)?;
+    eprintln!("Fetching {:?}...", race.url_result());
+    let res = reqwest::blocking::get(race.url_result())?;
     eprintln!("Response: {:?} {}", res.version(), res.status());
-
     let body: String = res.text()?;
-    let doc = scraper::Html::parse_document(&body);
 
-    let racedata = scrap_racedata_banei(&doc, race);
+    let racedata = RaceDataBanei::scrap(&body, race);
     println!("{:?}", racedata);
 
     Ok(())
