@@ -2,6 +2,9 @@ pub mod racedata;
 
 extern crate unicode_normalization;
 
+use scraper::Html;
+use crate::scrap_rakuten_banei::racedata::RaceDataBaneiTrait;
+
 use super::Race;
 use super::Racecourse;
 
@@ -35,18 +38,19 @@ impl Race {
         }
     }
 
-    fn fetch(&self, page_type: PageType) -> String {
+    fn fetch(&self, page_type: PageType) -> Html {
         eprintln!("Fetching {:?}...", self.get_url(&page_type));
         let res = reqwest::blocking::get(self.get_url(&page_type)).unwrap();
         eprintln!("Response: {:?} {}", res.version(), res.status());
-        res.text().unwrap().to_string()
+        let res = res.text().unwrap().to_string();
+        Html::parse_document(&res)
     }
 }
 
 pub fn scrap(race: Race) -> Result<(), Box<dyn std::error::Error>> {
-    let body_odds: String = race.fetch(PageType::Odds);
+    let body_odds = race.fetch(PageType::Odds);
 
-    let racedata = racedata::RaceDataBanei::scrap(&body_odds, race);
+    let racedata = body_odds.scrap_race_data(race);
     println!("{:?}", racedata);
 
     Ok(())

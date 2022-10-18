@@ -16,13 +16,16 @@ pub struct RaceDataBanei {
     post_time: String,
     name: String,
     class: String,
-    class_sub: String,
     horse_condition: String,
 }
 
-impl RaceDataBanei {
-    pub fn scrap(body: &str, race: Race) -> RaceDataBanei {
-        let doc = scraper::Html::parse_document(&body);
+pub trait RaceDataBaneiTrait {
+    fn scrap_race_data(&self, race: Race) -> RaceDataBanei;
+}
+
+impl RaceDataBaneiTrait for Html {
+    fn scrap_race_data(&self, race: Race)-> RaceDataBanei {
+        let track_main_state = scrap_str(".raceNote > h2:nth-child(3)", &self);
 
         RaceDataBanei {
             date: race.date,
@@ -30,20 +33,19 @@ impl RaceDataBanei {
             num: race.num,
             weather: scrap_str(
                 "ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(2)",
-                &doc,
+                &self,
             ),
             track_condition: scrap_str(
                 "ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(4)",
-                &doc,
+                &self,
             ),
             post_time: scrap_str(
                 "ul.trackState:nth-child(2) > li:nth-child(2) > dl:nth-child(1) > dd:nth-child(6)",
-                &doc,
+                &self,
             ),
-            name: scrap_str(".raceNote > h2:nth-child(3)", &doc),
-            class: scrap_str(".raceNote > h2:nth-child(3)", &doc),
-            class_sub: scrap_str(".raceNote > h2:nth-child(3)", &doc),
-            horse_condition: scrap_str(".horseCondition > li:nth-child(1)", &doc),
+            name: track_main_state.clone(),
+            class: track_main_state.clone(),
+            horse_condition: scrap_str(".horseCondition > li:nth-child(1)", &self),
         }
     }
 }
