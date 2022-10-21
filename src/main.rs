@@ -4,8 +4,42 @@ mod scrap_rakuten_banei;
 use chrono::prelude::*;
 
 #[derive(Debug)]
+pub enum Surface {
+    Turf,
+    Dirt,
+}
+
+#[derive(Debug)]
+pub enum Going {
+    GoodToFirm,
+    Good,
+    Yielding,
+    Soft,
+}
+
+#[derive(Debug)]
+pub struct RaceData {
+    date: Date<Local>,
+    racecourse: Racecourse,
+    race: i32,
+    th: Option<i32>,
+    day: Option<i32>,
+    surface: Option<Surface>,
+    distance: Option<i32>,
+    weather: Option<String>,
+    going: Option<Going>,
+    moisture: Option<f64>,
+    posttime: Option<String>,
+    name: Option<String>,
+    class: Option<String>,
+    breed: Option<String>,
+    age: Option<String>,
+}
+
+#[derive(Debug)]
 pub enum Racecourse {
     Obihiro,
+    Monbetsu,
 }
 
 pub struct Race {
@@ -22,6 +56,6 @@ fn main() {
         num: 7,
     };
 
-    let _ = scrap_rakuten_banei::scrap(puri_puri_pudding);
+    scrap_rakuten_banei::scrap(puri_puri_pudding);
 }
 
