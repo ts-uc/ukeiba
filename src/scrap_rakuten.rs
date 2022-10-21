@@ -3,7 +3,7 @@ pub mod racedata;
 extern crate unicode_normalization;
 
 use scraper::Html;
-use crate::scrap_rakuten_banei::racedata::RaceDataBaneiTrait;
+use crate::scrap_rakuten::racedata::RaceDataTrait;
 
 use super::Race;
 use super::Racecourse;

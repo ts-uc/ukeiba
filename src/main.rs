@@ -1,5 +1,5 @@
 //#![deny(warnings)]
-mod scrap_rakuten_banei;
+mod scrap_rakuten;
 
 use chrono::prelude::*;
 
@@ -56,6 +56,6 @@ fn main() {
         num: 7,
     };
 
-    scrap_rakuten_banei::scrap(puri_puri_pudding);
+    scrap_rakuten::scrap(puri_puri_pudding);
 }
 

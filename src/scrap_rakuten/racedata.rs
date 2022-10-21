@@ -20,7 +20,7 @@ pub enum CustomError {
     SelectorParseError,
 }
 
-pub trait RaceDataBaneiTrait {
+pub trait RaceDataTrait {
     fn scrap_str(&self, selectors: &str) -> Result<String>;
     fn scrap_th(&self) -> Option<i32>;
     fn scrap_weather(&self) -> Option<String>;
@@ -34,7 +34,7 @@ pub trait RaceDataBaneiTrait {
     fn scrap_race_data(&self, race: Race) -> RaceData;
 }
 
-impl RaceDataBaneiTrait for Html {
+impl RaceDataTrait for Html {
     fn scrap_str(&self, selectors: &str) -> Result<String> {
         let weatcher_selector: Selector = Selector::parse(selectors)
             .ok()
