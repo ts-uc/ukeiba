@@ -74,6 +74,7 @@ fn detect_class(race_name: &str, racecourse: &Racecourse) -> Option<String> {
         || race_name.ends_with("2歳A")
         || race_name.contains("3歳A-")
         || race_name.ends_with("3歳A")
+        || race_name.contains("2歳受賞")
     {
         Some("YA".to_string())
     } else if race_name.contains("2歳B-")
@@ -92,6 +93,7 @@ fn detect_class(race_name: &str, racecourse: &Racecourse) -> Option<String> {
         || race_name.ends_with("2歳D")
         || race_name.contains("3歳D-")
         || race_name.ends_with("3歳D")
+        || race_name.ends_with("2歳未受賞")
     {
         Some("YD".to_string())
     } else if race_name.contains("A-") || race_name.ends_with("A") {
@@ -120,42 +122,42 @@ pub fn scrap_racecard(
 
     let document = Html::parse_document(&body);
 
-    let selector_str = ".raceTable > table:nth-child(1) > tbody:nth-child(1)";
+    let selector_str = ".raceTable > table:nth-child(1) > tbody:nth-child(1) > tr.data";
     let selector = Selector::parse(selector_str).unwrap();
-    let tr_data_selector = Selector::parse("tr.data").unwrap();
     let td_selector = Selector::parse("td").unwrap();
 
-    let tbody = document.select(&selector).next().unwrap();
+    let td_data_select = document.select(&selector);
 
-    let td_data_element = tbody.select(&tr_data_selector);
-    let r = td_data_element
-        .map(|y| {
-            let td_element = y.select(&td_selector);
-            let td_element_vector = td_element
-                .map(|x| {
-                    x.text()
-                        .collect::<Vec<_>>()
-                        .join("")
-                        .trim()
-                        .nfkc()
-                        .collect::<String>()
-                })
-                .collect::<Vec<String>>();
+    let mut r = vec![];
 
-            RaceData {
-                race: td_element_vector[0].replace("R", "").parse().unwrap(),
-                posttime: to_some_string(&td_element_vector[1]),
-                change: to_some_string(&td_element_vector[2]),
-                racetype: to_some_string(&td_element_vector[3]),
-                name: to_some_string(&td_element_vector[4]),
-                class: detect_class(&td_element_vector[4], racecourse),
-                corse: to_some_string(&td_element_vector[5]),
-                weather: to_some_string(&td_element_vector[6]),
-                going: to_some_string(&td_element_vector[7]),
-                count: to_some_string(&td_element_vector[8]),
-            }
-        })
-        .collect::<Vec<RaceData>>();
+    for td_data_element in td_data_select{
+        let td_element = td_data_element.select(&td_selector);
+        let td_element_vector = td_element
+            .map(|x| {
+                x.text()
+                    .collect::<Vec<_>>()
+                    .join("")
+                    .trim()
+                    .nfkc()
+                    .collect::<String>()
+            })
+            .collect::<Vec<String>>();
+
+        let racedata = RaceData {
+            race: td_element_vector[0].replace("R", "").parse().unwrap(),
+            posttime: to_some_string(&td_element_vector[1]),
+            change: to_some_string(&td_element_vector[2]),
+            racetype: to_some_string(&td_element_vector[3]),
+            name: to_some_string(&td_element_vector[4]),
+            class: detect_class(&td_element_vector[4], racecourse),
+            corse: to_some_string(&td_element_vector[5]),
+            weather: to_some_string(&td_element_vector[6]),
+            going: to_some_string(&td_element_vector[7]),
+            count: to_some_string(&td_element_vector[8]),
+        };
+
+        r.push(racedata);
+    }
 
     Ok(r)
 }
