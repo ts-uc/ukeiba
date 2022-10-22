@@ -25,7 +25,9 @@ pub enum Racecourse {
 
 fn main() {
     env_logger::init();
-    let date = Local.ymd(2022, 8, 20);
+    let from_date = Local.ymd(2021, 10, 21);
+    let to_date = Local.ymd(2022, 10, 21);
     let racecourse = Racecourse::Obihiro;
-    scrap(date, racecourse);
+
+    scrap(from_date, to_date, racecourse);
 }
