@@ -22,7 +22,7 @@ impl Racecourse {
     }
 }
 
-fn get_url(date: Date<Local>, racecourse: Racecourse) -> String {
+fn get_url(date: &Date<Local>, racecourse: &Racecourse) -> String {
     format!(
         "https://www2.keiba.go.jp/KeibaWeb/TodayRaceInfo/RaceList?k_raceDate={}&k_babaCode={}",
         date.format("%Y/%m/%d"),
@@ -47,8 +47,8 @@ fn to_some_string(arg: &str) -> Option<String> {
 }
 
 pub fn scrap_racecard(
-    date: Date<Local>,
-    racecourse: Racecourse,
+    date: &Date<Local>,
+    racecourse: &Racecourse,
 ) -> Result<Vec<RaceData>, Box<dyn std::error::Error>> {
     // 当日メニューをスクレイピングし、ベクタ形式で返す
     let url = get_url(date, racecourse);

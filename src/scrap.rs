@@ -1,5 +1,6 @@
 mod keibagojp;
 mod keibagojp_racecard;
+mod write_racecard;
 
 use crate::Racecourse;
 
