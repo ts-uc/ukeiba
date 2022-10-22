@@ -1,4 +1,5 @@
 #![allow(unused)]
+//現在不使用。再使用予定
 
 use crate::Race;
 use crate::Racecourse;

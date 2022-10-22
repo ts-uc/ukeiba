@@ -1,4 +1,5 @@
 pub mod racedata;
+//現在不使用。再使用予定
 
 extern crate unicode_normalization;
 
