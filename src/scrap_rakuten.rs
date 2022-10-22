@@ -20,7 +20,7 @@ impl Race {
             self.date.format("%Y%m%d"),
             match self.racecourse {
                 Racecourse::Obihiro => 3,
-                Racecourse::Monbetsu => todo!()
+                _ => todo!()
             },
             self.num
         )
