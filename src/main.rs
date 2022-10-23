@@ -1,27 +1,10 @@
 //#![deny(warnings)]
 mod scrap;
+mod enums;
 
 use chrono::prelude::*;
 use scrap::scrap;
-
-#[derive(Debug)]
-pub enum Racecourse {
-    Obihiro,
-    Monbetsu,
-    Morioka,
-    Mizusawa,
-    Urawa,
-    Funabashi,
-    Ohi,
-    Kawasaki,
-    Kanazawa,
-    Kasamatsu,
-    Nagoya,
-    Sonoda,
-    Himeji,
-    Kochi,
-    Saga,
-}
+use enums::*;
 
 fn main() {
     env_logger::init();

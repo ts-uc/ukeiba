@@ -2,35 +2,17 @@ use chrono::{Date, Local};
 use scraper::{ElementRef, Html, Selector};
 
 use crate::scrap::RaceData;
-use crate::Racecourse;
+use crate::enums::*;
 
 use unicode_normalization::UnicodeNormalization;
 
 use super::CustomError;
 
-impl Racecourse {
-    fn get_babacode(&self) -> i32 {
-        match self {
-            Racecourse::Obihiro => 3,
-            Racecourse::Morioka => 10,
-            Racecourse::Mizusawa => 11,
-            Racecourse::Urawa => 18,
-            Racecourse::Kanazawa => 22,
-            Racecourse::Kasamatsu => 23,
-            Racecourse::Nagoya => 24,
-            Racecourse::Kochi => 31,
-            Racecourse::Saga => 32,
-            Racecourse::Monbetsu => 36,
-            _ => todo!(),
-        }
-    }
-}
-
 fn get_url(date: &Date<Local>, racecourse: &Racecourse) -> String {
     format!(
         "https://www2.keiba.go.jp/KeibaWeb/TodayRaceInfo/RaceList?k_raceDate={}&k_babaCode={}",
         date.format("%Y/%m/%d"),
-        racecourse.get_babacode()
+        racecourse.get_keibagojp_id()
     )
 }
 

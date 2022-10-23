@@ -45,11 +45,7 @@ pub fn scrap(from_date: Date<Local>, to_date: Date<Local>, racecourse: Racecours
         }
         match scrap_keibagojp(date, &racecourse) {
             Ok(_) => (),
-            Err(CustomError::NonBusinessDay) => {
-                date = date + chrono::Duration::days(1);
-                thread::sleep(std::time::Duration::from_secs(5));
-                continue;
-            }
+            Err(CustomError::NonBusinessDay) => (),
             Err(_) => {
                 break;
             }
