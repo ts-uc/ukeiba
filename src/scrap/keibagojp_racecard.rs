@@ -98,6 +98,57 @@ fn detect_class(race_name: &str, racecourse: &Racecourse) -> Option<String> {
     }
 }
 
+fn detect_corse(course: &str) -> (Option<String>, Option<String>, Option<i32>) {
+    if course == "" {
+        return (None, None, None);
+    };
+    let surface = if course.contains("芝") {
+        Some("芝".to_string())
+    } else {
+        Some("ダ".to_string())
+    };
+
+    let direction = if course.contains("右") {
+        Some("右".to_string())
+    } else if course.contains("左") {
+        Some("左".to_string())
+    } else if course.contains("直") {
+        Some("直".to_string())
+    } else {
+        None
+    };
+
+    let distance = course
+        .replace("芝", "")
+        .replace("右", "")
+        .replace("左", "")
+        .replace("直", "")
+        .replace("m", "")
+        .parse()
+        .ok();
+
+    (surface, direction, distance)
+}
+
+fn detect_going(raw_going: &str) -> (Option<String>, Option<f64>) {
+    if raw_going == "" {
+        return (None, None);
+    };
+
+    let going = match raw_going {
+        "良" => Some("良".to_string()),
+        "稍重" => Some("稍重".to_string()),
+        "重" => Some("重".to_string()),
+        "不良" => Some("不良".to_string()),
+        _ => None,
+    };
+
+    let moisture: Option<f64> = raw_going.parse().ok();
+
+    (going, moisture)
+}
+
+
 pub fn scrap_racecard(
     date: &Date<Local>,
     racecourse: &Racecourse,
@@ -132,18 +183,26 @@ pub fn scrap_racecard(
                     .collect::<String>()
             })
             .collect::<Vec<String>>();
+        
+        let (surface, direction, distance) = detect_corse(&td_element_vector[5]);
+        let (going, moisture) = detect_going(&td_element_vector[7]);
 
         let racedata = RaceData {
-            race: td_element_vector[0].replace("R", "").parse().unwrap(),
+            date: date.clone(),
+            racecourse: racecourse.clone(),
+            race: *&td_element_vector[0].replace("R", "").parse().unwrap(),
             posttime: to_some_string(&td_element_vector[1]),
             change: to_some_string(&td_element_vector[2]),
             racetype: to_some_string(&td_element_vector[3]),
             name: to_some_string(&td_element_vector[4]),
             class: detect_class(&td_element_vector[4], racecourse),
-            corse: to_some_string(&td_element_vector[5]),
+            surface: surface,
+            direction: direction,
+            distance: distance,
             weather: to_some_string(&td_element_vector[6]),
-            going: to_some_string(&td_element_vector[7]),
-            count: to_some_string(&td_element_vector[8]),
+            going: going,
+            moisture: moisture,
+            count: *&td_element_vector[8].parse().ok(),
         };
 
         r.push(racedata);

@@ -13,16 +13,21 @@ use self::keibagojp::scrap_keibagojp;
 
 #[derive(Debug)]
 pub struct RaceData {
+    date: Date<Local>,
+    racecourse: Racecourse,
     race: i32,
     posttime: Option<String>,
     change: Option<String>,
     racetype: Option<String>,
     name: Option<String>,
     class: Option<String>,
-    corse: Option<String>,
+    surface: Option<String>,
+    direction: Option<String>,
+    distance: Option<i32>,
     weather: Option<String>,
     going: Option<String>,
-    count: Option<String>,
+    moisture: Option<f64>,
+    count: Option<i32>,
 }
 
 //指定した日付・競馬場のデータをWebサイトから取得し、sqliteに書き込む
