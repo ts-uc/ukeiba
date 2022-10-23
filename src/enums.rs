@@ -14,7 +14,7 @@ pub enum CustomError {
     SelectorParseError,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Racecourse {
     Obihiro,
     Monbetsu,
@@ -33,8 +33,8 @@ pub enum Racecourse {
     Saga,
 }
 
-impl Racecourse{
-    pub fn get_name(&self) -> String{
+impl Racecourse {
+    pub fn get_name(&self) -> String {
         match self {
             Racecourse::Monbetsu => "門別",
             Racecourse::Obihiro => "帯広",
@@ -51,10 +51,11 @@ impl Racecourse{
             Racecourse::Himeji => "姫路",
             Racecourse::Kochi => "高知",
             Racecourse::Saga => "佐賀",
-        }.to_string()
+        }
+        .to_string()
     }
 
-    pub fn get_keibagojp_id(&self) -> i32{
+    pub fn get_keibagojp_id(&self) -> i32 {
         match self {
             Racecourse::Obihiro => 3,
             Racecourse::Monbetsu => 36,
@@ -74,7 +75,7 @@ impl Racecourse{
         }
     }
 
-    pub fn get_jravan_id(&self) -> i32{
+    pub fn get_jravan_id(&self) -> i32 {
         match self {
             Racecourse::Obihiro => 33,
             Racecourse::Monbetsu => 30,

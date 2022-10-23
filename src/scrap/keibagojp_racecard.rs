@@ -1,8 +1,8 @@
 use chrono::{Date, Local};
 use scraper::{Html, Selector};
 
-use crate::scrap::RaceData;
 use crate::enums::*;
+use crate::scrap::RaceData;
 
 use unicode_normalization::UnicodeNormalization;
 
@@ -31,58 +31,68 @@ fn to_some_string(arg: &str) -> Option<String> {
 }
 
 fn detect_class(race_name: &str, racecourse: &Racecourse) -> Option<String> {
-    if race_name.contains("オープン-") {
-        Some("オープン".to_string())
-    } else if race_name.contains("A1-") || race_name.ends_with("A1") || race_name.contains("A1混合")
-    {
-        Some("A1".to_string())
-    } else if race_name.contains("A2-") || race_name.ends_with("A2") {
-        Some("A2".to_string())
-    } else if race_name.contains("B1-") || race_name.ends_with("B1") {
-        Some("B1".to_string())
-    } else if race_name.contains("B2-") || race_name.ends_with("A2") {
-        Some("B2".to_string())
-    } else if race_name.contains("B3-") || race_name.ends_with("A3") {
-        Some("B3".to_string())
-    } else if race_name.contains("B4-") || race_name.ends_with("B4") {
-        Some("B4".to_string())
-    } else if race_name.contains("C1-") || race_name.ends_with("C1") {
-        Some("C1".to_string())
-    } else if race_name.contains("C2-") || race_name.ends_with("C2") {
-        Some("C2".to_string())
-    } else if race_name.contains("2歳A-")
-        || race_name.ends_with("2歳A")
-        || race_name.contains("3歳A-")
-        || race_name.ends_with("3歳A")
-        || race_name.contains("2歳受賞")
-    {
-        Some("YA".to_string())
-    } else if race_name.contains("2歳B-")
-        || race_name.ends_with("2歳B")
-        || race_name.contains("3歳B-")
-        || race_name.ends_with("3歳B")
-    {
-        Some("YB".to_string())
-    } else if race_name.contains("2歳C-")
-        || race_name.ends_with("2歳C")
-        || race_name.contains("3歳C-")
-        || race_name.ends_with("3歳C")
-    {
-        Some("YC".to_string())
-    } else if race_name.contains("2歳D-")
-        || race_name.ends_with("2歳D")
-        || race_name.contains("3歳D-")
-        || race_name.ends_with("3歳D")
-        || race_name.ends_with("2歳未受賞")
-    {
-        Some("YD".to_string())
-    } else if race_name.contains("A-") || race_name.ends_with("A") {
-        Some("A".to_string())
-    } else if race_name.contains("B-") || race_name.ends_with("B") {
-        Some("B".to_string())
-    } else if race_name.contains("C-") || race_name.ends_with("C") {
-        Some("C".to_string())
-    } else if race_name.contains("2歳-") || race_name.ends_with("2歳") || race_name.contains("2歳新馬") { Some("Y".to_string())
+    if *racecourse == Racecourse::Obihiro {
+        if race_name.contains("オープン-") {
+            Some("オープン".to_string())
+        } else if race_name.contains("A1-")
+            || race_name.ends_with("A1")
+            || race_name.contains("A1混合")
+        {
+            Some("A1".to_string())
+        } else if race_name.contains("A2-") || race_name.ends_with("A2") {
+            Some("A2".to_string())
+        } else if race_name.contains("B1-") || race_name.ends_with("B1") {
+            Some("B1".to_string())
+        } else if race_name.contains("B2-") || race_name.ends_with("A2") {
+            Some("B2".to_string())
+        } else if race_name.contains("B3-") || race_name.ends_with("A3") {
+            Some("B3".to_string())
+        } else if race_name.contains("B4-") || race_name.ends_with("B4") {
+            Some("B4".to_string())
+        } else if race_name.contains("C1-") || race_name.ends_with("C1") {
+            Some("C1".to_string())
+        } else if race_name.contains("C2-") || race_name.ends_with("C2") {
+            Some("C2".to_string())
+        } else if race_name.contains("2歳A-")
+            || race_name.ends_with("2歳A")
+            || race_name.contains("3歳A-")
+            || race_name.ends_with("3歳A")
+            || race_name.contains("2歳受賞")
+        {
+            Some("YA".to_string())
+        } else if race_name.contains("2歳B-")
+            || race_name.ends_with("2歳B")
+            || race_name.contains("3歳B-")
+            || race_name.ends_with("3歳B")
+        {
+            Some("YB".to_string())
+        } else if race_name.contains("2歳C-")
+            || race_name.ends_with("2歳C")
+            || race_name.contains("3歳C-")
+            || race_name.ends_with("3歳C")
+        {
+            Some("YC".to_string())
+        } else if race_name.contains("2歳D-")
+            || race_name.ends_with("2歳D")
+            || race_name.contains("3歳D-")
+            || race_name.ends_with("3歳D")
+            || race_name.ends_with("2歳未受賞")
+        {
+            Some("YD".to_string())
+        } else if race_name.contains("A-") || race_name.ends_with("A") {
+            Some("A".to_string())
+        } else if race_name.contains("B-") || race_name.ends_with("B") {
+            Some("B".to_string())
+        } else if race_name.contains("C-") || race_name.ends_with("C") {
+            Some("C".to_string())
+        } else if race_name.contains("2歳-")
+            || race_name.ends_with("2歳")
+            || race_name.contains("2歳新馬")
+        {
+            Some("Y".to_string())
+        } else {
+            None
+        }
     } else {
         None
     }
@@ -110,7 +120,7 @@ pub fn scrap_racecard(
 
     let mut r = vec![];
 
-    for td_data_element in td_data_select{
+    for td_data_element in td_data_select {
         let td_element = td_data_element.select(&td_selector);
         let td_element_vector = td_element
             .map(|x| {
