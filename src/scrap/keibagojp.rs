@@ -8,7 +8,7 @@ use chrono::prelude::*;
 pub fn scrap_keibagojp(date:Date<Local>, racecourse:&Racecourse) -> Result<(), CustomError>{
     let racecard = scrap_racecard(&date, racecourse)?;
     println!("{:?}", &racecard);
-    insert_racecard(&date, racecourse, &racecard);
+    insert_racecard(&racecard);
 
     // 当日メニューをDBに書き込む
     // 各レースをスクレイピングする
