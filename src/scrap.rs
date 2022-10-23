@@ -2,25 +2,14 @@ mod keibagojp;
 mod keibagojp_racecard;
 mod write_racecard;
 
-use crate::Racecourse;
+use crate::enums::*;
 
 use chrono::prelude::*;
 use std::thread;
-use thiserror::Error;
 
 use self::keibagojp::scrap_keibagojp;
 
-#[derive(Error, Debug)]
-pub enum CustomError {
-    #[error("failed to fetch from web site")]
-    FetchingError,
 
-    #[error("failed to fetch from web site")]
-    NonBusinessDay,
-
-    #[error("data store disconnected")]
-    SelectorParseError,
-}
 
 #[derive(Debug)]
 pub struct RaceData {

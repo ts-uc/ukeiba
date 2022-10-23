@@ -1,3 +1,19 @@
+#![allow(unused)]
+
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum CustomError {
+    #[error("failed to fetch from web site")]
+    FetchingError,
+
+    #[error("failed to fetch from web site")]
+    NonBusinessDay,
+
+    #[error("data store disconnected")]
+    SelectorParseError,
+}
+
 #[derive(Debug)]
 pub enum Racecourse {
     Obihiro,

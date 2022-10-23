@@ -2,7 +2,7 @@ use crate::scrap::RaceData;
 use crate::enums::*;
 
 use chrono::prelude::*;
-use rusqlite::{Connection, Result};
+use rusqlite::{Connection};
 
 fn gen_raceid(date: &Date<Local>, racecourse: &Racecourse, race: i32) -> i64 {
     format!(

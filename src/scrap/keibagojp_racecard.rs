@@ -1,12 +1,10 @@
 use chrono::{Date, Local};
-use scraper::{ElementRef, Html, Selector};
+use scraper::{Html, Selector};
 
 use crate::scrap::RaceData;
 use crate::enums::*;
 
 use unicode_normalization::UnicodeNormalization;
-
-use super::CustomError;
 
 fn get_url(date: &Date<Local>, racecourse: &Racecourse) -> String {
     format!(
