@@ -1,6 +1,7 @@
 #![allow(unused)]
-
 use thiserror::Error;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 #[derive(Error, Debug)]
 pub enum CustomError {
@@ -14,7 +15,7 @@ pub enum CustomError {
     SelectorParseError,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, EnumIter)]
 pub enum Racecourse {
     Obihiro,
     Monbetsu,
