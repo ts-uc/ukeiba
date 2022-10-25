@@ -658,6 +658,7 @@ dependencies = [
  "strum_macros",
  "thiserror",
  "unicode-normalization",
+ "url",
 ]
 
 [[package]]

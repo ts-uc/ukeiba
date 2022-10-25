@@ -19,7 +19,7 @@ CREATE TABLE race (
     updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
 );
 
-CREATE TRIGGER trigger_test_updated_at AFTER UPDATE ON race
+CREATE TRIGGER trigger_race_updated_at AFTER UPDATE ON race
 BEGIN
     UPDATE race SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;
@@ -31,10 +31,10 @@ CREATE TABLE result (
     bracket_num INTEGER,
     arrival INTEGER,
     horse_name TEXT,
-    horse_id TEXT,
+    horse_id INTEGER,
     horse_affiliation TEXT,
     horse_sex TEXT,
-    horse_age TEXT,
+    horse_age INTEGER,
     weight_to_carry INTEGER,
     jockey TEXT,
     jockey_id INTEGER,
@@ -48,9 +48,9 @@ CREATE TABLE result (
     win_fav INTEGER,
     created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
     updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
-)
+);
 
-CREATE TRIGGER trigger_test_updated_at AFTER UPDATE ON result
+CREATE TRIGGER trigger_result_updated_at AFTER UPDATE ON result
 BEGIN
     UPDATE result SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;

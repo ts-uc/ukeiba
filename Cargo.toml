@@ -18,3 +18,4 @@ anyhow = { version = "1.0.0", default-features = false }
 rusqlite = "0.28.0"
 strum = "0.24"
 strum_macros = "0.24"
+url = "2.3.0"

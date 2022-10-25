@@ -11,8 +11,14 @@ pub enum CustomError {
     #[error("failed to fetch from web site")]
     NonBusinessDay,
 
+    #[error("race result info is not exist")]
+    RaceResultInfoIsNotExist,
+
     #[error("data store disconnected")]
     SelectorParseError,
+
+    #[error("an error occured")]
+    Error,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, EnumIter)]
