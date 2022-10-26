@@ -2,7 +2,9 @@ use chrono::{Date, Local};
 use scraper::{Html, Selector};
 
 use crate::enums::*;
-use crate::scrap::RaceData;
+use crate::common::RaceData;
+
+
 
 use unicode_normalization::UnicodeNormalization;
 
@@ -152,11 +154,9 @@ fn detect_going(raw_going: &str) -> (Option<String>, Option<f64>) {
 pub fn scrap_racecard(
     date: &Date<Local>,
     racecourse: &Racecourse,
+    body: &str,
 ) -> Result<Vec<RaceData>, CustomError> {
     // 当日メニューをスクレイピングし、ベクタ形式で返す
-    let url = get_url(date, racecourse);
-    let body = fetch(&url).ok().ok_or(CustomError::FetchingError)?;
-
     if body.contains("ご指定のレース一覧の情報がありません") {
         return Err(CustomError::NonBusinessDay);
     }

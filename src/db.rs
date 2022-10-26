@@ -1,33 +1,9 @@
 use crate::enums::*;
-use crate::scrap::RaceData;
-use crate::scrap::RaceResult;
+use crate::common::*;
 
 use chrono::prelude::*;
 use rusqlite::Connection;
 use rusqlite::params;
-
-fn gen_racehorseid(date: &Date<Local>, racecourse: &Racecourse, race: &i32, horse_num: &i32) -> i64 {
-    format!(
-        "{}{:02}{:02}{:02}",
-        date.format("%Y%m%d"),
-        racecourse.get_jravan_id(),
-        race,
-        horse_num
-    )
-    .parse()
-    .unwrap()
-}
-
-fn gen_raceid(date: &Date<Local>, racecourse: &Racecourse, race: &i32) -> i64 {
-    format!(
-        "{}{:02}{:02}",
-        date.format("%Y%m%d"),
-        racecourse.get_jravan_id(),
-        race
-    )
-    .parse()
-    .unwrap()
-}
 
 fn gen_date(date: &Date<Local>) -> String {
     format!("{}", date.format("%Y-%m-%d"))
