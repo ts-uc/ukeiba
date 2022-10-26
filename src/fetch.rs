@@ -17,3 +17,13 @@ pub fn fetch_racelist(date: &Date<Local>, racecourse: &Racecourse) -> Result<Str
     );
     fetch(&url)
 }
+
+pub fn fetch_race(date: &Date<Local>, racecourse: &Racecourse, race: &i32) -> Result<String, Box<dyn std::error::Error>> {
+    let url = format!(
+        "https://www2.keiba.go.jp/KeibaWeb/TodayRaceInfo/RaceMarkTable?k_raceDate={}&k_raceNo={}&k_babaCode={}",
+        date.format("%Y/%m/%d"),
+        race,
+        racecourse.get_keibagojp_id()
+    );
+    fetch(&url)
+}

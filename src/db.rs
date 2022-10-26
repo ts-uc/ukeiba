@@ -3,6 +3,7 @@ use crate::common::*;
 
 use chrono::prelude::*;
 use rusqlite::Connection;
+use rusqlite::Statement;
 use rusqlite::params;
 
 fn gen_date(date: &Date<Local>) -> String {
@@ -91,4 +92,22 @@ pub fn insert_result(racecard: &Vec<RaceResult>) {
         )
         .unwrap();
     }
+}
+
+#[derive(Debug)]
+pub struct RaceIdStruct{pub race_id: i64}
+
+pub fn select_raceid () -> Vec<i64>{
+    let path = "./ukeiba.db3";
+    let conn = Connection::open(&path).unwrap();
+
+    let mut stmt = conn.prepare("SELECT race_id FROM race").unwrap();
+    let person_iter = stmt.query_map(params![], |row| {
+        Ok(RaceIdStruct{race_id: row.get_unwrap(0)})
+    }).unwrap();
+
+    person_iter.map(|p| p.unwrap().race_id).collect()
+    // for p in person_iter{
+    //     println!("{:?}", p.unwrap().race_id);
+    // }
 }

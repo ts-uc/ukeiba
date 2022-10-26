@@ -6,10 +6,10 @@ mod fetch;
 mod file;
 mod scrap;
 
-use crate::fetch::fetch_racelist;
+use crate::fetch::*;
 use crate::scrap::keibagojp_racecard::scrap_racecard;
 use chrono::prelude::*;
-use db::insert_racecard;
+use db::{insert_racecard, select_raceid};
 use enums::*;
 use file::*;
 use std::thread;
@@ -37,21 +37,42 @@ fn main() {
     //     thread::sleep(std::time::Duration::from_secs(3));
     // }
 
-    for item in racelist_dir().into_iter() {
-        let path = item.unwrap().path();
-        let file_name = path.file_name().unwrap().to_str().unwrap();
+    // for item in racelist_dir().into_iter() {
+    //     let path = item.unwrap().path();
+    //     let file_name = path.file_name().unwrap().to_str().unwrap();
+    //     let date = Local.ymd(
+    //         file_name[9..13].parse().unwrap(),
+    //         file_name[13..15].parse().unwrap(),
+    //         file_name[15..17].parse().unwrap(),
+    //     );
+    //     let racecourse = Racecourse::Obihiro;
+    //     let body = std::fs::read_to_string(&path).unwrap();
+
+    //     match scrap_racecard(&date, &racecourse, &body) {
+    //         Ok(x) => {insert_racecard(&x);},
+    //         Err(_) => (),
+    //     }
+    // }
+
+    for race_id in select_raceid() {
+        let race_id = race_id.to_string();
         let date = Local.ymd(
-            file_name[9..13].parse().unwrap(),
-            file_name[13..15].parse().unwrap(),
-            file_name[15..17].parse().unwrap(),
+            race_id[0..4].parse().unwrap(),
+            race_id[4..6].parse().unwrap(),
+            race_id[6..8].parse().unwrap(),
         );
         let racecourse = Racecourse::Obihiro;
-        let body = std::fs::read_to_string(&path).unwrap();
+        let race: i32 = race_id[10..12].parse().unwrap();
 
-        match scrap_racecard(&date, &racecourse, &body) {
-            Ok(x) => {insert_racecard(&x);},
-            Err(_) => (),
-        }
+        match fetch_race(&date, &racecourse, &race) {
+            Ok(body) => {
+                save_race(&date, &racecourse, &race, &body);
+            }
+            Err(_) => {
+                break;
+            }
+        };
+        thread::sleep(std::time::Duration::from_secs(3));
     }
 
     // scrap(from_date, to_date, racecourse);
