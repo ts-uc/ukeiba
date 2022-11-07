@@ -35,10 +35,32 @@ pub fn save_race(date: &Date<Local>, racecourse: &Racecourse, race: &i32, body: 
     file.write_all(b).unwrap();
 }
 
+pub fn save_odds_oddspark(date: &Date<Local>, racecourse: &Racecourse, race: &i32, body: &str) {
+    let b = body.as_bytes();
+    let filename = dirs::data_dir()
+        .unwrap()
+        .join("ukeiba")
+        .join("odds_oddspark")
+        .join(format!(
+            "odds_{}.html",
+            gen_raceid(&date, &racecourse, &race)
+        ));
+    let mut file = File::create(filename).unwrap();
+    file.write_all(b).unwrap();
+}
+
 pub fn racelist_dir() -> ReadDir{
     let path = dirs::data_dir()
     .unwrap()
     .join("ukeiba")
     .join("racelist");
+    fs::read_dir(path).unwrap()
+}
+
+pub fn race_dir() -> ReadDir{
+    let path = dirs::data_dir()
+    .unwrap()
+    .join("ukeiba")
+    .join("race");
     fs::read_dir(path).unwrap()
 }

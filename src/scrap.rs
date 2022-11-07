@@ -1,6 +1,6 @@
 // mod keibagojp;
 pub mod keibagojp_racecard;
-// mod keibagojp_result;
+pub mod keibagojp_result;
 // mod write_racecard;
 
 

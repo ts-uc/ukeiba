@@ -2,27 +2,10 @@ use chrono::{Date, Local};
 use scraper::{ElementRef, Html, Selector};
 
 use crate::enums::*;
-use crate::scrap::RaceResult;
+use crate::common::RaceResult;
 
 use unicode_normalization::UnicodeNormalization;
 use url::Url;
-
-fn get_url(date: &Date<Local>, racecourse: &Racecourse, race: &i32) -> String {
-    format!(
-        "https://www2.keiba.go.jp/KeibaWeb/TodayRaceInfo/RaceMarkTable?k_raceDate={}&k_raceNo={}&k_babaCode={}",
-        date.format("%Y/%m/%d"),
-        race,
-        racecourse.get_keibagojp_id()
-    )
-}
-
-fn fetch(url: &str) -> Result<String, Box<dyn std::error::Error>> {
-    eprintln!("Fetching {:?}...", &url);
-    let res = reqwest::blocking::get(url)?;
-    eprintln!("Response: {:?} {}", &res.version(), &res.status());
-    let body = res.text()?.to_string();
-    Ok(body)
-}
 
 fn to_some_string(arg: &str) -> Option<String> {
     if arg.is_empty() {
@@ -54,10 +37,8 @@ pub fn scrap_result(
     date: &Date<Local>,
     racecourse: &Racecourse,
     race: &i32,
+    body: &str,
 ) -> Result<Vec<RaceResult>, CustomError> {
-    // 当日メニューをスクレイピングし、ベクタ形式で返す
-    let url = get_url(date, racecourse, race);
-    let body = fetch(&url).ok().ok_or(CustomError::FetchingError)?;
 
     //println!("{}", body);
     if body.contains("ご指定のレース成績の情報がありません") {

@@ -27,3 +27,13 @@ pub fn fetch_race(date: &Date<Local>, racecourse: &Racecourse, race: &i32) -> Re
     );
     fetch(&url)
 }
+
+pub fn fetch_odds(date: &Date<Local>, racecourse: &Racecourse, race: &i32) -> Result<String, Box<dyn std::error::Error>> {
+    let url = format!(
+        "https://www.oddspark.com/keiba/Odds.do?sponsorCd=04&opTrackCd={:02}&raceDy={}&raceNb={}&viewType=1&betType=1",
+        racecourse.get_keibagojp_id(),
+        date.format("%Y%m%d"),
+        race,
+    );
+    fetch(&url)
+}
