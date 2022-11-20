@@ -6,10 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+log = "0.4"
+env_logger = "0.9"
+clap = { version = "4.0", features = ["derive"] }
 reqwest = { version = "0.11.0", features = ["blocking"] }
 scraper = "0.13.0"
-log = "0.4.0"
-env_logger = "0.9.0"
 chrono = "0.4.0"
 unicode-normalization = "0.1.0"
 cssparser = "0.27.0"
