@@ -3,10 +3,11 @@ use crate::enums::Racecourse;
 use chrono::{Date, Local, TimeZone};
 use std::fmt;
 
-struct Race {
-    date: Date<Local>,
-    racecourse: Racecourse,
-    race_num: i32,
+#[derive(Debug)]
+pub struct Race {
+    pub date: Date<Local>,
+    pub racecourse: Racecourse,
+    pub race_num: i32,
 }
 
 impl fmt::Display for Race {
@@ -36,4 +37,10 @@ impl std::str::FromStr for Race {
             race_num: s[10..12].parse().unwrap(),
         })
     }
+}
+
+impl Race{
+    pub fn gen_date(&self) -> String {
+        format!("{}", self.date.format("%Y-%m-%d"))
+    }    
 }

@@ -1,14 +1,15 @@
 #![allow(unused)]
-use crate::enums::Racecourse;
+use crate::{enums::Racecourse, common::date_racecourse, reader::racelist::RaceList};
 use chrono::{Date, Local, TimeZone};
 use std::fmt;
 
-struct DataRacecourse {
-    date: Date<Local>,
-    racecourse: Racecourse,
+#[derive ( Debug)]
+pub struct DateRacecourse {
+    pub date: Date<Local>,
+    pub racecourse: Racecourse,
 }
 
-impl fmt::Display for DataRacecourse {
+impl fmt::Display for DateRacecourse {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -19,7 +20,7 @@ impl fmt::Display for DataRacecourse {
     }
 }
 
-impl std::str::FromStr for DataRacecourse {
+impl std::str::FromStr for DateRacecourse {
     type Err = std::convert::Infallible;
 
     #[inline]
@@ -32,5 +33,11 @@ impl std::str::FromStr for DataRacecourse {
             ),
             racecourse: s[8..10].parse::<Racecourse>().unwrap(),
         })
+    }
+}
+
+impl DateRacecourse{
+    pub fn make_racelist_reader(self) -> RaceList{
+        RaceList::new(self)
     }
 }
