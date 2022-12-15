@@ -22,7 +22,7 @@ struct Args {
 
     /// Fetching from web
     #[arg(long)]
-    fetch: bool,
+    force_fetch: bool,
 
     /// From date
     #[arg(long)]
@@ -73,21 +73,19 @@ fn main() {
         panic!();
     }
 
-    if args.fetch && args.mode == Mode::Racelist && args.racecourse == None{
-        eprintln!("fetchが有効 かつ modeがRacelist のときは、Racecourseが必須項目となります");
+    if args.mode == Mode::Racelist && args.racecourse == None{
+        eprintln!("modeがRacelist のときは、Racecourseが必須項目となります");
         panic!();
     }
 
     // hontai
-    if args.fetch && args.mode == Mode::Racelist {
+    if args.mode == Mode::Racelist {
         let mut date = to_date;
         let racecourse = args.racecourse.unwrap();
         loop {
             if date < from_date {
                 break;
             }
-
-            std::thread::sleep(std::time::Duration::from_secs(2));
 
             let dateracecourse = DateRacecourse {
                 date: date,
@@ -97,8 +95,7 @@ fn main() {
             log::info!("{:?}", dateracecourse);
 
             let racelist = dateracecourse.make_racelist_reader();
-            let text = racelist.fetch_string();
-            racelist.save_string(&text);
+            racelist.get_save_string(args.force_fetch);
         
             date = date - chrono::Duration::days(1);
         }
