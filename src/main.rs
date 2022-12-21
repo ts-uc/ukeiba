@@ -4,6 +4,7 @@ mod reader;
 //mod webpage;
 use chrono::{Duration, Local, NaiveDate, TimeZone};
 use clap::{Parser, ValueEnum};
+use indicatif::ProgressBar;
 use enums::Racecourse;
 
 use crate::{common::{date_racecourse::DateRacecourse}, reader::Reader};
@@ -47,9 +48,17 @@ enum Mode {
 }
 
 fn main() {
-    std::env::set_var("RUST_LOG", "info");
     env_logger::init();
     let args = Args::parse();
+
+    if args.debug{
+        std::env::set_var("RUST_LOG", "info");
+    }
+    else{
+        std::env::set_var("RUST_LOG", "error");
+    }
+    
+
 
     let from_date = match args.from {
         Some(ref value) => {
@@ -67,8 +76,10 @@ fn main() {
         None => Local::today() - Duration::days(1),
     };
 
+    let day_count = (to_date - from_date).num_days();
+
     // validation
-    if to_date < from_date {
+    if day_count < 0 {
         eprintln!("エラー: to は from よりも後の日付を指定してください。");
         panic!();
     }
@@ -80,12 +91,11 @@ fn main() {
 
     // hontai
     if args.mode == Mode::Racelist {
-        let mut date = to_date;
         let racecourse = args.racecourse.unwrap();
-        loop {
-            if date < from_date {
-                break;
-            }
+        let pb = ProgressBar::new((day_count+1).try_into().unwrap());
+        for day in 0..=day_count {
+            pb.inc(1);
+            let date = to_date - Duration::days(day);
 
             let dateracecourse = DateRacecourse {
                 date: date,
@@ -96,9 +106,6 @@ fn main() {
 
             let racelist = dateracecourse.make_racelist_reader();
             racelist.get_save_string(args.force_fetch);
-        
-            date = date - chrono::Duration::days(1);
         }
     }
-
 }
