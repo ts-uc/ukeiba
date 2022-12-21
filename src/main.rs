@@ -3,11 +3,11 @@ mod enums;
 mod reader;
 //mod webpage;
 use chrono::{Duration, Local, NaiveDate, TimeZone};
-use clap::{Parser, ValueEnum};
-use indicatif::ProgressBar;
+use clap::{Parser, Subcommand};
 use enums::Racecourse;
+use indicatif::ProgressBar;
 
-use crate::{common::{date_racecourse::DateRacecourse}, reader::Reader};
+use crate::{common::date_racecourse::DateRacecourse, reader::Reader};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -33,32 +33,25 @@ struct Args {
     #[arg(long)]
     to: Option<String>,
 
-    /// Racecourse Name
-    #[arg(long, value_enum)]
-    racecourse: Option<Racecourse>,
-
-    #[arg(value_enum)]
+    #[command(subcommand)]
     mode: Mode,
 }
 
-#[derive(ValueEnum, Debug, Clone, PartialEq)]
+#[derive(Subcommand, Debug)]
 enum Mode {
-    Racelist,
-    Race,
+    Racelist { racecourse: Racecourse },
+    Race { racecouse: Option<Racecourse> },
 }
 
 fn main() {
     env_logger::init();
     let args = Args::parse();
 
-    if args.debug{
+    if args.debug {
         std::env::set_var("RUST_LOG", "info");
-    }
-    else{
+    } else {
         std::env::set_var("RUST_LOG", "error");
     }
-    
-
 
     let from_date = match args.from {
         Some(ref value) => {
@@ -84,28 +77,29 @@ fn main() {
         panic!();
     }
 
-    if args.mode == Mode::Racelist && args.racecourse == None{
-        eprintln!("modeがRacelist のときは、Racecourseが必須項目となります");
-        panic!();
-    }
-
     // hontai
-    if args.mode == Mode::Racelist {
-        let racecourse = args.racecourse.unwrap();
-        let pb = ProgressBar::new((day_count+1).try_into().unwrap());
-        for day in 0..=day_count {
-            pb.inc(1);
-            let date = to_date - Duration::days(day);
+    match args.mode {
+        Mode::Racelist { racecourse } => {
+            let pb = ProgressBar::new((day_count + 1).try_into().unwrap());
+            for day in 0..=day_count {
+                pb.inc(1);
+                let date = to_date - Duration::days(day);
 
-            let dateracecourse = DateRacecourse {
-                date: date,
-                racecourse: racecourse,
-            };
+                let dateracecourse = DateRacecourse {
+                    date: date,
+                    racecourse: racecourse,
+                };
 
-            log::info!("{:?}", dateracecourse);
+                log::info!("{:?}", dateracecourse);
 
-            let racelist = dateracecourse.make_racelist_reader();
-            racelist.get_save_string(args.force_fetch);
+                let racelist = dateracecourse.make_racelist_reader();
+                racelist.get_save_string(args.force_fetch);
+            }
+        }
+
+        Mode::Race { racecouse } => {
+            println! {"{:?}", racecouse};
+            todo!()
         }
     }
 }
