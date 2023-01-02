@@ -1,14 +1,10 @@
-use super::WebPage;
-use crate::common::date_racecourse::DateRacecourse;
-use crate::common::race;
-use crate::common::race::Race;
-use crate::enums::CustomError;
-use rusqlite::params;
-use rusqlite::Connection;
+use crate::{common::date_racecourse::DateRacecourse, db::Db};
+//use crate::common::race;
+//use crate::common::race::Race;
 use scraper::{Html, Selector};
-use core::panic;
-use std::fs::File;
-use std::io::Write;
+//use core::panic;
+use crate::db::DbType;
+use crate::db::RaceListData;
 use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug)]
@@ -33,36 +29,18 @@ pub struct RaceData {
     pub horse_count: Option<i32>,
 }
 
-impl WebPage for PageRaceList {
-    fn save_to_file(&self) -> () {
-        let b = self.html.as_bytes();
-        let filename = dirs::data_dir()
-            .unwrap()
-            .join("ukeiba")
-            .join("racelist")
-            .join(format!(
-                "racelist_{}.html",
-                self.date_racecourse.to_string()
-            ));
-        let mut file = File::create(filename).unwrap();
-        file.write_all(b).unwrap();
-    }
-
-    fn save_to_db(&self) -> () {
-        let racelist = self.scrap_racecard();
-        println!("{:?}", racelist);
-        // match racelist {
-        //     Ok(races) => update_db(&races),
-        //     Err(_) => return,
-        // }
-    }
-}
-
 impl PageRaceList {
-    pub fn scrap_racecard(&self) -> Result<Vec<RaceData>, CustomError> {
+    pub fn new(html: String, date_racecourse: DateRacecourse) -> PageRaceList {
+        PageRaceList {
+            html: html,
+            date_racecourse: date_racecourse,
+        }
+    }
+
+    fn scrap(&self) -> Vec<RaceData> {
         // 当日メニューをスクレイピングし、ベクタ形式で返す
         if self.html.contains("ご指定のレース一覧の情報がありません") {
-            return Err(CustomError::NonBusinessDay);
+            return Vec::new();
         }
 
         let document = Html::parse_document(&self.html);
@@ -108,49 +86,41 @@ impl PageRaceList {
             };
             r.push(racedata);
         }
-        println!("{:?}", r);
-
-        Ok(r)
+        r
     }
 
-    pub fn update_db(races: &Vec<RaceData>) {
-        todo!()
-        // let path = "./ukeiba.db";
-        // let conn = Connection::open(&path).unwrap();
-    
-        // for racedata in races {
-        //     conn.execute(
-        //         "REPLACE  INTO race (
-        //             race_id, race_date, racecource, race_num, post_time,
-        //             change, race_type, race_name, surface,
-        //             direction, distance, weather, going, moisture,
-        //             horse_count) 
-        //             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)",
-        //         params![
-        //             &racedata.race.to_string().parse::<i32>().unwrap(),
-        //             &racedata.race.gen_date(),
-        //             &racedata.race.racecourse.get_name(),
-        //             &racedata.race.race_num,
-        //             &racedata.post_time,
-        //             //
-        //             &racedata.change,
-        //             &racedata.race_type,
-        //             &racedata.race_name,
-        //             &racedata.surface,
-        //             //
-        //             &racedata.distance,
-        //             &racedata.direction,
-        //             &racedata.weather,
-        //             &racedata.going,
-        //             &racedata.moisture,
-        //             //
-        //             &racedata.horse_count,
-        //         ],
-        //     )
-        //     .unwrap();
-        // }
+    pub fn db(&self) -> Db {
+        let scrapped = self.scrap();
+        let mut _dbtype_vec: Vec<DbType> = Vec::new();
+        for _racedata in scrapped {
+            let _dbtype = DbType::RaceList(RaceListData {
+                race_id: self
+                    .date_racecourse
+                    .to_race(_racedata.race_num)
+                    .to_string()
+                    .parse()
+                    .unwrap(),
+                race_date: self.date_racecourse.date.to_string(),
+                racecourse: self.date_racecourse.racecourse.to_string(),
+                race_num: _racedata.race_num,
+                post_time: _racedata.post_time,
+
+                change: _racedata.change,
+                race_type: _racedata.race_type,
+                race_name: _racedata.race_name,
+                surface: _racedata.surface,
+                direction: _racedata.direction,
+
+                distance: _racedata.distance,
+                weather: _racedata.weather,
+                going: _racedata.going,
+                moisture: _racedata.moisture,
+                horse_count: _racedata.horse_count,
+            });
+            _dbtype_vec.push(_dbtype);
+        }
+        Db::new(_dbtype_vec)
     }
-    
 }
 
 fn to_some_string(arg: &str) -> Option<String> {

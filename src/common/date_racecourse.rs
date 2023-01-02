@@ -3,7 +3,9 @@ use crate::{enums::Racecourse, common::date_racecourse, reader::racelist::RaceLi
 use chrono::{Date, Local, TimeZone};
 use std::fmt;
 
-#[derive ( Debug)]
+use super::race::Race;
+
+#[derive ( Debug, Clone, Copy)]
 pub struct DateRacecourse {
     pub date: Date<Local>,
     pub racecourse: Racecourse,
@@ -39,5 +41,13 @@ impl std::str::FromStr for DateRacecourse {
 impl DateRacecourse{
     pub fn make_racelist_reader(self) -> RaceList{
         RaceList::new(self)
+    }
+
+    pub fn to_race(self, race_num: i32) -> Race{
+        Race{
+            date: self.date,
+            racecourse: self.racecourse,
+            race_num: race_num
+        }
     }
 }

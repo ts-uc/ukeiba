@@ -1,13 +1,13 @@
 mod common;
 mod enums;
 mod reader;
-//mod webpage;
+mod db;
+mod webpage;
+use crate::common::date_racecourse::DateRacecourse;
 use chrono::{Duration, Local, NaiveDate, TimeZone};
 use clap::{Parser, Subcommand};
 use enums::Racecourse;
 use indicatif::ProgressBar;
-
-use crate::{common::date_racecourse::DateRacecourse, reader::Reader};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -24,6 +24,9 @@ struct Args {
     /// Fetching from web
     #[arg(long)]
     force_fetch: bool,
+
+    #[arg(long)]
+    not_save: bool,
 
     /// From date
     #[arg(long)]
@@ -92,8 +95,10 @@ fn main() {
 
                 log::info!("{:?}", dateracecourse);
 
-                let racelist = dateracecourse.make_racelist_reader();
-                racelist.get_save_string(args.force_fetch);
+                let racelist = dateracecourse
+                    .make_racelist_reader()
+                    .get(args.force_fetch, !args.not_save);
+                racelist.db().debug();
             }
         }
 

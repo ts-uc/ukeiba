@@ -1,12 +1,16 @@
-use crate::common::date_racecourse::DateRacecourse;
+use crate::{common::date_racecourse::DateRacecourse, webpage::racelist::PageRaceList};
 
 use super::Reader;
 
 pub struct RaceList(DateRacecourse);
 
-impl RaceList{
-    pub fn new(date_racecourse: DateRacecourse) -> RaceList{
+impl RaceList {
+    pub fn new(date_racecourse: DateRacecourse) -> RaceList {
         RaceList(date_racecourse)
+    }
+
+    pub fn get(&self, is_force_fetch: bool, is_save: bool) -> PageRaceList {
+        PageRaceList::new(self.get_string(is_force_fetch, is_save).unwrap(), self.0)
     }
 }
 
