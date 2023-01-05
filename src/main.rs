@@ -98,7 +98,7 @@ fn main() {
                 let racelist = dateracecourse
                     .make_racelist_reader()
                     .get(args.force_fetch, !args.not_save);
-                racelist.db().debug();
+                racelist.db().execute();
             }
         }
 

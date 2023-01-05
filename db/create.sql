@@ -1,29 +1,32 @@
-CREATE TABLE races (
+CREATE TABLE IF NOT EXISTS races (
     race_id INTEGER PRIMARY KEY,
     race_date TEXT NOT NULL,
     racecourse TEXT NOT NULL,
     race_num INTEGER NOT NULL,
     post_time TEXT,
+
     change TEXT,
     race_type TEXT,
     race_name TEXT,
     surface TEXT,               
     direction TEXT,
+
     distance INTEGER,
     weather TEXT,
     going TEXT,
     moisture REAL,
     horse_count INTEGER,
+
     created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
     updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
 );
 
-CREATE TRIGGER trigger_races_updated_at AFTER UPDATE ON races
+CREATE TRIGGER IF NOT EXISTS trigger_races_updated_at AFTER UPDATE ON races
 BEGIN
     UPDATE races SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;
 
-CREATE TABLE race_horses (
+CREATE TABLE IF NOT EXISTS race_horses (
     race_horse_id INTEGER PRIMARY KEY,
     race_id INTEGER NOT NULL,
     horse_num INTEGER NOT NULL,
@@ -50,12 +53,12 @@ CREATE TABLE race_horses (
     updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
 );
 
-CREATE TRIGGER trigger_race_horses_updated_at AFTER UPDATE ON race_horses
+CREATE TRIGGER IF NOT EXISTS trigger_race_horses_updated_at AFTER UPDATE ON race_horses
 BEGIN
     UPDATE race_horses SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;
 
-CREATE TABLE horses (
+CREATE TABLE IF NOT EXISTS horses (
     horse_id INTEGER PRIMARY KEY,
     horse_name TEXT,
     sire_name TEXT,
@@ -70,12 +73,12 @@ CREATE TABLE horses (
     updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
 );
 
-CREATE TRIGGER trigger_horses_updated_at AFTER UPDATE ON horses
+CREATE TRIGGER IF NOT EXISTS trigger_horses_updated_at AFTER UPDATE ON horses
 BEGIN
     UPDATE horses SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;
 
-CREATE TABLE jockeys (
+CREATE TABLE IF NOT EXISTS jockeys (
     jockey_id INTEGER PRIMARY KEY,
     jockey_name TEXT,
     jockey_sex TEXT,
@@ -85,12 +88,12 @@ CREATE TABLE jockeys (
     updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
 );
 
-CREATE TRIGGER trigger_jockeys_updated_at AFTER UPDATE ON jockeys
+CREATE TRIGGER IF NOT EXISTS trigger_jockeys_updated_at AFTER UPDATE ON jockeys
 BEGIN
     UPDATE jockeys SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;
 
-CREATE TABLE trainers (
+CREATE TABLE IF NOT EXISTS trainers (
     trainer_id INTEGER PRIMARY KEY,
     trainer_name TEXT,
     trainer_sex TEXT,
@@ -100,7 +103,7 @@ CREATE TABLE trainers (
     updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
 );
 
-CREATE TRIGGER trigger_trainers_updated_at AFTER UPDATE ON trainers
+CREATE TRIGGER IF NOT EXISTS trigger_trainers_updated_at AFTER UPDATE ON trainers
 BEGIN
     UPDATE trainers SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
 END;

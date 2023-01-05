@@ -16,7 +16,7 @@ unicode-normalization = "0.1.0"
 cssparser = "0.27.0"
 thiserror = "1.0.0"
 anyhow = { version = "1.0.0", default-features = false }
-sqlx = {  version = "0.6", features = ["sqlite", "runtime-tokio-native-tls"] }
+rusqlite = "0.28.0"
 strum = "0.24"
 strum_macros = "0.24"
 url = "2.3.0"
