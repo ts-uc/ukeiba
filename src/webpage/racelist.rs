@@ -1,10 +1,10 @@
-use crate::{common::date_racecourse::DateRacecourse, db::Db};
+use crate::{common::date_racecourse::DateRacecourse, db_writer::Db};
 //use crate::common::race;
 //use crate::common::race::Race;
 use scraper::{Html, Selector};
 //use core::panic;
-use crate::db::DbType;
-use crate::db::RaceListData;
+use crate::db_writer::DbType;
+use crate::db_writer::racelist::RaceListData;
 use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug)]

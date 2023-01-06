@@ -1,13 +1,15 @@
 mod common;
 mod enums;
 mod reader;
-mod db;
+mod db_writer;
 mod webpage;
 use crate::common::date_racecourse::DateRacecourse;
 use chrono::{Duration, Local, NaiveDate, TimeZone};
 use clap::{Parser, Subcommand};
 use enums::Racecourse;
 use indicatif::ProgressBar;
+use crate::db_writer::initialize::Initialize;
+use crate::db_writer::Executer;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -51,9 +53,9 @@ fn main() {
     let args = Args::parse();
 
     if args.debug {
-        std::env::set_var("RUST_LOG", "info");
+        std::env::set_var("RUST_LOG", "debug");
     } else {
-        std::env::set_var("RUST_LOG", "error");
+        std::env::set_var("RUST_LOG", "info");
     }
 
     let from_date = match args.from {
@@ -81,6 +83,8 @@ fn main() {
     }
 
     // hontai
+    Initialize::new().execute();
+
     match args.mode {
         Mode::Racelist { racecourse } => {
             let pb = ProgressBar::new((day_count + 1).try_into().unwrap());
@@ -104,7 +108,6 @@ fn main() {
 
         Mode::Race { racecouse } => {
             println! {"{:?}", racecouse};
-            todo!()
         }
     }
 }
