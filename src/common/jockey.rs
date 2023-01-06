@@ -1,6 +1,3 @@
-#![allow(unused)]
-use crate::enums::Racecourse;
-use chrono::{Date, Local};
 use std::fmt;
 
 struct Jockey{

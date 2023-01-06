@@ -1,15 +1,15 @@
 mod common;
+mod db_writer;
 mod enums;
 mod reader;
-mod db_writer;
 mod webpage;
 use crate::common::date_racecourse::DateRacecourse;
-use chrono::{Duration, Local, NaiveDate, TimeZone};
+use crate::db_writer::initialize::Initialize;
+use crate::db_writer::Executer;
+use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use enums::Racecourse;
 use indicatif::ProgressBar;
-use crate::db_writer::initialize::Initialize;
-use crate::db_writer::Executer;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -59,19 +59,13 @@ fn main() {
     }
 
     let from_date = match args.from {
-        Some(ref value) => {
-            let native_date = NaiveDate::parse_from_str(&value, "%Y-%m-%d").unwrap();
-            Local.from_local_date(&native_date).unwrap()
-        }
-        None => Local::today() - Duration::days(1),
+        Some(ref value) => NaiveDate::parse_from_str(&value, "%Y-%m-%d").unwrap(),
+        None => Local::today().naive_local() - Duration::days(1),
     };
 
     let to_date = match args.to {
-        Some(ref value) => {
-            let native_date = NaiveDate::parse_from_str(&value, "%Y-%m-%d").unwrap();
-            Local.from_local_date(&native_date).unwrap()
-        }
-        None => Local::today() - Duration::days(1),
+        Some(ref value) => NaiveDate::parse_from_str(&value, "%Y-%m-%d").unwrap(),
+        None => Local::today().naive_local() - Duration::days(1),
     };
 
     let day_count = (to_date - from_date).num_days();

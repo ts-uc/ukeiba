@@ -1,13 +1,13 @@
 #![allow(unused)]
 use crate::{enums::Racecourse, common::date_racecourse, reader::racelist::RaceList};
-use chrono::{Date, Local, TimeZone};
+use chrono::{Date, TimeZone, NaiveDate};
 use std::fmt;
 
 use super::race::Race;
 
 #[derive ( Debug, Clone, Copy)]
 pub struct DateRacecourse {
-    pub date: Date<Local>,
+    pub date: NaiveDate,
     pub racecourse: Racecourse,
 }
 
@@ -28,7 +28,7 @@ impl std::str::FromStr for DateRacecourse {
     #[inline]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self {
-            date: Local.ymd(
+            date: NaiveDate::from_ymd(
                 s[0..4].parse().unwrap(),
                 s[4..6].parse().unwrap(),
                 s[6..8].parse().unwrap(),

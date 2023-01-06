@@ -1,10 +1,10 @@
 #![allow(unused)]
 use crate::enums::Racecourse;
-use chrono::{Date, Local, TimeZone};
+use chrono::{Date, TimeZone, NaiveDate};
 use std::fmt;
 
 struct RaceHorse {
-    date: Date<Local>,
+    date: NaiveDate,
     racecourse: Racecourse,
     race_num: i32,
     horse_num: i32,
@@ -29,7 +29,7 @@ impl std::str::FromStr for RaceHorse {
     #[inline]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self {
-            date: Local.ymd(
+            date: NaiveDate::from_ymd(
                 s[0..4].parse().unwrap(),
                 s[4..6].parse().unwrap(),
                 s[6..8].parse().unwrap(),
