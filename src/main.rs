@@ -1,9 +1,12 @@
 mod common;
+mod db_reader;
 mod db_writer;
 mod enums;
 mod reader;
 mod webpage;
-use crate::common::date_racecourse::DateRacecourse;
+use crate::common::race::Race;
+use crate::reader::race::RaceReader;
+use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
 use crate::db_writer::initialize::Initialize;
 use crate::db_writer::Executer;
 use chrono::{Duration, Local, NaiveDate};
@@ -102,6 +105,13 @@ fn main() {
 
         Mode::Race { racecouse } => {
             println! {"{:?}", racecouse};
+            let racelist = get_racelist();
+            let pb = ProgressBar::new(racelist.len() as u64);
+            for race_id in racelist{
+                pb.inc(1);
+                let race = Race::from_race_id(race_id);
+                RaceReader::new(race).get(args.force_fetch, !args.not_save);
+            }
         }
     }
 }

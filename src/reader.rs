@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::prelude::*;
 
 pub mod racelist;
+pub mod race;
 
 // pub trait Reader<T> where T: super::WebPage,
 
