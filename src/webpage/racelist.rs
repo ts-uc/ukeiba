@@ -97,9 +97,7 @@ impl PageRaceList {
                 race_id: self
                     .date_racecourse
                     .to_race(_racedata.race_num)
-                    .to_string()
-                    .parse()
-                    .unwrap(),
+                    .to_race_id(),
                 race_date: self.date_racecourse.date.to_string(),
                 racecourse: self.date_racecourse.racecourse.to_string(),
                 race_num: _racedata.race_num,

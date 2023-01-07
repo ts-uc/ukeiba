@@ -1,3 +1,4 @@
+#![allow(unused)]
 pub mod racelist;
 pub mod initialize;
 use rusqlite::Connection;
@@ -56,7 +57,7 @@ impl Executer for Db{
             db_type.conn_execute(&conn)
         }
     }
-    
+
     fn execute(&self) {
         if self.0.is_empty() {
             return;

@@ -54,6 +54,15 @@ impl fmt::Display for Racecourse {
 }
 
 impl Racecourse {
+    pub fn from_jravan_id(id: i32) -> Self{
+        match id{
+            31 => Self::Kitami,
+            32 => Self::Iwamizawa,
+            33 => Self::Obihiro,
+            34 => Self::Asahikawa,
+            _ => panic!()
+        }
+    }
     pub fn get_name(&self) -> String {
         match self {
             // Racecourse::Monbetsu => "門別",
