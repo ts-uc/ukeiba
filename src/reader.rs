@@ -18,7 +18,7 @@ pub trait Reader {
     fn get_url(&self) -> String;
 
     fn fetch_string(&self) -> Option<String> {
-        std::thread::sleep(std::time::Duration::from_secs(2));
+        std::thread::sleep(std::time::Duration::from_millis(1000));
         let url = self.get_url();
         log::info!("fetching {}", url);
         let res = reqwest::blocking::get(url).ok()?;
