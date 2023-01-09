@@ -110,7 +110,7 @@ fn main() {
             for race_id in racelist{
                 pb.inc(1);
                 let race = Race::from_race_id(race_id);
-                RaceReader::new(race).get(args.force_fetch, !args.not_save);
+                RaceReader::new(race).get(args.force_fetch, !args.not_save).db().execute();
             }
         }
     }

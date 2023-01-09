@@ -12,7 +12,7 @@ impl Initialize{
 
 impl Executer for Initialize{
     fn conn_execute(&self, conn: &Connection){
-        conn.execute(
+        conn.execute_batch(
             "
             CREATE TABLE IF NOT EXISTS races (
                 race_id INTEGER PRIMARY KEY,
@@ -47,15 +47,21 @@ impl Executer for Initialize{
                 race_id INTEGER NOT NULL,
                 horse_num INTEGER NOT NULL,
                 bracket_num INTEGER,
-                arrival INTEGER,
-                horse_id INTEGER,
+                horse_name TEXT,
                 horse_sex TEXT,
                 horse_age INTEGER,
-                weight_to_carry INTEGER,
+                horse_id INTEGER,
+                jockey_name TEXT,
                 jockey_id INTEGER,
+                trainer_name TEXT,
                 trainer_id INTEGER,
+                change TEXT,
+                owner_name TEXT,
+                weight_mark TEXT,
+                weight_to_carry INTEGER,
                 horse_weight INTEGER,
                 horse_weight_delta INTEGER,
+                arrival INTEGER,
                 finish_time REAL,
                 margin_time REAL,
                 margin TEXT,
@@ -124,7 +130,6 @@ impl Executer for Initialize{
                 UPDATE trainers SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
             END;
             ",
-            ()
         ).unwrap();
 
     }

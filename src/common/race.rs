@@ -2,6 +2,8 @@ use crate::enums::Racecourse;
 use chrono::{Datelike, NaiveDate};
 use std::fmt;
 
+use super::race_horse::RaceHorse;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Race {
     pub date: NaiveDate,
@@ -17,7 +19,7 @@ impl fmt::Display for Race {
 
 impl Race {
     pub fn from_race_id(race_id: i64) -> Self {
-        let year = (race_id / 100000000);
+        let year = race_id / 100000000;
         let month = (race_id / 1000000) % 100;
         let day = (race_id / 10000) % 100;
         let racecourse = (race_id / 100) % 100;
@@ -42,5 +44,14 @@ impl Race {
             + (self.date.day() as i64) * 10000
             + (self.racecourse as i64) * 100
             + self.race_num as i64
+    }
+
+    pub fn to_race_horse(&self, horse_num: i32) -> RaceHorse {
+        RaceHorse {
+            date: self.date,
+            racecourse: self.racecourse,
+            race_num: self.race_num,
+            horse_num: horse_num,
+        }
     }
 }

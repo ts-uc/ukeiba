@@ -1,8 +1,10 @@
 #![allow(unused)]
 pub mod racelist;
+pub mod race;
 pub mod initialize;
 use rusqlite::Connection;
 use crate::db_writer::racelist::RaceListData;
+use crate::db_writer::race::RaceData;
 use crate::db_writer::initialize::Initialize;
 
 pub trait Executer{
@@ -21,6 +23,7 @@ pub trait Executer{
 pub enum DbType {
     Initialize,
     RaceList(RaceListData),
+    Race(RaceData),
 }
 
 impl Executer for DbType{
@@ -31,6 +34,9 @@ impl Executer for DbType{
             },
             DbType::RaceList(data) => {
                 data.conn_execute(&conn);
+            }
+            DbType::Race(data) => {
+                data.conn_execute(&conn)
             }
         }
     }
