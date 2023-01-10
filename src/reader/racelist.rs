@@ -2,11 +2,11 @@ use crate::{common::date_racecourse::DateRacecourse, webpage::racelist::PageRace
 
 use super::Reader;
 
-pub struct RaceList(DateRacecourse);
+pub struct RaceListReader(DateRacecourse);
 
-impl RaceList {
-    pub fn new(date_racecourse: DateRacecourse) -> RaceList {
-        RaceList(date_racecourse)
+impl RaceListReader {
+    pub fn new(date_racecourse: DateRacecourse) -> Self {
+        Self(date_racecourse)
     }
 
     pub fn get(&self, is_force_fetch: bool, is_save: bool) -> PageRaceList {
@@ -14,7 +14,7 @@ impl RaceList {
     }
 }
 
-impl Reader for RaceList {
+impl Reader for RaceListReader {
     fn get_url(&self) -> String {
         format!(
             "https://www2.keiba.go.jp/KeibaWeb/TodayRaceInfo/RaceList?k_raceDate={}&k_babaCode={}",

@@ -1,11 +1,10 @@
 use crate::common::race::Race;
 use crate::db_writer::race::RaceData;
-use crate::{common::date_racecourse::DateRacecourse, db_writer::Db};
+use crate::db_writer::Db;
 //use crate::common::race;
 //use crate::common::race::Race;
-use scraper::{ElementRef, Html, Selector};
+use scraper::{Html, Selector};
 //use core::panic;
-use crate::db_writer::racelist::RaceListData;
 use crate::db_writer::DbType;
 use unicode_normalization::UnicodeNormalization;
 use url::Url;

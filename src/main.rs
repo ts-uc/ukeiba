@@ -5,10 +5,11 @@ mod enums;
 mod reader;
 mod webpage;
 use crate::common::race::Race;
-use crate::reader::race::RaceReader;
-use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
 use crate::db_writer::initialize::Initialize;
 use crate::db_writer::Executer;
+use crate::reader::race::RaceReader;
+use crate::reader::racelist::RaceListReader;
+use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
 use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use enums::Racecourse;
@@ -89,27 +90,24 @@ fn main() {
                 pb.inc(1);
                 let date = to_date - Duration::days(day);
 
-                let dateracecourse = DateRacecourse {
-                    date: date,
-                    racecourse: racecourse,
-                };
-
-                log::info!("{:?}", dateracecourse);
-
-                let racelist = dateracecourse
-                    .make_racelist_reader()
-                    .get(args.force_fetch, !args.not_save);
-                racelist.db().execute();
+                let dateracecourse = DateRacecourse::new(date, racecourse);
+                RaceListReader::new(dateracecourse)
+                    .get(args.force_fetch, !args.not_save)
+                    .db()
+                    .execute();
             }
         }
 
         Mode::Race { racecouse } => {
             let racelist = get_racelist(from_date, to_date);
             let pb = ProgressBar::new(racelist.len() as u64);
-            for race_id in racelist{
+            for race_id in racelist {
                 pb.inc(1);
                 let race = Race::from_race_id(race_id);
-                RaceReader::new(race).get(args.force_fetch, !args.not_save).db().execute();
+                RaceReader::new(race)
+                    .get(args.force_fetch, !args.not_save)
+                    .db()
+                    .execute();
             }
         }
     }
