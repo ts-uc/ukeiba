@@ -98,7 +98,7 @@ fn main() {
             }
         }
 
-        Mode::Race { racecouse } => {
+        Mode::Race { racecouse: _ } => {
             let racelist = get_racelist(from_date, to_date);
             let pb = ProgressBar::new(racelist.len() as u64);
             for race_id in racelist {

@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use crate::{enums::Racecourse};
 use chrono::{Datelike, NaiveDate};
 use std::fmt;

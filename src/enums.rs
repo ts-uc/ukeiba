@@ -1,27 +1,7 @@
-#![allow(unused)]
-use strum::IntoEnumIterator;
+#![allow(dead_code)]
 use strum_macros::EnumIter;
-use thiserror::Error;
 use clap::ValueEnum;
 use std::fmt;
-
-#[derive(Error, Debug)]
-pub enum CustomError {
-    #[error("failed to fetch from web site")]
-    FetchingError,
-
-    #[error("failed to fetch from web site")]
-    NonBusinessDay,
-
-    #[error("race result info is not exist")]
-    RaceResultInfoIsNotExist,
-
-    #[error("data store disconnected")]
-    SelectorParseError,
-
-    #[error("an error occured")]
-    Error,
-}
 
 #[derive(Debug, PartialEq, Eq, Clone, Copy, EnumIter, ValueEnum)]
 pub enum Racecourse {

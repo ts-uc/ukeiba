@@ -1,10 +1,7 @@
 use crate::common::race::Race;
 use crate::db_writer::race::RaceData;
 use crate::db_writer::Db;
-//use crate::common::race;
-//use crate::common::race::Race;
 use scraper::{Html, Selector};
-//use core::panic;
 use crate::db_writer::DbType;
 use unicode_normalization::UnicodeNormalization;
 use url::Url;
@@ -28,9 +25,7 @@ impl PageRace {
 
         let selector_str = ".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr";
         let selector = Selector::parse(selector_str).unwrap();
-        let tr_selector = Selector::parse("tr").unwrap();
 
-        let td_data_select = document.select(&selector).next();
         let horse_count = ((document.select(&selector).count() - 2) / 5) as i32;
 
         let mut race_horse_list: Vec<DbType> = Vec::new();
