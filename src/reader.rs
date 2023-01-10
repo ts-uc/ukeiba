@@ -6,6 +6,8 @@ use std::io::prelude::*;
 
 pub mod racelist;
 pub mod race;
+pub mod horse_history;
+pub mod horse_profile;
 
 // pub trait Reader<T> where T: super::WebPage,
 
@@ -18,7 +20,7 @@ pub trait Reader {
     fn get_url(&self) -> String;
 
     fn fetch_string(&self) -> Option<String> {
-        std::thread::sleep(std::time::Duration::from_millis(1000));
+        std::thread::sleep(std::time::Duration::from_millis(2000));
         let url = self.get_url();
         log::info!("fetching {}", url);
         let res = reqwest::blocking::get(url).ok()?;

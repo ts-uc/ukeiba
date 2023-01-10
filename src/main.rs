@@ -12,8 +12,12 @@ use crate::reader::racelist::RaceListReader;
 use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
 use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
+use common::horse::Horse;
+use db_reader::get_horselist;
 use enums::Racecourse;
 use indicatif::ProgressBar;
+use reader::horse_history::HorseHistoryReader;
+use reader::horse_profile::HorseProfileReader;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -50,6 +54,8 @@ struct Args {
 enum Mode {
     Racelist { racecourse: Racecourse },
     Race { racecouse: Option<Racecourse> },
+    HorseHistory,
+    HorseProfile,
 }
 
 fn main() {
@@ -110,5 +116,26 @@ fn main() {
                     .execute();
             }
         }
+
+        Mode::HorseHistory => {
+            let horselist = get_horselist(from_date, to_date);
+            let pb = ProgressBar::new(horselist.len() as u64);
+            for horse_id in horselist {
+                pb.inc(1);
+                let horse = Horse::new(horse_id);
+                HorseHistoryReader::new(horse).get(args.force_fetch, !args.not_save);
+            }
+        }
+
+        Mode::HorseProfile => {
+            let horselist = get_horselist(from_date, to_date);
+            let pb = ProgressBar::new(horselist.len() as u64);
+            for horse_id in horselist {
+                pb.inc(1);
+                let horse = Horse::new(horse_id);
+                HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save);
+            }
+        }
+
     }
 }
