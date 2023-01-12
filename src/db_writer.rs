@@ -2,10 +2,15 @@
 pub mod racelist;
 pub mod race;
 pub mod initialize;
+pub mod horse_history_race;
+pub mod horse_history_racehorse;
 use rusqlite::Connection;
 use crate::db_writer::racelist::RaceListData;
 use crate::db_writer::race::RaceData;
 use crate::db_writer::initialize::Initialize;
+
+use self::horse_history_race::HorseHistoryRaceData;
+use self::horse_history_racehorse::HorseHistoryRaceHorse;
 
 pub trait Executer{
     fn conn_execute(&self, conn: &Connection);
@@ -24,6 +29,8 @@ pub enum DbType {
     Initialize,
     RaceList(RaceListData),
     Race(RaceData),
+    HorseHistoryRace(HorseHistoryRaceData),
+    HorseHistoryRaceHorse(HorseHistoryRaceHorse)
 }
 
 impl Executer for DbType{
@@ -36,6 +43,12 @@ impl Executer for DbType{
                 data.conn_execute(&conn);
             }
             DbType::Race(data) => {
+                data.conn_execute(&conn)
+            }
+            DbType::HorseHistoryRace(data) => {
+                data.conn_execute(&conn)
+            }
+            DbType::HorseHistoryRaceHorse(data) => {
                 data.conn_execute(&conn)
             }
         }

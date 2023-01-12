@@ -123,7 +123,7 @@ fn main() {
             for horse_id in horselist {
                 pb.inc(1);
                 let horse = Horse::new(horse_id);
-                HorseHistoryReader::new(horse).get(args.force_fetch, !args.not_save);
+                HorseHistoryReader::new(horse).get(args.force_fetch, !args.not_save).db().execute();
             }
         }
 

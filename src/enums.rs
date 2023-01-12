@@ -43,6 +43,16 @@ impl Racecourse {
             _ => panic!()
         }
     }
+
+    pub fn from_str(name: &str) -> Self{
+        match name{
+            "北見" => Self::Kitami,
+            "岩見沢" => Self::Iwamizawa,
+            "帯広" => Self::Obihiro,
+            "旭川" => Self::Asahikawa,
+            _ => panic!()
+         } }
+
     pub fn get_name(&self) -> String {
         match self {
             // Racecourse::Monbetsu => "門別",
