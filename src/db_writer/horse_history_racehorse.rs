@@ -31,14 +31,13 @@ impl Executer for HorseHistoryRaceHorse{
                 "INSERT INTO race_horses (
                     race_horse_id, race_id, bracket_num, horse_num, win_fav,
                     arrival, finish_time, margin_time, last_3f, horse_weight, 
-                    jockey_name, weight_to_carry, trainer_name, prize, horse_id,
+                    jockey_name, weight_to_carry, trainer_name, prize, horse_id
                     ) 
                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
-                    ON CONFLICT(racehorse_id) DO UPDATE SET
+                    ON CONFLICT (race_horse_id) DO UPDATE SET
                     race_id = ?2, bracket_num = ?3, horse_num = ?4, win_fav = ?5,
-                    arrival = ?6, finish_time = ?7, margin_time = ?8, last_3f = ?9, horse_weight = ?10,
-                    jockey_name = ?11, weight_to_carry = ?12, trainer_name = ?13, prize = ?14, horse_id = ?15",
-    
+                    arrival = ?6, finish_time = ?7, margin_time = ?8, last_3f = ?9,
+                    prize = ?14",
             params![
                 self.racehorse_id,
                 self.race_id,
