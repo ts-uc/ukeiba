@@ -7,7 +7,7 @@ use crate::db_writer::horse_history_racehorse::HorseHistoryRaceHorse;
 use crate::db_writer::race::RaceData;
 use crate::db_writer::Db;
 use crate::db_writer::DbType;
-use crate::enums::Racecourse;
+use crate::common::racecourse::Racecourse;
 use crate::webpage::grid_scrapper;
 use chrono::NaiveDate;
 use scraper::{Html, Selector};

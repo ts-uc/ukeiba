@@ -1,4 +1,4 @@
-use crate::enums::Racecourse;
+use crate::common::racecourse::Racecourse;
 use chrono::{Datelike, NaiveDate};
 use std::fmt;
 

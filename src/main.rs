@@ -1,7 +1,6 @@
 mod common;
 mod db_reader;
 mod db_writer;
-mod enums;
 mod reader;
 mod webpage;
 use crate::common::race::Race;
@@ -14,7 +13,7 @@ use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use common::horse::Horse;
 use db_reader::get_horselist;
-use enums::Racecourse;
+use crate::common::racecourse::Racecourse;
 use indicatif::ProgressBar;
 use reader::horse_history::HorseHistoryReader;
 use reader::horse_profile::HorseProfileReader;
