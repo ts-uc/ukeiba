@@ -9,6 +9,7 @@ pub enum Racecourse {
     Iwamizawa = 32,
     Obihiro = 33,
     Asahikawa = 34,
+    Other = 99,
     // Monbetsu = 30,
     // Morioka = 35,
     // Mizusawa = 36,
@@ -40,7 +41,7 @@ impl Racecourse {
             32 => Self::Iwamizawa,
             33 => Self::Obihiro,
             34 => Self::Asahikawa,
-            _ => panic!()
+            _ => Racecourse::Other
         }
     }
 
@@ -50,7 +51,7 @@ impl Racecourse {
             "岩見沢" => Self::Iwamizawa,
             "帯広" => Self::Obihiro,
             "旭川" => Self::Asahikawa,
-            _ => panic!()
+            _ => Racecourse::Other
          } }
 
     pub fn get_name(&self) -> String {
@@ -60,6 +61,7 @@ impl Racecourse {
             Racecourse::Iwamizawa => "岩見沢",
             Racecourse::Obihiro => "帯広",
             Racecourse::Asahikawa => "旭川",
+            Racecourse::Other => "その他" 
             // Racecourse::Morioka => "盛岡",
             // Racecourse::Mizusawa => "水沢",
             // Racecourse::Urawa => "浦和",
@@ -83,6 +85,7 @@ impl Racecourse {
             Racecourse::Iwamizawa => 2,
             Racecourse::Obihiro => 3,
             Racecourse::Asahikawa => 4,
+            Racecourse::Other => 99,
             // Racecourse::Monbetsu => 36,
             // Racecourse::Morioka => 10,
             // Racecourse::Mizusawa => 11,
@@ -106,6 +109,7 @@ impl Racecourse {
             Racecourse::Iwamizawa => 2,
             Racecourse::Obihiro => 3,
             Racecourse::Asahikawa => 5,
+            Racecourse::Other => 99,
             // Racecourse::Monbetsu => 0,
             // Racecourse::Morioka => 0,
             // Racecourse::Mizusawa => 0,
@@ -148,7 +152,7 @@ impl std::str::FromStr for Racecourse {
             // "51" => Racecourse::Himeji,
             // "54" => Racecourse::Kochi,
             // "55" => Racecourse::Saga,
-            _ => panic!(),
+            _ => Racecourse::Other,
         })
     }
 }
