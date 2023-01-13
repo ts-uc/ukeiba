@@ -1,8 +1,8 @@
 use crate::common::horse::Horse;
 use crate::common::race::Race;
 use crate::common::race_horse::RaceHorse;
-use crate::db_writer::horse_history_race::HorseHistoryRaceData;
-use crate::db_writer::horse_history_racehorse::HorseHistoryRaceHorse;
+use crate::db_writer::HorseHistoryRaceData;
+use crate::db_writer::HorseHistoryRaceHorse;
 use crate::db_writer::DbType;
 use crate::common::racecourse::Racecourse;
 use crate::webpage::grid_scrapper;

@@ -6,7 +6,6 @@ mod webpage;
 use crate::db_writer::DbType;
 use crate::db_writer::Db;
 use crate::common::race::Race;
-use crate::db_writer::Executer;
 use crate::reader::race::RaceReader;
 use crate::reader::racelist::RaceListReader;
 use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};

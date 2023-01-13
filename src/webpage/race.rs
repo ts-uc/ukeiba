@@ -1,5 +1,5 @@
 use crate::common::race::Race;
-use crate::db_writer::race::RaceData;
+use crate::db_writer::RaceData;
 use scraper::{Html, Selector};
 use crate::db_writer::DbType;
 use unicode_normalization::UnicodeNormalization;

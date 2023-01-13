@@ -1,21 +1,12 @@
 #![allow(unused)]
-pub mod racelist;
-pub mod race;
-pub mod horse_history_race;
-pub mod horse_history_racehorse;
-use rusqlite::Connection;
-use crate::db_writer::racelist::RaceListData;
-use crate::db_writer::race::RaceData;
+use rusqlite::{params, Connection};
 
-use self::horse_history_race::HorseHistoryRaceData;
-use self::horse_history_racehorse::HorseHistoryRaceHorse;
-
-fn get_conn() -> Connection{
+fn get_conn() -> Connection {
     let db_path = dirs::data_dir().unwrap().join("ukeiba").join("ukeiba.db");
     Connection::open(&db_path).unwrap()
 }
 
-pub fn initialize(){
+pub fn initialize() {
     let conn = get_conn();
     conn.execute_batch(
         "
@@ -138,12 +129,90 @@ pub fn initialize(){
     ).unwrap();
 }
 
-pub trait Executer{
-    fn conn_execute(&self, conn: &Connection);
-    fn execute(&self){
-        let conn = get_conn();
-        self.conn_execute(&conn)
-    }
+#[derive(Debug)]
+pub struct HorseHistoryRaceData {
+    pub race_id: i64,
+    pub race_date: String,
+    pub racecourse: String,
+    pub race_num: i32,
+    pub change: Option<String>,
+
+    pub race_type: Option<String>,
+    pub race_name: Option<String>,
+    pub surface: Option<String>,
+    pub distance: Option<String>,
+    pub weather: Option<String>,
+
+    pub going: Option<String>,
+    pub moisture: Option<String>,
+    pub horse_count: Option<String>,
+}
+
+#[derive(Debug)]
+pub struct HorseHistoryRaceHorse {
+    pub racehorse_id: i64,
+    pub race_id: i64,
+    pub bracket_num: i32,
+    pub horse_num: i32,
+    pub win_fav: Option<String>,
+
+    pub arrival: Option<String>,
+    pub finish_time: Option<String>,
+    pub margin_time: Option<String>,
+    pub last_3f: Option<String>,
+    pub horse_weight: Option<String>,
+
+    pub jockey_name: Option<String>,
+    pub weight_to_carry: Option<String>,
+    pub trainer_name: Option<String>,
+    pub prize: Option<String>,
+    pub horse_id: i64,
+    //    pub horse_name: String,
+}
+
+#[derive(Debug)]
+pub struct RaceData {
+    pub racehorse_id: i64,
+    pub race_id: i64,
+    pub horse_num: i32,
+    pub bracket_num: i32,
+    pub horse_name: String,
+
+    pub horse_sex: String,
+    pub horse_age: i32,
+    pub horse_id: Option<i64>,
+    pub jockey_name: String,
+    pub jockey_id: Option<i64>,
+
+    pub trainer_name: String,
+    pub trainer_id: Option<i64>,
+    pub change: String,
+    pub owner_name: String,
+    pub weight_mark: String,
+
+    pub weight_to_carry: String,
+    pub horse_weight: String,
+}
+
+#[derive(Debug)]
+pub struct RaceListData {
+    pub race_id: i64,
+    pub race_date: String,
+    pub racecourse: String,
+    pub race_num: i32,
+    pub post_time: Option<String>,
+
+    pub change: Option<String>,
+    pub race_type: Option<String>,
+    pub race_name: Option<String>,
+    pub surface: Option<String>,
+    pub direction: Option<String>,
+
+    pub distance: Option<i32>,
+    pub weather: Option<String>,
+    pub going: Option<String>,
+    pub moisture: Option<f64>,
+    pub horse_count: Option<i32>,
 }
 
 #[derive(Debug)]
@@ -151,26 +220,7 @@ pub enum DbType {
     RaceList(RaceListData),
     Race(RaceData),
     HorseHistoryRace(HorseHistoryRaceData),
-    HorseHistoryRaceHorse(HorseHistoryRaceHorse)
-}
-
-impl Executer for DbType{
-    fn conn_execute(&self, conn: &Connection){
-        match self {
-            DbType::RaceList(data) => {
-                data.conn_execute(&conn);
-            }
-            DbType::Race(data) => {
-                data.conn_execute(&conn)
-            }
-            DbType::HorseHistoryRace(data) => {
-                data.conn_execute(&conn)
-            }
-            DbType::HorseHistoryRaceHorse(data) => {
-                data.conn_execute(&conn)
-            }
-        }
-    }
+    HorseHistoryRaceHorse(HorseHistoryRaceHorse),
 }
 
 pub struct Db(Vec<DbType>);
@@ -180,29 +230,138 @@ impl Db {
         Db(data)
     }
 
-    pub fn debug(&self) {
-        println!("{:?}", self.0);
-    }
-}
-
-impl Executer for Db{
-    fn conn_execute(&self, conn: &Connection) {
-        if self.0.is_empty() {
-            return;
-        }
-        for db_type in &self.0 {
-            db_type.conn_execute(&conn)
-        }
-    }
-
-    fn execute(&self) {
+    pub fn execute(&self) {
         if self.0.is_empty() {
             return;
         }
         let conn = get_conn();
         let pb = indicatif::ProgressBar::new(self.0.len() as u64);
         for db_type in &self.0 {
-            db_type.conn_execute(&conn);
+            match db_type {
+                DbType::RaceList(data) => {
+                    conn.execute(
+                        "REPLACE  INTO races (
+                            race_id, race_date, racecourse, race_num, post_time,
+                            change, race_type, race_name,  surface, direction, 
+                            distance, weather, going, moisture, horse_count) 
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
+                        params![
+                            data.race_id,
+                            data.race_date,
+                            data.racecourse,
+                            data.race_num,
+                            data.post_time,
+                            //
+                            data.change,
+                            data.race_type,
+                            data.race_name,
+                            data.surface,
+                            data.direction,
+                            //
+                            data.distance,
+                            data.weather,
+                            data.going,
+                            data.moisture,
+                            data.horse_count
+                            ],
+                    )
+                    .unwrap();
+                }
+                DbType::Race(data) => {
+                    conn.execute(
+                        "REPLACE  INTO race_horses (
+                            race_horse_id, race_id, horse_num, bracket_num, horse_name,
+                            horse_sex, horse_age, horse_id, jockey_name, jockey_id, 
+                            trainer_name, trainer_id, change, owner_name, weight_mark,
+                            weight_to_carry, horse_weight) 
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17)",
+                        params![
+                            data.racehorse_id,
+                            data.race_id,
+                            data.horse_num,
+                            data.bracket_num,
+                            data.horse_name,
+                            //
+                            data.horse_sex,
+                            data.horse_age,
+                            data.horse_id,
+                            data.jockey_name,
+                            data.jockey_id,
+                            //
+                            data.trainer_name,
+                            data.trainer_id,
+                            data.change,
+                            data.owner_name,
+                            data.weight_mark,
+                            //
+                            data.weight_to_carry,
+                            data.horse_weight,
+                            ],
+                    )
+                    .unwrap();
+                }
+                DbType::HorseHistoryRace(data) => {
+                    conn.execute(
+                        "INSERT OR IGNORE INTO races (
+                            race_id, race_date, racecourse, race_num, change, 
+                            race_type, race_name,  surface, distance, weather, 
+                            going, moisture, horse_count) 
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
+                        params![
+                            data.race_id,
+                            data.race_date,
+                            data.racecourse,
+                            data.race_num,
+                            data.change,
+                            //
+                            data.race_type,
+                            data.race_name,
+                            data.surface,
+                            data.distance,
+                            data.weather,
+                            //
+                            data.going,
+                            data.moisture,
+                            data.horse_count
+                        ],
+                    )
+                    .unwrap();
+                }
+                DbType::HorseHistoryRaceHorse(data) => {
+                    conn.execute(
+                        "INSERT INTO race_horses (
+                            race_horse_id, race_id, bracket_num, horse_num, win_fav,
+                            arrival, finish_time, margin_time, last_3f, horse_weight, 
+                            jockey_name, weight_to_carry, trainer_name, prize, horse_id
+                            ) 
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
+                            ON CONFLICT (race_horse_id) DO UPDATE SET
+                            race_id = ?2, bracket_num = ?3, horse_num = ?4, win_fav = ?5,
+                            arrival = ?6, finish_time = ?7, margin_time = ?8, last_3f = ?9,
+                            prize = ?14",
+                    params![
+                        data.racehorse_id,
+                        data.race_id,
+                        data.bracket_num,
+                        data.horse_num,
+                        data.win_fav,
+                        //
+                        data.arrival,
+                        data.finish_time,
+                        data.margin_time,
+                        data.last_3f,
+                        data.horse_weight,
+                        //
+                        data.jockey_name,
+                        data.weight_to_carry,
+                        data.trainer_name,
+                        data.prize,
+                        data.horse_id,
+                        ],
+                )
+                .unwrap();
+                }
+            }
             pb.inc(1);
         }
     }

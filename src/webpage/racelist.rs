@@ -1,7 +1,7 @@
 use crate::{common::date_racecourse::DateRacecourse};
 use scraper::{Html, Selector};
 use crate::db_writer::DbType;
-use crate::db_writer::racelist::RaceListData;
+use crate::db_writer::RaceListData;
 use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug)]
