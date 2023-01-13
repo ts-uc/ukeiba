@@ -3,6 +3,8 @@ mod db_reader;
 mod db_writer;
 mod reader;
 mod webpage;
+use crate::db_writer::DbType;
+use crate::db_writer::Db;
 use crate::common::race::Race;
 use crate::db_writer::initialize::Initialize;
 use crate::db_writer::Executer;
@@ -91,39 +93,43 @@ fn main() {
     match args.mode {
         Mode::Racelist { racecourse } => {
             let pb = ProgressBar::new((day_count + 1).try_into().unwrap());
+            let mut queries: Vec<DbType> = Vec::new();
             for day in 0..=day_count {
                 pb.inc(1);
                 let date = to_date - Duration::days(day);
 
                 let dateracecourse = DateRacecourse::new(date, racecourse);
-                RaceListReader::new(dateracecourse)
-                    .get(args.force_fetch, !args.not_save)
-                    .db()
-                    .execute();
+                queries.extend(RaceListReader::new(dateracecourse)
+                .get(args.force_fetch, !args.not_save)
+                .db()) ;
             }
+            Db::new(queries).execute();
         }
 
         Mode::Race { racecouse: _ } => {
             let racelist = get_racelist(from_date, to_date);
             let pb = ProgressBar::new(racelist.len() as u64);
+            let mut queries: Vec<DbType> = Vec::new();
             for race_id in racelist {
                 pb.inc(1);
                 let race = Race::from_race_id(race_id);
-                RaceReader::new(race)
+                queries.extend(RaceReader::new(race)
                     .get(args.force_fetch, !args.not_save)
-                    .db()
-                    .execute();
+                    .db());
             }
+            Db::new(queries).execute();
         }
 
         Mode::HorseHistory => {
             let horselist = get_horselist(from_date, to_date);
             let pb = ProgressBar::new(horselist.len() as u64);
+            let mut queries: Vec<DbType> = Vec::new();
             for horse_id in horselist {
                 pb.inc(1);
                 let horse = Horse::new(horse_id);
-                HorseHistoryReader::new(horse).get(args.force_fetch, !args.not_save).db().execute();
+                queries.extend(HorseHistoryReader::new(horse).get(args.force_fetch, !args.not_save).db());
             }
+            Db::new(queries).execute();
         }
 
         Mode::HorseProfile => {

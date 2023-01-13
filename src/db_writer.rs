@@ -82,8 +82,10 @@ impl Executer for Db{
             return;
         }
         let conn = self.get_conn();
+        let pb = indicatif::ProgressBar::new(self.0.len() as u64);
         for db_type in &self.0 {
-            db_type.conn_execute(&conn)
+            db_type.conn_execute(&conn);
+            pb.inc(1);
         }
     }
 }

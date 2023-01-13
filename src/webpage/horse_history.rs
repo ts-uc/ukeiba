@@ -3,7 +3,6 @@ use crate::common::race::Race;
 use crate::common::race_horse::RaceHorse;
 use crate::db_writer::horse_history_race::HorseHistoryRaceData;
 use crate::db_writer::horse_history_racehorse::HorseHistoryRaceHorse;
-use crate::db_writer::Db;
 use crate::db_writer::DbType;
 use crate::common::racecourse::Racecourse;
 use crate::webpage::grid_scrapper;
@@ -24,7 +23,7 @@ impl PageHorseHistory {
         }
     }
 
-    pub fn db(&self) -> Db {
+    pub fn db(&self) -> Vec<DbType> {
         let document = Html::parse_document(&self.html);
         let row_selector = ".HorseMarkInfo_table > tbody:nth-child(2) > tr";
         let row_selector = Selector::parse(row_selector).unwrap();
@@ -88,6 +87,6 @@ impl PageHorseHistory {
             };
             data.push(DbType::HorseHistoryRaceHorse(horse_history_racehorse));
         }
-        Db::new(data)
+        data
     }
 }

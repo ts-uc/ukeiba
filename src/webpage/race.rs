@@ -1,6 +1,5 @@
 use crate::common::race::Race;
 use crate::db_writer::race::RaceData;
-use crate::db_writer::Db;
 use scraper::{Html, Selector};
 use crate::db_writer::DbType;
 use unicode_normalization::UnicodeNormalization;
@@ -20,7 +19,7 @@ impl PageRace {
         }
     }
 
-    pub fn db(&self) -> Db {
+    pub fn db(&self) -> Vec<DbType> {
         let document = Html::parse_document(&self.html);
 
         let selector_str = ".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr";
@@ -118,7 +117,7 @@ impl PageRace {
             };
             race_horse_list.push(DbType::Race(foo));
         }
-        Db::new(race_horse_list)
+        race_horse_list
     }
 }
 

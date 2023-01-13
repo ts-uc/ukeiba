@@ -1,4 +1,4 @@
-use crate::{common::date_racecourse::DateRacecourse, db_writer::Db};
+use crate::{common::date_racecourse::DateRacecourse};
 use scraper::{Html, Selector};
 use crate::db_writer::DbType;
 use crate::db_writer::racelist::RaceListData;
@@ -86,7 +86,7 @@ impl PageRaceList {
         r
     }
 
-    pub fn db(&self) -> Db {
+    pub fn db(&self) -> Vec<DbType> {
         let scrapped = self.scrap();
         let mut _dbtype_vec: Vec<DbType> = Vec::new();
         for _racedata in scrapped {
@@ -114,7 +114,7 @@ impl PageRaceList {
             });
             _dbtype_vec.push(_dbtype);
         }
-        Db::new(_dbtype_vec)
+        _dbtype_vec
     }
 }
 
