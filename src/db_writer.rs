@@ -234,12 +234,13 @@ impl Db {
         if self.0.is_empty() {
             return;
         }
-        let conn = get_conn();
+        let mut conn = get_conn();
+        let tx = conn.transaction().unwrap();
         let pb = indicatif::ProgressBar::new(self.0.len() as u64);
         for db_type in &self.0 {
             match db_type {
                 DbType::RaceList(data) => {
-                    conn.execute(
+                    tx.execute(
                         "REPLACE  INTO races (
                             race_id, race_date, racecourse, race_num, post_time,
                             change, race_type, race_name,  surface, direction, 
@@ -268,7 +269,7 @@ impl Db {
                     .unwrap();
                 }
                 DbType::Race(data) => {
-                    conn.execute(
+                    tx.execute(
                         "REPLACE  INTO race_horses (
                             race_horse_id, race_id, horse_num, bracket_num, horse_name,
                             horse_sex, horse_age, horse_id, jockey_name, jockey_id, 
@@ -301,7 +302,7 @@ impl Db {
                     .unwrap();
                 }
                 DbType::HorseHistoryRace(data) => {
-                    conn.execute(
+                    tx.execute(
                         "INSERT OR IGNORE INTO races (
                             race_id, race_date, racecourse, race_num, change, 
                             race_type, race_name,  surface, distance, weather, 
@@ -328,7 +329,7 @@ impl Db {
                     .unwrap();
                 }
                 DbType::HorseHistoryRaceHorse(data) => {
-                    conn.execute(
+                    tx.execute(
                         "INSERT INTO race_horses (
                             race_horse_id, race_id, bracket_num, horse_num, win_fav,
                             arrival, finish_time, margin_time, last_3f, horse_weight, 
@@ -364,5 +365,6 @@ impl Db {
             }
             pb.inc(1);
         }
+        tx.commit().unwrap();
     }
 }
