@@ -6,7 +6,6 @@ mod webpage;
 use crate::db_writer::DbType;
 use crate::db_writer::Db;
 use crate::common::race::Race;
-use crate::db_writer::initialize::Initialize;
 use crate::db_writer::Executer;
 use crate::reader::race::RaceReader;
 use crate::reader::racelist::RaceListReader;
@@ -88,7 +87,7 @@ fn main() {
     }
 
     // hontai
-    Initialize::new().execute();
+    db_writer::initialize();
 
     match args.mode {
         Mode::Racelist { racecourse } => {
