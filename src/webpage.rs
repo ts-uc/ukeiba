@@ -34,3 +34,21 @@ fn grid_scrapper(document: Html, row_selector: Selector, column_selector: Select
     }
     scrapped
 }
+
+fn detect_going(raw_going: &str) -> (Option<String>, Option<f64>) {
+    if raw_going == "" {
+        return (None, None);
+    };
+
+    let going = match raw_going {
+        "良" => Some("良".to_string()),
+        "稍重" => Some("稍重".to_string()),
+        "重" => Some("重".to_string()),
+        "不良" => Some("不良".to_string()),
+        _ => None,
+    };
+
+    let moisture: Option<f64> = raw_going.parse().ok();
+
+    (going, moisture)
+}

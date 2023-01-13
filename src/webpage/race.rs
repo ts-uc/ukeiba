@@ -1,7 +1,7 @@
 use crate::common::race::Race;
-use crate::db_writer::RaceData;
-use scraper::{Html, Selector};
 use crate::db_writer::DbType;
+use crate::db_writer::RaceHorses;
+use scraper::{Html, Selector};
 use unicode_normalization::UnicodeNormalization;
 use url::Url;
 
@@ -39,24 +39,26 @@ impl PageRace {
             let selector = Selector::parse(&selector_str).unwrap();
             let horse_name = text_getter(&document, &selector);
             let horse_id: Option<i64> = get_req_param_num(&document, &selector);
-            
+
             let selector_str = format!(
                 "tr.tBorder:nth-child({}) > td:nth-child({}) > a:nth-child(1)",
                 horse_num * 5 - 2,
                 4 - bracket_num_index
             );
             let selector = Selector::parse(&selector_str).unwrap();
-            let jockey_name = text_getter(&document, &selector).split("(")
-            .collect::<Vec<&str>>()[0]
-            .to_string();
-            let jockey_id: Option<i64> = get_req_param_num(&document, &selector);
+            let jockey_name = text_getter(&document, &selector)
+                .split("(")
+                .collect::<Vec<&str>>()[0]
+                .to_string();
+            let jockey_id: Option<i32> = get_req_param_num(&document, &selector);
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(2) > a:nth-child(1)", horse_num*5);
             let selector = Selector::parse(&selector_str).unwrap();
-            let trainer_name = text_getter(&document, &selector).split("(")
-            .collect::<Vec<&str>>()[0]
-            .to_string();
-            let trainer_id: Option<i64> = get_req_param_num(&document, &selector);
+            let trainer_name = text_getter(&document, &selector)
+                .split("(")
+                .collect::<Vec<&str>>()[0]
+                .to_string();
+            let trainer_id: Option<i32> = get_req_param_num(&document, &selector);
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(2)", horse_num*5+1);
             let selector = Selector::parse(&selector_str).unwrap();
@@ -77,11 +79,9 @@ impl PageRace {
                 "".to_string()
             };
 
-
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(3)", horse_num*5+2);
             let selector = Selector::parse(&selector_str).unwrap();
             let change = text_getter(&document, &selector);
-
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(3)", horse_num*5);
             let selector = Selector::parse(&selector_str).unwrap();
@@ -90,31 +90,42 @@ impl PageRace {
                 .collect::<Vec<&str>>()[0]
                 .to_string();
 
-            
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(1)", horse_num*5-1);
             let selector = Selector::parse(&selector_str).unwrap();
             let sexage = text_getter(&document, &selector);
             let (sex, age) = detect_sexage(&sexage);
-    
-            let foo = RaceData{
-                racehorse_id: self.race.to_race_horse(horse_num).to_racehorse_id(),
+
+            let foo = RaceHorses {
+                race_horse_id: self.race.to_race_horse(horse_num).to_racehorse_id(),
                 race_id: self.race.to_race_id(),
                 horse_num: horse_num,
-                bracket_num: bracket_num,
-                horse_name: horse_name,
-                horse_sex: sex,
-                horse_age: age,
+                bracket_num: None,
+                horse_name: Some(horse_name).filter(|s| !s.is_empty()),
+                horse_sex: Some(sex).filter(|s| !s.is_empty()),
+                horse_age: None,
                 horse_id: horse_id,
-                jockey_name: jockey_name,
+                jockey_name: Some(jockey_name).filter(|s| !s.is_empty()),
                 jockey_id: jockey_id,
-                trainer_name: trainer_name,
+                trainer_name: Some(trainer_name).filter(|s| !s.is_empty()),
                 trainer_id: trainer_id,
-                change: change,
-                owner_name: owner_name,
-                weight_mark: weight_mark,
-                weight_to_carry: weight,
-                horse_weight: horse_weight,
+                change: Some(change).filter(|s| !s.is_empty()),
+                owner_name: Some(owner_name).filter(|s| !s.is_empty()),
+                weight_mark: Some(weight_mark).filter(|s| !s.is_empty()),
+                weight_to_carry: Some(weight).filter(|s| !s.is_empty()),
+                horse_weight: Some(horse_weight).filter(|s| !s.is_empty()),
+                horse_weight_delta: None,
+                arrival: None,
+                finish_time: None,
+                margin_time: None,
+                margin: None,
+                last_3f: None,
+                win_fav: None,
+                win_odds: None,
+                place_odds_min: None,
+                place_odds_max: None,
+                prize: None,
             };
+            
             race_horse_list.push(DbType::Race(foo));
         }
         race_horse_list
@@ -167,9 +178,11 @@ fn detect_sexage(course: &str) -> (String, i32) {
         "牡".to_string()
     } else if course.contains("牝") || course.contains("雌") {
         "牝".to_string()
-    }else if course.contains("セン") || course.contains("セ") {
+    } else if course.contains("セン") || course.contains("セ") {
         "セン".to_string()
-    } else {"".to_string()};
+    } else {
+        "".to_string()
+    };
 
     let age = course
         .replace("牡", "")
@@ -183,4 +196,3 @@ fn detect_sexage(course: &str) -> (String, i32) {
 
     (sex, age)
 }
-

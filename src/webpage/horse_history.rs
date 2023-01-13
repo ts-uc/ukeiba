@@ -1,11 +1,12 @@
 use crate::common::horse::Horse;
 use crate::common::race::Race;
 use crate::common::race_horse::RaceHorse;
-use crate::db_writer::HorseHistoryRaceData;
-use crate::db_writer::HorseHistoryRaceHorse;
+use crate::db_writer::Races;
+use crate::db_writer::RaceHorses;
 use crate::db_writer::DbType;
 use crate::common::racecourse::Racecourse;
 use crate::webpage::grid_scrapper;
+use crate::webpage::detect_going;
 use chrono::NaiveDate;
 use scraper::{Html, Selector};
 
@@ -50,7 +51,8 @@ impl PageHorseHistory {
                 race_num: race_num,
                 horse_num: horse_num,
             };
-            let horse_history_race = HorseHistoryRaceData{
+            let (going, moisture) = detect_going(&scrapped_row[7]);
+            let horse_history_race = Races{
                 race_id: race.to_race_id(),
                 race_date: date.to_string(),
                 racecourse: racecourse.to_string(),
@@ -59,19 +61,21 @@ impl PageHorseHistory {
                 race_type: None,
                 race_name: Some(scrapped_row[3].clone()).filter(|s| !s.is_empty()),
                 surface: None,
-                distance: Some(scrapped_row[5].clone()).filter(|s| !s.is_empty()),
+                distance: scrapped_row[5].parse().ok(),
                 weather: Some(scrapped_row[6].clone()).filter(|s| !s.is_empty()),
-                going: None,
-                moisture: Some(scrapped_row[7].clone()).filter(|s| !s.is_empty()),
-                horse_count: Some(scrapped_row[9].clone()).filter(|s| !s.is_empty())
+                going: going,
+                moisture: moisture,
+                horse_count: Some(scrapped_row[9].clone()).filter(|s| !s.is_empty()),
+                post_time: None,
+                direction: None,
             };
 
             data.push(DbType::HorseHistoryRace(horse_history_race));
 
-            let horse_history_racehorse = HorseHistoryRaceHorse{
-                racehorse_id: racehorse.to_racehorse_id(),
+            let horse_history_racehorse = RaceHorses{
+                race_horse_id: racehorse.to_racehorse_id(),
                 race_id: race.to_race_id(),
-                bracket_num: scrapped_row[10].parse().unwrap(),
+                bracket_num: Some(scrapped_row[10].clone()).filter(|s| !s.is_empty()),
                 horse_num: scrapped_row[11].parse().unwrap(),
                 win_fav: Some(scrapped_row[12].clone()).filter(|s| !s.is_empty()),
                 arrival: Some(scrapped_row[13].clone()).filter(|s| !s.is_empty()),
@@ -83,7 +87,20 @@ impl PageHorseHistory {
                 weight_to_carry: Some(scrapped_row[19].clone()).filter(|s| !s.is_empty()),
                 trainer_name: Some(scrapped_row[20].clone()).filter(|s| !s.is_empty()),
                 prize: Some(scrapped_row[21].clone()).filter(|s| !s.is_empty()),
-                horse_id: self.horse.get_horse_id(),
+                horse_id: Some(self.horse.get_horse_id()),
+                horse_age: None,
+                horse_name: None,
+                horse_sex: None,
+                horse_weight_delta: None,
+                jockey_id: None,
+                trainer_id: None,
+                change: None,
+                owner_name: None,
+                weight_mark: None,
+                margin: None,
+                win_odds: None,
+                place_odds_max: None,
+                place_odds_min: None,
             };
             data.push(DbType::HorseHistoryRaceHorse(horse_history_racehorse));
         }

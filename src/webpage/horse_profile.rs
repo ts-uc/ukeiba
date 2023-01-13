@@ -1,5 +1,4 @@
 use crate::common::horse::Horse;
-use crate::db_writer::RaceData;
 use crate::db_writer::Db;
 use scraper::{Html, Selector};
 use crate::db_writer::DbType;
