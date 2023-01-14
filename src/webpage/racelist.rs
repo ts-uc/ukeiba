@@ -1,7 +1,9 @@
 use crate::common::date_racecourse::DateRacecourse;
 use crate::db_writer::{DbType, Races};
-use crate::webpage::{detect_corse, detect_going, grid_scrapper};
+use crate::webpage::{detect_going, grid_scrapper};
 use scraper::{Html, Selector};
+
+use super::{detect_direction, detect_surface, detect_int};
 
 #[derive(Debug)]
 pub struct PageRaceList {
@@ -53,8 +55,6 @@ impl PageRaceList {
             let race_num: i32 = scrapped_row[0].replace("R", "").parse().unwrap();
             let race_id = self.date_racecourse.to_race(race_num).to_race_id();
 
-            let (surface, direction, distance) = detect_corse(&scrapped_row[5]);
-            let (going, moisture) = detect_going(&scrapped_row[7]);
             let race_num: i32 = scrapped_row[0].replace("R", "").parse().unwrap();
 
             let racedata = Races {
@@ -66,12 +66,12 @@ impl PageRaceList {
                 change: Some(scrapped_row[2].clone()).filter(|s| !s.is_empty()),
                 race_type: Some(scrapped_row[3].clone()).filter(|s| !s.is_empty()),
                 race_name: Some(scrapped_row[4].clone()).filter(|s| !s.is_empty()),
-                surface: surface,
-                direction: direction,
-                distance: distance,
+                surface: detect_surface(&scrapped_row[5]),
+                direction: detect_direction(&scrapped_row[5]),
+                distance: detect_int(&scrapped_row[5]),
                 weather: Some(scrapped_row[6].clone()).filter(|s| !s.is_empty()),
-                going: going,
-                moisture: moisture,
+                going: detect_going(&scrapped_row[7]),
+                moisture: detect_int(&scrapped_row[7]),
                 horse_count: scrapped_row[8].parse().ok(),
             };
             data.push(DbType::RaceList(racedata));

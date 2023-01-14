@@ -4,7 +4,8 @@ use crate::db_writer::RaceHorses;
 use scraper::{Html, Selector};
 use unicode_normalization::UnicodeNormalization;
 use url::Url;
-use crate::webpage::detect_sexage;
+
+use super::detect_horse_sex;
 
 #[derive(Debug)]
 pub struct PageRace {
@@ -94,7 +95,7 @@ impl PageRace {
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(1)", horse_num*5-1);
             let selector = Selector::parse(&selector_str).unwrap();
             let sexage = text_getter(&document, &selector);
-            let (sex, _) = detect_sexage(&sexage);
+            let sex = detect_horse_sex(&sexage);
 
             let foo = RaceHorses {
                 race_horse_id: self.race.to_race_horse(horse_num).to_racehorse_id(),
@@ -102,7 +103,7 @@ impl PageRace {
                 horse_num: horse_num,
                 bracket_num: None,
                 horse_name: Some(horse_name).filter(|s| !s.is_empty()),
-                horse_sex: Some(sex).filter(|s| !s.is_empty()),
+                horse_sex: sex,
                 horse_age: None,
                 horse_id: horse_id,
                 jockey_name: Some(jockey_name).filter(|s| !s.is_empty()),

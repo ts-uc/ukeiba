@@ -5,9 +5,12 @@ use crate::common::racecourse::Racecourse;
 use crate::db_writer::DbType;
 use crate::db_writer::RaceHorses;
 use crate::db_writer::Races;
-use crate::webpage::{detect_corse, detect_going, grid_scrapper};
+use crate::webpage::{detect_going, grid_scrapper};
 use chrono::NaiveDate;
 use scraper::{Html, Selector};
+
+use super::detect_int;
+use super::detect_surface;
 
 #[derive(Debug)]
 pub struct PageHorseHistory {
@@ -57,8 +60,6 @@ impl PageHorseHistory {
                 race_num: race_num,
                 horse_num: horse_num,
             };
-            let (surface, _, distance) = detect_corse(&scrapped_row[5]);
-            let (going, moisture) = detect_going(&scrapped_row[7]);
             let horse_history_race = Races {
                 race_id: race.to_race_id(),
                 race_date: date.to_string(),
@@ -67,11 +68,11 @@ impl PageHorseHistory {
                 change: None,
                 race_type: None,
                 race_name: Some(scrapped_row[3].clone()).filter(|s| !s.is_empty()),
-                surface: surface,
-                distance: distance,
+                surface: detect_surface(&scrapped_row[5]),
+                distance: detect_int(&scrapped_row[5]),
                 weather: Some(scrapped_row[6].clone()).filter(|s| !s.is_empty()),
-                going: going,
-                moisture: moisture,
+                going: detect_going(&scrapped_row[7]),
+                moisture: detect_int(&scrapped_row[7]),
                 horse_count: Some(scrapped_row[9].clone()).filter(|s| !s.is_empty()),
                 post_time: None,
                 direction: None,
