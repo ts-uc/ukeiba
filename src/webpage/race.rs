@@ -4,6 +4,7 @@ use crate::db_writer::RaceHorses;
 use scraper::{Html, Selector};
 use unicode_normalization::UnicodeNormalization;
 use url::Url;
+use crate::webpage::detect_sexage;
 
 #[derive(Debug)]
 pub struct PageRace {
@@ -29,7 +30,7 @@ impl PageRace {
 
         let mut race_horse_list: Vec<DbType> = Vec::new();
         for horse_num in 1..=horse_count {
-            let (bracket_num, bracket_num_index) = calc_wakuban(horse_count, horse_num);
+            let (_, bracket_num_index) = calc_wakuban(horse_count, horse_num);
 
             let selector_str = format!(
                 "tr.tBorder:nth-child({}) > td:nth-child({}) > a:nth-child(1)",
@@ -93,7 +94,7 @@ impl PageRace {
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(1)", horse_num*5-1);
             let selector = Selector::parse(&selector_str).unwrap();
             let sexage = text_getter(&document, &selector);
-            let (sex, age) = detect_sexage(&sexage);
+            let (sex, _) = detect_sexage(&sexage);
 
             let foo = RaceHorses {
                 race_horse_id: self.race.to_race_horse(horse_num).to_racehorse_id(),
@@ -125,7 +126,7 @@ impl PageRace {
                 place_odds_max: None,
                 prize: None,
             };
-            
+
             race_horse_list.push(DbType::Race(foo));
         }
         race_horse_list
@@ -171,28 +172,4 @@ fn get_req_param_num<T: std::str::FromStr>(element_ref: &Html, selector: &Select
     let (_, id) = id_pairs.next()?;
     let id = id.parse::<T>().ok()?;
     Some(id)
-}
-
-fn detect_sexage(course: &str) -> (String, i32) {
-    let sex = if course.contains("牡") || course.contains("雄") {
-        "牡".to_string()
-    } else if course.contains("牝") || course.contains("雌") {
-        "牝".to_string()
-    } else if course.contains("セン") || course.contains("セ") {
-        "セン".to_string()
-    } else {
-        "".to_string()
-    };
-
-    let age = course
-        .replace("牡", "")
-        .replace("雄", "")
-        .replace("牝", "")
-        .replace("雌", "")
-        .replace("セン", "")
-        .replace("セ", "")
-        .parse()
-        .unwrap();
-
-    (sex, age)
 }

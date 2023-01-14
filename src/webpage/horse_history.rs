@@ -1,12 +1,11 @@
 use crate::common::horse::Horse;
 use crate::common::race::Race;
 use crate::common::race_horse::RaceHorse;
-use crate::db_writer::Races;
-use crate::db_writer::RaceHorses;
-use crate::db_writer::DbType;
 use crate::common::racecourse::Racecourse;
-use crate::webpage::grid_scrapper;
-use crate::webpage::detect_going;
+use crate::db_writer::DbType;
+use crate::db_writer::RaceHorses;
+use crate::db_writer::Races;
+use crate::webpage::{detect_corse, detect_going, grid_scrapper};
 use chrono::NaiveDate;
 use scraper::{Html, Selector};
 
@@ -34,7 +33,11 @@ impl PageHorseHistory {
         let horse_name_selector = Selector::parse(horse_name_selector).unwrap();
 
         let scrapped = grid_scrapper(&document, &row_selector, &column_selector);
-        let horse_name = document.select(&horse_name_selector).next().unwrap().inner_html();
+        let horse_name = document
+            .select(&horse_name_selector)
+            .next()
+            .unwrap()
+            .inner_html();
 
         let mut data = Vec::new();
 
@@ -48,14 +51,15 @@ impl PageHorseHistory {
                 racecourse: racecourse,
                 race_num: race_num,
             };
-            let racehorse = RaceHorse{
+            let racehorse = RaceHorse {
                 date: date,
                 racecourse: racecourse,
                 race_num: race_num,
                 horse_num: horse_num,
             };
+            let (surface, _, distance) = detect_corse(&scrapped_row[5]);
             let (going, moisture) = detect_going(&scrapped_row[7]);
-            let horse_history_race = Races{
+            let horse_history_race = Races {
                 race_id: race.to_race_id(),
                 race_date: date.to_string(),
                 racecourse: racecourse.to_string(),
@@ -63,8 +67,8 @@ impl PageHorseHistory {
                 change: None,
                 race_type: None,
                 race_name: Some(scrapped_row[3].clone()).filter(|s| !s.is_empty()),
-                surface: None,
-                distance: scrapped_row[5].parse().ok(),
+                surface: surface,
+                distance: distance,
                 weather: Some(scrapped_row[6].clone()).filter(|s| !s.is_empty()),
                 going: going,
                 moisture: moisture,
@@ -75,7 +79,7 @@ impl PageHorseHistory {
 
             data.push(DbType::HorseHistoryRace(horse_history_race));
 
-            let horse_history_racehorse = RaceHorses{
+            let horse_history_racehorse = RaceHorses {
                 race_horse_id: racehorse.to_racehorse_id(),
                 race_id: race.to_race_id(),
                 bracket_num: Some(scrapped_row[10].clone()).filter(|s| !s.is_empty()),
@@ -86,7 +90,13 @@ impl PageHorseHistory {
                 margin_time: Some(scrapped_row[15].clone()).filter(|s| !s.is_empty()),
                 last_3f: Some(scrapped_row[16].clone()).filter(|s| !s.is_empty()),
                 horse_weight: Some(scrapped_row[17].clone()).filter(|s| !s.is_empty()),
-                jockey_name: Some(scrapped_row[18].split_whitespace().collect::<Vec<&str>>().join("")).filter(|s| !s.is_empty()),
+                jockey_name: Some(
+                    scrapped_row[18]
+                        .split_whitespace()
+                        .collect::<Vec<&str>>()
+                        .join(""),
+                )
+                .filter(|s| !s.is_empty()),
                 weight_to_carry: Some(scrapped_row[19].clone()).filter(|s| !s.is_empty()),
                 trainer_name: Some(scrapped_row[20].clone()).filter(|s| !s.is_empty()),
                 prize: Some(scrapped_row[21].clone()).filter(|s| !s.is_empty()),

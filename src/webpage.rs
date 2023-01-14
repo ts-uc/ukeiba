@@ -52,3 +52,59 @@ fn detect_going(raw_going: &str) -> (Option<String>, Option<f64>) {
 
     (going, moisture)
 }
+
+fn detect_corse(course: &str) -> (Option<String>, Option<String>, Option<i32>) {
+    if course == "" {
+        return (None, None, None);
+    };
+    let surface = if course.contains("芝") {
+        Some("芝".to_string())
+    } else {
+        Some("ダ".to_string())
+    };
+
+    let direction = if course.contains("右") {
+        Some("右".to_string())
+    } else if course.contains("左") {
+        Some("左".to_string())
+    } else if course.contains("直") {
+        Some("直".to_string())
+    } else {
+        None
+    };
+
+    let distance = course
+        .replace("芝", "")
+        .replace("右", "")
+        .replace("左", "")
+        .replace("直", "")
+        .replace("m", "")
+        .parse()
+        .ok();
+
+    (surface, direction, distance)
+}
+
+fn detect_sexage(course: &str) -> (String, i32) {
+    let sex = if course.contains("牡") || course.contains("雄") {
+        "牡".to_string()
+    } else if course.contains("牝") || course.contains("雌") {
+        "牝".to_string()
+    } else if course.contains("セン") || course.contains("セ") {
+        "セン".to_string()
+    } else {
+        "".to_string()
+    };
+
+    let age = course
+        .replace("牡", "")
+        .replace("雄", "")
+        .replace("牝", "")
+        .replace("雌", "")
+        .replace("セン", "")
+        .replace("セ", "")
+        .parse()
+        .unwrap();
+
+    (sex, age)
+}

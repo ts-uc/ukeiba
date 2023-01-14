@@ -1,9 +1,7 @@
 use crate::common::date_racecourse::DateRacecourse;
-use crate::db_writer::DbType;
-use crate::db_writer::Races;
+use crate::db_writer::{DbType, Races};
+use crate::webpage::{detect_corse, detect_going, grid_scrapper};
 use scraper::{Html, Selector};
-use crate::webpage::grid_scrapper;
-use crate::webpage::detect_going;
 
 #[derive(Debug)]
 pub struct PageRaceList {
@@ -80,36 +78,4 @@ impl PageRaceList {
         }
         data
     }
-}
-
-fn detect_corse(course: &str) -> (Option<String>, Option<String>, Option<i32>) {
-    if course == "" {
-        return (None, None, None);
-    };
-    let surface = if course.contains("芝") {
-        Some("芝".to_string())
-    } else {
-        Some("ダ".to_string())
-    };
-
-    let direction = if course.contains("右") {
-        Some("右".to_string())
-    } else if course.contains("左") {
-        Some("左".to_string())
-    } else if course.contains("直") {
-        Some("直".to_string())
-    } else {
-        None
-    };
-
-    let distance = course
-        .replace("芝", "")
-        .replace("右", "")
-        .replace("左", "")
-        .replace("直", "")
-        .replace("m", "")
-        .parse()
-        .ok();
-
-    (surface, direction, distance)
 }
