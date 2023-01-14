@@ -9,7 +9,7 @@ use crate::webpage::{detect_going, grid_scrapper};
 use chrono::NaiveDate;
 use scraper::{Html, Selector};
 
-use super::detect_int;
+use super::detect_num;
 use super::detect_surface;
 
 #[derive(Debug)]
@@ -69,10 +69,10 @@ impl PageHorseHistory {
                 race_type: None,
                 race_name: Some(scrapped_row[3].clone()).filter(|s| !s.is_empty()),
                 surface: detect_surface(&scrapped_row[5]),
-                distance: detect_int(&scrapped_row[5]),
+                distance: detect_num(&scrapped_row[5]),
                 weather: Some(scrapped_row[6].clone()).filter(|s| !s.is_empty()),
                 going: detect_going(&scrapped_row[7]),
-                moisture: detect_int(&scrapped_row[7]),
+                moisture: detect_num(&scrapped_row[7]),
                 horse_count: Some(scrapped_row[9].clone()).filter(|s| !s.is_empty()),
                 post_time: None,
                 direction: None,

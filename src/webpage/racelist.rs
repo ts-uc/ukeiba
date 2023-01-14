@@ -3,28 +3,12 @@ use crate::db_writer::{DbType, Races};
 use crate::webpage::{detect_going, grid_scrapper};
 use scraper::{Html, Selector};
 
-use super::{detect_direction, detect_surface, detect_int};
+use super::{detect_direction, detect_surface, detect_num};
 
 #[derive(Debug)]
 pub struct PageRaceList {
     pub html: String,
     pub date_racecourse: DateRacecourse,
-}
-
-#[derive(Debug)]
-pub struct RaceData {
-    pub race_num: i32,
-    pub post_time: Option<String>,
-    pub change: Option<String>,
-    pub race_type: Option<String>,
-    pub race_name: Option<String>,
-    pub surface: Option<String>,
-    pub direction: Option<String>,
-    pub distance: Option<i32>,
-    pub weather: Option<String>,
-    pub going: Option<String>,
-    pub moisture: Option<f64>,
-    pub horse_count: Option<i32>,
 }
 
 impl PageRaceList {
@@ -68,10 +52,10 @@ impl PageRaceList {
                 race_name: Some(scrapped_row[4].clone()).filter(|s| !s.is_empty()),
                 surface: detect_surface(&scrapped_row[5]),
                 direction: detect_direction(&scrapped_row[5]),
-                distance: detect_int(&scrapped_row[5]),
+                distance: detect_num(&scrapped_row[5]),
                 weather: Some(scrapped_row[6].clone()).filter(|s| !s.is_empty()),
                 going: detect_going(&scrapped_row[7]),
-                moisture: detect_int(&scrapped_row[7]),
+                moisture: detect_num(&scrapped_row[7]),
                 horse_count: scrapped_row[8].parse().ok(),
             };
             data.push(DbType::RaceList(racedata));

@@ -66,7 +66,7 @@ fn detect_direction(str: &str) -> Option<String> {
     )
 }
 
-fn detect_int<T: std::str::FromStr>(str: &str) -> Option<T> {
+fn detect_num<T: std::str::FromStr>(str: &str) -> Option<T> {
     Some(
         Regex::new(r"\d+(\.\d+)?")
             .unwrap()
