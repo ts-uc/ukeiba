@@ -47,7 +47,7 @@ impl PageRaceList {
         let column_selector = "td";
         let column_selector = Selector::parse(column_selector).unwrap();
 
-        let scrapped = grid_scrapper(document, row_selector, column_selector);
+        let scrapped = grid_scrapper(&document, &row_selector, &column_selector);
 
         let mut data = Vec::new();
 

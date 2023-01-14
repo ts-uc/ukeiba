@@ -30,8 +30,11 @@ impl PageHorseHistory {
         let row_selector = Selector::parse(row_selector).unwrap();
         let column_selector = "td";
         let column_selector = Selector::parse(column_selector).unwrap();
+        let horse_name_selector = ".odd_title";
+        let horse_name_selector = Selector::parse(horse_name_selector).unwrap();
 
-        let scrapped = grid_scrapper(document, row_selector, column_selector);
+        let scrapped = grid_scrapper(&document, &row_selector, &column_selector);
+        let horse_name = document.select(&horse_name_selector).next().unwrap().inner_html();
 
         let mut data = Vec::new();
 
@@ -89,7 +92,7 @@ impl PageHorseHistory {
                 prize: Some(scrapped_row[21].clone()).filter(|s| !s.is_empty()),
                 horse_id: Some(self.horse.get_horse_id()),
                 horse_age: None,
-                horse_name: None,
+                horse_name: Some(horse_name.clone()).filter(|s| !s.is_empty()),
                 horse_sex: None,
                 horse_weight_delta: None,
                 jockey_id: None,

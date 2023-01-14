@@ -299,9 +299,9 @@ impl Db {
                         "INSERT INTO race_horses (
                             race_horse_id, race_id, bracket_num, horse_num, win_fav,
                             arrival, finish_time, margin_time, last_3f, horse_weight, 
-                            jockey_name, weight_to_carry, trainer_name, prize, horse_id
+                            jockey_name, weight_to_carry, trainer_name, prize, horse_id, horse_name
                             ) 
-                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)
                             ON CONFLICT (race_horse_id) DO UPDATE SET
                             race_id = ?2, bracket_num = ?3, horse_num = ?4, win_fav = ?5,
                             arrival = ?6, finish_time = ?7, margin_time = ?8, last_3f = ?9,
@@ -324,6 +324,8 @@ impl Db {
                         data.trainer_name,
                         data.prize,
                         data.horse_id,
+                        //
+                        data.horse_name,
                         ],
                 )
                 .unwrap();

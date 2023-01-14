@@ -14,7 +14,7 @@ pub trait PageScraper{
 
 }
 
-fn grid_scrapper(document: Html, row_selector: Selector, column_selector: Selector) -> Vec<Vec<String>>{
+fn grid_scrapper(document: &Html, row_selector: &Selector, column_selector: &Selector) -> Vec<Vec<String>>{
     let mut scrapped: Vec<Vec<String>> = Vec::new();
     let low_selected = document.select(&row_selector);
     for low_ref in low_selected {
