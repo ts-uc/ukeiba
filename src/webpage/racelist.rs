@@ -60,7 +60,7 @@ impl PageRaceList {
             let racedata = Races {
                 race_id: race_id,
                 race_date: self.date_racecourse.date.to_string(),
-                racecourse: self.date_racecourse.racecourse.to_string(),
+                racecourse: self.date_racecourse.racecourse.to_japanese(),
                 race_num: race_num,
                 post_time: Some(scrapped_row[1].clone()).filter(|s| !s.is_empty()),
                 change: Some(scrapped_row[2].clone()).filter(|s| !s.is_empty()),

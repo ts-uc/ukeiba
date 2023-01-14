@@ -62,7 +62,7 @@ impl PageHorseHistory {
             let horse_history_race = Races {
                 race_id: race.to_race_id(),
                 race_date: date.to_string(),
-                racecourse: racecourse.to_string(),
+                racecourse: racecourse.to_japanese(),
                 race_num: race_num,
                 change: None,
                 race_type: None,

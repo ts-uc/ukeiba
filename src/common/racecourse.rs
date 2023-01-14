@@ -50,11 +50,12 @@ impl Racecourse {
             "北見" => Self::Kitami,
             "岩見沢" => Self::Iwamizawa,
             "帯広" => Self::Obihiro,
+            "帯 広" => Self::Obihiro,
             "旭川" => Self::Asahikawa,
             _ => Racecourse::Other
          } }
 
-    pub fn get_name(&self) -> String {
+    pub fn to_japanese(&self) -> String {
         match self {
             // Racecourse::Monbetsu => "門別",
             Racecourse::Kitami => "北見",
