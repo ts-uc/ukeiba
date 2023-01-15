@@ -133,11 +133,13 @@ fn main() {
         Mode::HorseProfile => {
             let horselist = get_horselist(from_date, to_date);
             let pb = ProgressBar::new(horselist.len() as u64);
+            let mut queries: Vec<DbType> = Vec::new();
             for horse_id in horselist {
                 pb.inc(1);
                 let horse = Horse::new(horse_id);
-                HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save);
+                queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
             }
+            Db::new(queries).execute();
         }
 
     }

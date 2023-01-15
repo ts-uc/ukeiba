@@ -77,17 +77,23 @@ pub fn initialize() {
         END;
         
         CREATE TABLE IF NOT EXISTS horses (
-            horse_id INTEGER PRIMARY KEY,
+            horse_nar_id INTEGER UNIQUE,
             horse_name TEXT,
+            horse_sex TEXT,
+            horse_status TEXT,
+            horse_type TEXT,
+            horse_birthdate TEXT,
+            horse_coat_color TEXT,
+            birthplace TEXT,
+            breeder TEXT,
             sire_name TEXT,
             dam_name TEXT,
             sires_sire_name TEXT,
             sires_dam_name TEXT,
             dams_sire_name TEXT,
             dams_dam_name TEXT,
-            breeder TEXT,
-            birthplace TEXT,
-            created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
+            deregistration_date TEXT,
+                    created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
             updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
         );
         
@@ -130,7 +136,7 @@ pub fn initialize() {
 }
 
 #[derive(Debug)]
-pub struct Races{
+pub struct Races {
     pub race_id: i64,
     pub race_date: String,
     pub racecourse: String,
@@ -140,7 +146,7 @@ pub struct Races{
     pub change: Option<String>,
     pub race_type: Option<String>,
     pub race_name: Option<String>,
-    pub surface: Option<String>,               
+    pub surface: Option<String>,
     pub direction: Option<String>,
 
     pub distance: Option<i32>,
@@ -151,7 +157,7 @@ pub struct Races{
 }
 
 #[derive(Debug)]
-pub struct RaceHorses{
+pub struct RaceHorses {
     pub race_horse_id: i64,
     pub race_id: i64,
     pub horse_num: i32,
@@ -182,6 +188,25 @@ pub struct RaceHorses{
     pub prize: Option<String>,
 }
 
+#[derive(Debug)]
+pub struct Horses {
+    pub horse_nar_id: Option<i64>,
+    pub horse_name: Option<String>,
+    pub horse_sex: Option<String>,
+    pub horse_status: Option<String>,
+    pub horse_type: Option<String>,
+    pub horse_birthdate: Option<String>,
+    pub horse_coat_color: Option<String>,
+    pub birthplace: Option<String>,
+    pub breeder: Option<String>,
+    pub sire_name: Option<String>,
+    pub dam_name: Option<String>,
+    pub sires_sire_name: Option<String>,
+    pub sires_dam_name: Option<String>,
+    pub dams_sire_name: Option<String>,
+    pub dams_dam_name: Option<String>,
+    pub deregistration_date: Option<String>,
+}
 
 #[derive(Debug)]
 pub enum DbType {
@@ -189,6 +214,7 @@ pub enum DbType {
     Race(RaceHorses),
     HorseHistoryRace(Races),
     HorseHistoryRaceHorse(RaceHorses),
+    HorseProfile(Horses)
 }
 
 pub struct Db(Vec<DbType>);
@@ -330,6 +356,41 @@ impl Db {
                 )
                 .unwrap();
                 }
+                DbType::HorseProfile(data) => {
+                    tx.execute(
+                        "INSERT INTO horses (
+                            horse_nar_id, horse_name, horse_sex, horse_status, horse_type,
+                            horse_birthdate, horse_coat_color, birthplace, breeder, sire_name, 
+                            dam_name, sires_sire_name, sires_dam_name, dams_sire_name, dams_dam_name
+                            ) 
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
+                            ON CONFLICT (horse_nar_id) DO UPDATE SET
+                            horse_name = ?2, horse_sex = ?3, horse_status = ?4, horse_type = ?5,
+                            horse_birthdate = ?6, horse_coat_color = ?7, birthplace = ?8, breeder = ?9, sire_name = ?10,
+                            dam_name = ?11, sires_sire_name = ?12, sires_dam_name = ?13, dams_sire_name = ?14, dams_dam_name = ?15",
+                    params![
+                        data.horse_nar_id,
+                        data.horse_name,
+                        data.horse_sex,
+                        data.horse_status,
+                        data.horse_type,
+                        //
+                        data.horse_birthdate,
+                        data.horse_coat_color,
+                        data.birthplace,
+                        data.breeder,
+                        data.sire_name,
+                        //
+                        data.dam_name,
+                        data.sires_sire_name,
+                        data.sires_dam_name,
+                        data.dams_sire_name,
+                        data.dams_dam_name,
+                        ],
+                )
+                .unwrap();
+                }
+                
             }
             pb.inc(1);
         }
