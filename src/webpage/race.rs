@@ -1,11 +1,9 @@
+use super::*;
 use crate::common::race::Race;
 use crate::db_writer::DbType;
 use crate::db_writer::RaceHorses;
 use scraper::{Html, Selector};
 use unicode_normalization::UnicodeNormalization;
-use url::Url;
-
-use super::detect_horse_sex;
 
 #[derive(Debug)]
 pub struct PageRace {
@@ -22,7 +20,8 @@ impl PageRace {
     }
 
     pub fn db(&self) -> Vec<DbType> {
-        let document = Html::parse_document(&self.html);
+        let document: String = self.html.nfkc().collect();
+        let document = Html::parse_document(&document);
 
         let selector_str = ".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr";
         let selector = Selector::parse(selector_str).unwrap();
@@ -39,7 +38,7 @@ impl PageRace {
                 3 - bracket_num_index
             );
             let selector = Selector::parse(&selector_str).unwrap();
-            let horse_name = text_getter(&document, &selector);
+            let horse_name = scrap_text(&document, &selector);
             let horse_id: Option<i64> = get_req_param_num(&document, &selector);
 
             let selector_str = format!(
@@ -48,7 +47,7 @@ impl PageRace {
                 4 - bracket_num_index
             );
             let selector = Selector::parse(&selector_str).unwrap();
-            let jockey_name = text_getter(&document, &selector)
+            let jockey_name = scrap_text(&document, &selector)
                 .split("(")
                 .collect::<Vec<&str>>()[0]
                 .to_string();
@@ -56,7 +55,7 @@ impl PageRace {
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(2) > a:nth-child(1)", horse_num*5);
             let selector = Selector::parse(&selector_str).unwrap();
-            let trainer_name = text_getter(&document, &selector)
+            let trainer_name = scrap_text(&document, &selector)
                 .split("(")
                 .collect::<Vec<&str>>()[0]
                 .to_string();
@@ -64,11 +63,11 @@ impl PageRace {
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(2)", horse_num*5+1);
             let selector = Selector::parse(&selector_str).unwrap();
-            let owner_name = text_getter(&document, &selector);
+            let owner_name = scrap_text(&document, &selector);
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(4)", horse_num*5-1);
             let selector = Selector::parse(&selector_str).unwrap();
-            let weight = text_getter(&document, &selector);
+            let weight = scrap_text(&document, &selector);
             let weight_arr = weight.split_whitespace().collect::<Vec<&str>>();
             let weight = if weight_arr.len() == 3 {
                 weight_arr[1].to_string()
@@ -83,18 +82,18 @@ impl PageRace {
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(3)", horse_num*5+2);
             let selector = Selector::parse(&selector_str).unwrap();
-            let change = text_getter(&document, &selector);
+            let change = scrap_text(&document, &selector);
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(3)", horse_num*5);
             let selector = Selector::parse(&selector_str).unwrap();
-            let horse_weight = text_getter(&document, &selector)
+            let horse_weight = scrap_text(&document, &selector)
                 .split("(")
                 .collect::<Vec<&str>>()[0]
                 .to_string();
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(1)", horse_num*5-1);
             let selector = Selector::parse(&selector_str).unwrap();
-            let sexage = text_getter(&document, &selector);
+            let sexage = scrap_text(&document, &selector);
             let sex = detect_horse_sex(&sexage);
 
             let foo = RaceHorses {
@@ -146,31 +145,4 @@ fn calc_wakuban(horse_count: i32, horse_num: i32) -> (i32, i32) {
             (base_num + foo / 2, foo % 2)
         }
     }
-}
-
-fn text_getter(element_ref: &Html, selector: &Selector) -> String {
-    element_ref
-        .select(selector)
-        .next()
-        .unwrap()
-        .text()
-        .collect::<Vec<_>>()
-        .join("")
-        .trim()
-        .nfkc()
-        .collect::<String>()
-}
-
-fn get_req_param_num<T: std::str::FromStr>(element_ref: &Html, selector: &Selector) -> Option<T> {
-    let id_url = element_ref
-        .select(selector)
-        .next()?
-        .value()
-        .attr("href")?
-        .trim();
-    let id_url = Url::parse(&format!("http://example.com/{}", &id_url)).ok()?;
-    let mut id_pairs = id_url.query_pairs();
-    let (_, id) = id_pairs.next()?;
-    let id = id.parse::<T>().ok()?;
-    Some(id)
 }

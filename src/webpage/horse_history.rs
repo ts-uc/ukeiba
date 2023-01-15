@@ -1,3 +1,4 @@
+use super::*;
 use crate::common::horse::Horse;
 use crate::common::race::Race;
 use crate::common::race_horse::RaceHorse;
@@ -5,12 +6,9 @@ use crate::common::racecourse::Racecourse;
 use crate::db_writer::DbType;
 use crate::db_writer::RaceHorses;
 use crate::db_writer::Races;
-use crate::webpage::{detect_going, grid_scrapper};
 use chrono::NaiveDate;
 use scraper::{Html, Selector};
-
-use super::detect_num;
-use super::detect_surface;
+use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug)]
 pub struct PageHorseHistory {
@@ -27,7 +25,9 @@ impl PageHorseHistory {
     }
 
     pub fn db(&self) -> Vec<DbType> {
-        let document = Html::parse_document(&self.html);
+        let document: String = self.html.nfkc().collect();
+        let document = Html::parse_document(&document);
+
         let row_selector = ".HorseMarkInfo_table > tbody:nth-child(2) > tr";
         let row_selector = Selector::parse(row_selector).unwrap();
         let column_selector = "td";
@@ -35,7 +35,7 @@ impl PageHorseHistory {
         let horse_name_selector = ".odd_title";
         let horse_name_selector = Selector::parse(horse_name_selector).unwrap();
 
-        let scrapped = grid_scrapper(&document, &row_selector, &column_selector);
+        let scrapped = scrap_grid(&document, &row_selector, &column_selector);
         let horse_name = document
             .select(&horse_name_selector)
             .next()

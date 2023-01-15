@@ -1,9 +1,8 @@
+use super::*;
 use crate::common::date_racecourse::DateRacecourse;
 use crate::db_writer::{DbType, Races};
-use crate::webpage::{detect_going, grid_scrapper};
 use scraper::{Html, Selector};
-
-use super::{detect_direction, detect_surface, detect_num};
+use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug)]
 pub struct PageRaceList {
@@ -25,13 +24,14 @@ impl PageRaceList {
             return Vec::new();
         }
 
-        let document = Html::parse_document(&self.html);
+        let document: String = self.html.nfkc().collect();
+        let document = Html::parse_document(&document);
         let row_selector = ".raceTable > table:nth-child(1) > tbody:nth-child(1) > tr.data";
         let row_selector = Selector::parse(row_selector).unwrap();
         let column_selector = "td";
         let column_selector = Selector::parse(column_selector).unwrap();
 
-        let scrapped = grid_scrapper(&document, &row_selector, &column_selector);
+        let scrapped = scrap_grid(&document, &row_selector, &column_selector);
 
         let mut data = Vec::new();
 

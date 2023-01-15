@@ -1,6 +1,5 @@
 use regex::Regex;
 use scraper::{Html, Selector};
-use unicode_normalization::UnicodeNormalization;
 
 use crate::db_writer::Db;
 
@@ -13,7 +12,7 @@ pub trait PageScraper {
     fn db(&self) -> Db;
 }
 
-fn grid_scrapper(
+fn scrap_grid(
     document: &Html,
     row_selector: &Selector,
     column_selector: &Selector,
@@ -29,13 +28,24 @@ fn grid_scrapper(
                 .collect::<Vec<_>>()
                 .join("")
                 .trim()
-                .nfkc()
-                .collect();
+                .to_string();
             low_scrapped.push(text);
         }
         scrapped.push(low_scrapped);
     }
     scrapped
+}
+
+fn scrap_text(document: &Html, selector: &Selector) -> String {
+    document
+        .select(selector)
+        .next()
+        .unwrap()
+        .text()
+        .collect::<Vec<_>>()
+        .join("")
+        .trim()
+        .to_string()
 }
 
 fn detect_going(str: &str) -> Option<String> {
@@ -87,4 +97,18 @@ fn detect_horse_sex(course: &str) -> Option<String> {
     } else {
         None
     }
+}
+
+fn get_req_param_num<T: std::str::FromStr>(element_ref: &Html, selector: &Selector) -> Option<T> {
+    let id_url = element_ref
+        .select(selector)
+        .next()?
+        .value()
+        .attr("href")?
+        .trim();
+    let id_url = reqwest::Url::parse(&format!("http://example.com/{}", &id_url)).ok()?;
+    let mut id_pairs = id_url.query_pairs();
+    let (_, id) = id_pairs.next()?;
+    let id = id.parse::<T>().ok()?;
+    Some(id)
 }
