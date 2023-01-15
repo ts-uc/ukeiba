@@ -91,13 +91,7 @@ impl PageHorseHistory {
                 margin_time: Some(scrapped_row[15].clone()).filter(|s| !s.is_empty()),
                 last_3f: Some(scrapped_row[16].clone()).filter(|s| !s.is_empty()),
                 horse_weight: Some(scrapped_row[17].clone()).filter(|s| !s.is_empty()),
-                jockey_name: Some(
-                    scrapped_row[18]
-                        .split_whitespace()
-                        .collect::<Vec<&str>>()
-                        .join(""),
-                )
-                .filter(|s| !s.is_empty()),
+                jockey_name: detect_before_bracket(&scrapped_row[18]),
                 weight_to_carry: Some(scrapped_row[19].clone()).filter(|s| !s.is_empty()),
                 trainer_name: Some(scrapped_row[20].clone()).filter(|s| !s.is_empty()),
                 prize: Some(scrapped_row[21].clone()).filter(|s| !s.is_empty()),

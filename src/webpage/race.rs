@@ -47,18 +47,14 @@ impl PageRace {
                 4 - bracket_num_index
             );
             let selector = Selector::parse(&selector_str).unwrap();
-            let jockey_name = scrap_text(&document, &selector)
-                .split("(")
-                .collect::<Vec<&str>>()[0]
-                .to_string();
+            let jockey = scrap_text(&document, &selector);
+            let jockey_name = detect_before_bracket(&jockey);
             let jockey_id: Option<i32> = get_req_param_num(&document, &selector);
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(2) > a:nth-child(1)", horse_num*5);
             let selector = Selector::parse(&selector_str).unwrap();
-            let trainer_name = scrap_text(&document, &selector)
-                .split("(")
-                .collect::<Vec<&str>>()[0]
-                .to_string();
+            let trainer = scrap_text(&document, &selector);
+            let trainer_name = detect_before_bracket(&trainer);
             let trainer_id: Option<i32> = get_req_param_num(&document, &selector);
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(2)", horse_num*5+1);
@@ -86,10 +82,8 @@ impl PageRace {
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(3)", horse_num*5);
             let selector = Selector::parse(&selector_str).unwrap();
-            let horse_weight = scrap_text(&document, &selector)
-                .split("(")
-                .collect::<Vec<&str>>()[0]
-                .to_string();
+            let horse_weight_and_delta = scrap_text(&document, &selector);
+            let horse_weight = detect_before_bracket(&horse_weight_and_delta);
 
             let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(1)", horse_num*5-1);
             let selector = Selector::parse(&selector_str).unwrap();
@@ -105,15 +99,15 @@ impl PageRace {
                 horse_sex: sex,
                 horse_age: None,
                 horse_id: horse_id,
-                jockey_name: Some(jockey_name).filter(|s| !s.is_empty()),
+                jockey_name: jockey_name,
                 jockey_id: jockey_id,
-                trainer_name: Some(trainer_name).filter(|s| !s.is_empty()),
+                trainer_name: trainer_name,
                 trainer_id: trainer_id,
                 change: Some(change).filter(|s| !s.is_empty()),
                 owner_name: Some(owner_name).filter(|s| !s.is_empty()),
                 weight_mark: Some(weight_mark).filter(|s| !s.is_empty()),
                 weight_to_carry: Some(weight).filter(|s| !s.is_empty()),
-                horse_weight: Some(horse_weight).filter(|s| !s.is_empty()),
+                horse_weight: horse_weight,
                 horse_weight_delta: None,
                 arrival: None,
                 finish_time: None,

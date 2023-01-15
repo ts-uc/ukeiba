@@ -112,3 +112,18 @@ fn get_req_param_num<T: std::str::FromStr>(element_ref: &Html, selector: &Select
     let id = id.parse::<T>().ok()?;
     Some(id)
 }
+
+fn detect_before_bracket(str: &str) -> Option<String> {
+    Some(Regex::new(r"\s*(.*?)\s*[\(（]").unwrap().captures(str)?[1].to_string())
+        .filter(|s| !s.is_empty())
+}
+
+fn detect_inner_bracket(str: &str) -> Option<String> {
+    Some(
+        Regex::new(r"[\(（]\s*(.*?)\s*[\)）]")
+            .unwrap()
+            .captures(str)?[1]
+            .to_string(),
+    )
+    .filter(|s| !s.is_empty())
+}
