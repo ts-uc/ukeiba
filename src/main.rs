@@ -13,6 +13,7 @@ use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use common::horse::Horse;
 use db_reader::get_horselist;
+use reader::oddspark_odds::OddsparkOddsReader;
 use crate::common::racecourse::Racecourse;
 use indicatif::ProgressBar;
 use reader::horse_history::HorseHistoryReader;
@@ -55,6 +56,7 @@ enum Mode {
     Race { racecouse: Option<Racecourse> },
     HorseHistory,
     HorseProfile,
+    Odds,
 }
 
 fn main() {
@@ -142,5 +144,18 @@ fn main() {
             Db::new(queries).execute();
         }
 
+        Mode::Odds => {
+            let racelist = get_racelist(from_date, to_date);
+            let pb = ProgressBar::new(racelist.len() as u64);
+            let mut queries: Vec<DbType> = Vec::new();
+            for race_id in racelist {
+                pb.inc(1);
+                let race = Race::from_race_id(race_id);
+                queries.extend(OddsparkOddsReader::new(race)
+                    .get(args.force_fetch, !args.not_save)
+                    .db());
+            }
+            Db::new(queries).execute();
+        }
     }
 }
