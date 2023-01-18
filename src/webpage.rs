@@ -8,6 +8,7 @@ pub mod horse_profile;
 pub mod race;
 pub mod racelist;
 pub mod oddspark_odds;
+pub mod rakuten_racelist;
 
 pub trait PageScraper {
     fn db(&self) -> Db;

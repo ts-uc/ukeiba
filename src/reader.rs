@@ -9,6 +9,7 @@ pub mod race;
 pub mod horse_history;
 pub mod horse_profile;
 pub mod oddspark_odds;
+pub mod rakuten_racelist;
 
 // pub trait Reader<T> where T: super::WebPage,
 

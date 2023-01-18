@@ -14,6 +14,7 @@ use clap::{Parser, Subcommand};
 use common::horse::Horse;
 use db_reader::get_horselist;
 use reader::oddspark_odds::OddsparkOddsReader;
+use reader::rakuten_racelist::RakutenRaceListReader;
 use crate::common::racecourse::Racecourse;
 use indicatif::ProgressBar;
 use reader::horse_history::HorseHistoryReader;
@@ -53,6 +54,7 @@ struct Args {
 #[derive(Subcommand, Debug)]
 enum Mode {
     Racelist { racecourse: Racecourse },
+    RakutenRacelist { racecourse: Racecourse },
     Race { racecouse: Option<Racecourse> },
     HorseHistory,
     HorseProfile,
@@ -100,6 +102,21 @@ fn main() {
 
                 let dateracecourse = DateRacecourse::new(date, racecourse);
                 queries.extend(RaceListReader::new(dateracecourse)
+                .get(args.force_fetch, !args.not_save)
+                .db()) ;
+            }
+            Db::new(queries).execute();
+        }
+
+        Mode::RakutenRacelist { racecourse } => {
+            let pb = ProgressBar::new((day_count + 1).try_into().unwrap());
+            let mut queries: Vec<DbType> = Vec::new();
+            for day in 0..=day_count {
+                pb.inc(1);
+                let date = to_date - Duration::days(day);
+
+                let dateracecourse = DateRacecourse::new(date, racecourse);
+                queries.extend(RakutenRaceListReader::new(dateracecourse)
                 .get(args.force_fetch, !args.not_save)
                 .db()) ;
             }
