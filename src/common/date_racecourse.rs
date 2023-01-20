@@ -1,11 +1,11 @@
 #![allow(dead_code)]
+use super::race::Race;
+use super::*;
 use crate::common::racecourse::Racecourse;
 use chrono::{Datelike, NaiveDate};
-use std::fmt;
+use std::{fmt, path::PathBuf};
 
-use super::race::Race;
-
-#[derive ( Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct DateRacecourse {
     pub date: NaiveDate,
     pub racecourse: Racecourse,
@@ -17,9 +17,12 @@ impl fmt::Display for DateRacecourse {
     }
 }
 
-impl DateRacecourse{
-    pub fn new(date: NaiveDate, racecourse: Racecourse) -> Self{
-        Self { date: date, racecourse: racecourse }
+impl DateRacecourse {
+    pub fn new(date: NaiveDate, racecourse: Racecourse) -> Self {
+        Self {
+            date: date,
+            racecourse: racecourse,
+        }
     }
 
     pub fn from_date_racecourse_id(race_id: i64) -> Self {
@@ -46,11 +49,23 @@ impl DateRacecourse{
             + self.racecourse as i64
     }
 
-    pub fn to_race(self, race_num: i32) -> Race{
-        Race{
+    pub fn to_race(self, race_num: i32) -> Race {
+        Race {
             date: self.date,
             racecourse: self.racecourse,
-            race_num: race_num
+            race_num: race_num,
         }
+    }
+}
+
+impl GetPath for DateRacecourse {
+    fn get_dir_path(&self) -> std::path::PathBuf {
+        PathBuf::new()
+            .join(self.racecourse.to_string())
+            .join(format!("{}", self.date.format("%Y-%m")))
+    }
+
+    fn get_data_id(&self) -> String {
+        self.to_date_racecourse_id().to_string()
     }
 }

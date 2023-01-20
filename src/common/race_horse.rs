@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+use super::*;
 use crate::common::racecourse::Racecourse;
 use chrono::{Datelike, NaiveDate};
 use std::fmt;
@@ -47,5 +48,17 @@ impl RaceHorse {
             + (self.racecourse as i64) * 10000
             + (self.race_num as i64) * 100
             + self.horse_num as i64
+    }
+}
+
+impl GetPath for RaceHorse {
+    fn get_dir_path(&self) -> std::path::PathBuf {
+        PathBuf::new()
+            .join(self.racecourse.to_string())
+            .join(format!("{}", self.date.format("%Y-%m")))
+    }
+
+    fn get_data_id(&self) -> String {
+        self.to_racehorse_id().to_string()
     }
 }
