@@ -5,9 +5,9 @@ use crate::db_writer::Db;
 
 pub mod horse_history;
 pub mod horse_profile;
+pub mod oddspark_odds;
 pub mod race;
 pub mod racelist;
-pub mod oddspark_odds;
 pub mod rakuten_racelist;
 
 pub trait PageScraper {
@@ -38,16 +38,17 @@ fn scrap_grid(
     scrapped
 }
 
-fn scrap_text(document: &Html, selector: &Selector) -> String {
-    document
-        .select(selector)
-        .next()
-        .unwrap()
-        .text()
-        .collect::<Vec<_>>()
-        .join("")
-        .trim()
-        .to_string()
+fn scrap_text(document: &Html, selector: &Selector) -> Option<String> {
+    Some(
+        document
+            .select(selector)
+            .next()?
+            .text()
+            .collect::<Vec<_>>()
+            .join("")
+            .trim()
+            .to_string(),
+    )
 }
 
 fn detect_going(str: &str) -> Option<String> {

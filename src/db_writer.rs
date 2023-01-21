@@ -214,7 +214,8 @@ pub enum DbType {
     Race(RaceHorses),
     HorseHistoryRace(Races),
     HorseHistoryRaceHorse(RaceHorses),
-    HorseProfile(Horses)
+    HorseProfile(Horses),
+    OddsparkOdds(RaceHorses),
 }
 
 pub struct Db(Vec<DbType>);
@@ -390,7 +391,25 @@ impl Db {
                 )
                 .unwrap();
                 }
-                
+                DbType::OddsparkOdds(data) => {
+                    tx.execute(
+                        "INSERT INTO race_horses (
+                            race_horse_id, race_id, horse_num, win_odds, place_odds_min, place_odds_max) 
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+                            ON CONFLICT (race_horse_id) DO UPDATE SET
+                            race_id = ?2, horse_num = ?3, win_odds = ?4, place_odds_min = ?5, place_odds_max = ?6",
+                        params![
+                            data.race_horse_id,
+                            data.race_id,
+                            data.horse_num,
+                            data.win_odds,
+                            data.place_odds_min,
+                            data.place_odds_max
+                            ],
+                    )
+                    .unwrap();
+                }
+
             }
             pb.inc(1);
         }

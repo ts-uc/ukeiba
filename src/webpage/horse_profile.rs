@@ -62,5 +62,5 @@ impl PageHorseProfile {
 fn scrap(html: &Html, selector_str: &str) -> Option<String> {
     let selector = Selector::parse(&selector_str).unwrap();
     let text = scrap_text(&html, &selector);
-    Some(text).filter(|s| !s.is_empty())
+    text.filter(|s| !s.is_empty())
 }

@@ -1,4 +1,4 @@
-use crate::{common::horse::Horse, webpage::horse_history::PageHorseHistory};
+use crate::{common::{horse::Horse, GetPath}, webpage::horse_history::PageHorseHistory};
 
 use super::Reader;
 
@@ -27,7 +27,7 @@ impl Reader for HorseHistoryReader {
             .unwrap()
             .join("ukeiba")
             .join("horse_history")
-            .join(self.0.get_upper_id().to_string())
+            .join(self.0.get_dir_path())
     }
 
     fn get_file_path(&self) -> std::path::PathBuf {
