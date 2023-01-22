@@ -10,10 +10,22 @@ pub fn initialize() {
     let conn = get_conn();
     conn.execute_batch(
         "
-        CREATE TABLE IF NOT EXISTS races (
-            race_id INTEGER PRIMARY KEY,
+        CREATE TABLE IF NOT EXISTS date_racecourses (
+            date_racecourse_id INTEGER PRIMARY KEY,
             race_date TEXT NOT NULL,
             racecourse TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
+            updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
+        );
+
+        CREATE TRIGGER IF NOT EXISTS trigger_date_racecourses_updated_at AFTER UPDATE ON date_racecourses
+        BEGIN
+            UPDATE date_racecourses SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
+        END;
+
+        CREATE TABLE IF NOT EXISTS races (
+            race_id INTEGER PRIMARY KEY,
+            date_racecourse_id INTEGER NOT NULL,
             race_num INTEGER NOT NULL,
             post_time TEXT,
         
@@ -136,10 +148,16 @@ pub fn initialize() {
 }
 
 #[derive(Debug)]
-pub struct Races {
-    pub race_id: i64,
+pub struct DateRacecourses {
+    pub date_racecourse_id: i64,
     pub race_date: String,
     pub racecourse: String,
+}
+
+#[derive(Debug)]
+pub struct Races {
+    pub race_id: i64,
+    pub date_racecourse_id: i64,
     pub race_num: i32,
     pub post_time: Option<String>,
 
@@ -210,6 +228,7 @@ pub struct Horses {
 
 #[derive(Debug)]
 pub enum DbType {
+    DateRacecourse(DateRacecourses),
     RaceList(Races),
     Race(RaceHorses),
     HorseHistoryRace(Races),
@@ -234,17 +253,26 @@ impl Db {
         let pb = indicatif::ProgressBar::new(self.0.len() as u64);
         for db_type in &self.0 {
             match db_type {
+                DbType::DateRacecourse(data) => {
+                    tx.execute(
+                        "REPLACE INTO date_racecourses(
+                            date_racecourse_id, race_date, racecourse)
+                            VALUES (?1, ?2, ?3)", params![
+                        data.date_racecourse_id,
+                        data.race_date,
+                        data.racecourse
+                    ]).unwrap();
+                }
                 DbType::RaceList(data) => {
                     tx.execute(
                         "REPLACE  INTO races (
-                            race_id, race_date, racecourse, race_num, post_time,
+                            race_id, date_racecourse_id, race_num, post_time,
                             change, race_type, race_name,  surface, direction, 
                             distance, weather, going, moisture, horse_count) 
-                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)",
                         params![
                             data.race_id,
-                            data.race_date,
-                            data.racecourse,
+                            data.date_racecourse_id,
                             data.race_num,
                             data.post_time,
                             //
@@ -297,14 +325,13 @@ impl Db {
                 DbType::HorseHistoryRace(data) => {
                     tx.execute(
                         "INSERT OR IGNORE INTO races (
-                            race_id, race_date, racecourse, race_num, change, 
+                            race_id, date_racecourse_id, race_num, change, 
                             race_type, race_name,  surface, distance, weather, 
                             going, moisture, horse_count) 
-                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)",
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
                         params![
                             data.race_id,
-                            data.race_date,
-                            data.racecourse,
+                            data.date_racecourse_id,
                             data.race_num,
                             data.change,
                             //

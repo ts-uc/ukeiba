@@ -9,7 +9,10 @@ fn get_conn() -> Connection {
 pub fn get_racelist(from: NaiveDate, to: NaiveDate) -> Vec<i64> {
     let conn = get_conn();
     let sql = format!(
-        "SELECT race_id FROM races where '{}' <= race_date and race_date <= '{}'",
+        "SELECT race_id FROM date_racecourses
+        inner join races 
+        on date_racecourses.date_racecourse_id = races.date_racecourse_id
+        where '{}' <= race_date and race_date <= '{}'",
         from.to_string(),
         to.to_string()
     );
@@ -24,7 +27,13 @@ pub fn get_racelist(from: NaiveDate, to: NaiveDate) -> Vec<i64> {
 
 pub fn get_horselist(from: NaiveDate, to: NaiveDate) -> Vec<i64> {
     let conn = get_conn();
-    let sql = format!("select distinct horse_id from races inner join race_horses on races.race_id = race_horses.race_id where '{}' <= race_date and race_date <= '{}'", from.to_string(), to.to_string());
+    let sql = format!(
+        "select distinct horse_id from date_racecourses
+        inner join races 
+        on date_racecourses.date_racecourse_id = races.date_racecourse_id
+        inner join race_horses on races.race_id = race_horses.race_id
+        where '{}' <= race_date and race_date <= '{}'", from.to_string(), to.to_string()
+    );
     let mut stmt = conn.prepare(&sql).unwrap();
     let data_iter = stmt.query_map([], |row| row.get(0)).unwrap();
     let mut data = Vec::new();

@@ -1,8 +1,10 @@
 use super::*;
+use crate::common::date_racecourse::DateRacecourse;
 use crate::common::horse::Horse;
 use crate::common::race::Race;
 use crate::common::race_horse::RaceHorse;
 use crate::common::racecourse::Racecourse;
+use crate::db_writer::DateRacecourses;
 use crate::db_writer::DbType;
 use crate::db_writer::RaceHorses;
 use crate::db_writer::Races;
@@ -60,10 +62,17 @@ impl PageHorseHistory {
                 race_num: race_num,
                 horse_num: horse_num,
             };
+            let horse_hisotry_racehorse = DateRacecourses{
+                date_racecourse_id: DateRacecourse::new(date, racecourse).to_date_racecourse_id(),
+                race_date: date.to_string(),
+                racecourse: racecourse.to_japanese()
+            };
+
+            data.push(DbType::DateRacecourse(horse_hisotry_racehorse));
+
             let horse_history_race = Races {
                 race_id: race.to_race_id(),
-                race_date: date.to_string(),
-                racecourse: racecourse.to_japanese(),
+                date_racecourse_id: DateRacecourse::new(date, racecourse).to_date_racecourse_id(),
                 race_num: race_num,
                 change: None,
                 race_type: None,

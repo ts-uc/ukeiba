@@ -1,6 +1,6 @@
 use super::*;
 use crate::common::date_racecourse::DateRacecourse;
-use crate::db_writer::{DbType, Races};
+use crate::db_writer::{DateRacecourses, DbType, Races};
 use scraper::{Html, Selector};
 use unicode_normalization::UnicodeNormalization;
 
@@ -35,6 +35,14 @@ impl PageRaceList {
 
         let mut data = Vec::new();
 
+        let date_racecourse = DateRacecourses {
+            date_racecourse_id: self.date_racecourse.to_date_racecourse_id(),
+            race_date: self.date_racecourse.date.to_string(),
+            racecourse: self.date_racecourse.racecourse.to_japanese(),
+        };
+
+        data.push(DbType::DateRacecourse(date_racecourse));
+
         for scrapped_row in scrapped {
             let race_num: i32 = scrapped_row[0].replace("R", "").parse().unwrap();
             let race_id = self.date_racecourse.to_race(race_num).to_race_id();
@@ -43,8 +51,7 @@ impl PageRaceList {
 
             let racedata = Races {
                 race_id: race_id,
-                race_date: self.date_racecourse.date.to_string(),
-                racecourse: self.date_racecourse.racecourse.to_japanese(),
+                date_racecourse_id: self.date_racecourse.to_date_racecourse_id(),
                 race_num: race_num,
                 post_time: Some(scrapped_row[1].clone()).filter(|s| !s.is_empty()),
                 change: Some(scrapped_row[2].clone()).filter(|s| !s.is_empty()),

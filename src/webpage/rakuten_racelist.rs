@@ -1,6 +1,6 @@
 use super::*;
 use crate::common::date_racecourse::DateRacecourse;
-use crate::db_writer::{DbType, Races};
+use crate::db_writer::DbType;
 use scraper::{Html, Selector};
 use unicode_normalization::UnicodeNormalization;
 
