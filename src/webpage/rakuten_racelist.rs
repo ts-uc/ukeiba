@@ -25,6 +25,10 @@ impl PageRakutenRaceList {
 
         let title = scrap(&document, "div.headline > h2:nth-child(1)");
 
+        if title.is_none() {
+            return Vec::new();
+        }
+
         let kai: Option<i32> = title
             .clone()
             .and_then(|f| detect_kai(&f))
