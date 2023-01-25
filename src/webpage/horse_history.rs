@@ -65,7 +65,9 @@ impl PageHorseHistory {
             let horse_hisotry_racehorse = DateRacecourses{
                 date_racecourse_id: DateRacecourse::new(date, racecourse).to_date_racecourse_id(),
                 race_date: date.to_string(),
-                racecourse: racecourse.to_japanese()
+                racecourse: racecourse.to_japanese(),
+                kai: None,
+                nichi: None,
             };
 
             data.push(DbType::DateRacecourse(horse_hisotry_racehorse));

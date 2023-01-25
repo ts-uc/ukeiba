@@ -39,6 +39,8 @@ impl PageRaceList {
             date_racecourse_id: self.date_racecourse.to_date_racecourse_id(),
             race_date: self.date_racecourse.date.to_string(),
             racecourse: self.date_racecourse.racecourse.to_japanese(),
+            kai: None,
+            nichi: None
         };
 
         data.push(DbType::DateRacecourse(date_racecourse));

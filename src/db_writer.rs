@@ -14,6 +14,8 @@ pub fn initialize() {
             date_racecourse_id INTEGER PRIMARY KEY,
             race_date TEXT NOT NULL,
             racecourse TEXT NOT NULL,
+            kai INTEGER,
+            nichi INTEGER,
             created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
             updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
         );
@@ -152,6 +154,8 @@ pub struct DateRacecourses {
     pub date_racecourse_id: i64,
     pub race_date: String,
     pub racecourse: String,
+    pub kai: Option<i32>,
+    pub nichi: Option<i32>,
 }
 
 #[derive(Debug)]
@@ -235,6 +239,7 @@ pub enum DbType {
     HorseHistoryRaceHorse(RaceHorses),
     HorseProfile(Horses),
     OddsparkOdds(RaceHorses),
+    RakutenDateRacecourse(DateRacecourses)
 }
 
 pub struct Db(Vec<DbType>);
@@ -255,12 +260,14 @@ impl Db {
             match db_type {
                 DbType::DateRacecourse(data) => {
                     tx.execute(
-                        "REPLACE INTO date_racecourses(
+                        "INSERT INTO date_racecourses(
                             date_racecourse_id, race_date, racecourse)
-                            VALUES (?1, ?2, ?3)", params![
+                            VALUES (?1, ?2, ?3)
+                            ON CONFLICT (date_racecourse_id) DO UPDATE SET
+                            race_date = ?2, racecourse = ?3", params![
                         data.date_racecourse_id,
                         data.race_date,
-                        data.racecourse
+                        data.racecourse,
                     ]).unwrap();
                 }
                 DbType::RaceList(data) => {
@@ -436,6 +443,21 @@ impl Db {
                     )
                     .unwrap();
                 }
+                DbType::RakutenDateRacecourse(data) => {
+                    tx.execute(
+                        "INSERT INTO date_racecourses(
+                            date_racecourse_id, race_date, racecourse, kai, nichi)
+                            VALUES (?1, ?2, ?3, ?4, ?5)
+                            ON CONFLICT (date_racecourse_id) DO UPDATE SET
+                            race_date = ?2, racecourse = ?3, kai = ?4, nichi = ?5", params![
+                        data.date_racecourse_id,
+                        data.race_date,
+                        data.racecourse,
+                        data.kai,
+                        data.nichi,
+                    ]).unwrap();
+                }
+
 
             }
             pb.inc(1);
