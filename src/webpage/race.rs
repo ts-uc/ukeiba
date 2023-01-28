@@ -57,13 +57,9 @@ impl PageRace {
             let trainer_name = detect_before_bracket(&trainer.unwrap());
             let trainer_id: Option<i32> = get_req_param_num(&document, &selector);
 
-            let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(2)", horse_num*5+1);
-            let selector = Selector::parse(&selector_str).unwrap();
-            let owner_name = scrap_text(&document, &selector);
+            let owner_name = scrap(&document, &format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(2)", horse_num*5+1));
 
-            let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(4)", horse_num*5-1);
-            let selector = Selector::parse(&selector_str).unwrap();
-            let weight = scrap_text(&document, &selector).unwrap();
+            let weight = scrap(&document, &format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(4)", horse_num*5-1)).unwrap();
             let weight_arr = weight.split_whitespace().collect::<Vec<&str>>();
             let weight = if weight_arr.len() == 3 {
                 weight_arr[1].to_string()
@@ -76,18 +72,12 @@ impl PageRace {
                 "".to_string()
             };
 
-            let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(3)", horse_num*5+2);
-            let selector = Selector::parse(&selector_str).unwrap();
-            let change = scrap_text(&document, &selector);
+            let change = scrap(&document, &format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(3)", horse_num*5+2));
 
-            let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(3)", horse_num*5);
-            let selector = Selector::parse(&selector_str).unwrap();
-            let horse_weight_and_delta = scrap_text(&document, &selector);
+            let horse_weight_and_delta = scrap(&document, &format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(3)", horse_num*5));
             let horse_weight = detect_before_bracket(&horse_weight_and_delta.unwrap());
 
-            let selector_str = format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(1)", horse_num*5-1);
-            let selector = Selector::parse(&selector_str).unwrap();
-            let sexage = scrap_text(&document, &selector);
+            let sexage = scrap(&document, &format!(".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child({}) > td:nth-child(1)", horse_num*5-1));
             let sex = detect_horse_sex(&sexage.unwrap());
 
             let foo = RaceHorses {

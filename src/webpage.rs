@@ -136,3 +136,8 @@ fn scrap(html: &Html, selector_str: &str) -> Option<String> {
     let text = scrap_text(&html, &selector);
     text.filter(|s| !s.is_empty())
 }
+
+// fn scrap_param<T: std::str::FromStr>(html: &Html, selector_str: &str) -> Option<T> {
+//     let selector = Selector::parse(&selector_str).unwrap();
+//     get_req_param_num(html, &selector)
+// }
