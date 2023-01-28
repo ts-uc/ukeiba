@@ -91,9 +91,3 @@ fn calc_wakuban(horse_count: i32, horse_num: i32) -> (i32, i32) {
         }
     }
 }
-
-fn scrap(html: &Html, selector_str: &str) -> Option<String> {
-    let selector = Selector::parse(&selector_str).unwrap();
-    let text = scrap_text(&html, &selector);
-    text.filter(|s| !s.is_empty())
-}

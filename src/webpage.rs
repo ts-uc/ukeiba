@@ -130,3 +130,9 @@ fn detect_inner_bracket(str: &str) -> Option<String> {
     )
     .filter(|s| !s.is_empty())
 }
+
+fn scrap(html: &Html, selector_str: &str) -> Option<String> {
+    let selector = Selector::parse(&selector_str).unwrap();
+    let text = scrap_text(&html, &selector);
+    text.filter(|s| !s.is_empty())
+}

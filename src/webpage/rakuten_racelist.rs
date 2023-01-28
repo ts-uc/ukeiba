@@ -2,7 +2,7 @@ use super::*;
 use crate::common::date_racecourse::DateRacecourse;
 use crate::db_writer::DateRacecourses;
 use crate::db_writer::DbType;
-use scraper::{Html, Selector};
+use scraper::Html;
 use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug)]
@@ -50,12 +50,6 @@ impl PageRakutenRaceList {
         data.push(DbType::RakutenDateRacecourse(date_racecourse));
         data
     }
-}
-
-fn scrap(html: &Html, selector_str: &str) -> Option<String> {
-    let selector = Selector::parse(&selector_str).unwrap();
-    let text = scrap_text(&html, &selector);
-    text.filter(|s| !s.is_empty())
 }
 
 fn detect_kai(str: &str) -> Option<String> {
