@@ -87,6 +87,10 @@ impl PageHorseHistory {
                 horse_count: Some(scrapped_row[9].clone()).filter(|s| !s.is_empty()),
                 post_time: None,
                 direction: None,
+                race_age: None,
+                race_horse_type: None,
+                race_weight_type: None,
+                race_sub_title: None,
             };
 
             data.push(DbType::HorseHistoryRace(horse_history_race));

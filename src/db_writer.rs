@@ -33,11 +33,15 @@ pub fn initialize() {
         
             change TEXT,
             race_type TEXT,
+            race_sub_title TEXT,
             race_name TEXT,
             surface TEXT,               
             direction TEXT,
         
             distance INTEGER,
+            race_horse_type TEXT,
+            race_age TEXT,
+            race_weight_type TEXT,
             weather TEXT,
             going TEXT,
             moisture REAL,
@@ -168,10 +172,15 @@ pub struct Races {
     pub change: Option<String>,
     pub race_type: Option<String>,
     pub race_name: Option<String>,
+    pub race_sub_title: Option<String>,
     pub surface: Option<String>,
     pub direction: Option<String>,
 
     pub distance: Option<i32>,
+    pub race_horse_type: Option<String>,
+    pub race_age: Option<String>,
+    pub race_weight_type: Option<String>,
+
     pub weather: Option<String>,
     pub going: Option<String>,
     pub moisture: Option<f64>,
@@ -239,7 +248,8 @@ pub enum DbType {
     HorseHistoryRaceHorse(RaceHorses),
     HorseProfile(Horses),
     OddsparkOdds(RaceHorses),
-    RakutenDateRacecourse(DateRacecourses)
+    RakutenDateRacecourse(DateRacecourses),
+    RaceRaces(Races),
 }
 
 pub struct Db(Vec<DbType>);
@@ -264,11 +274,10 @@ impl Db {
                             date_racecourse_id, race_date, racecourse)
                             VALUES (?1, ?2, ?3)
                             ON CONFLICT (date_racecourse_id) DO UPDATE SET
-                            race_date = ?2, racecourse = ?3", params![
-                        data.date_racecourse_id,
-                        data.race_date,
-                        data.racecourse,
-                    ]).unwrap();
+                            race_date = ?2, racecourse = ?3",
+                        params![data.date_racecourse_id, data.race_date, data.racecourse,],
+                    )
+                    .unwrap();
                 }
                 DbType::RaceList(data) => {
                     tx.execute(
@@ -294,7 +303,7 @@ impl Db {
                             data.going,
                             data.moisture,
                             data.horse_count
-                            ],
+                        ],
                     )
                     .unwrap();
                 }
@@ -449,16 +458,40 @@ impl Db {
                             date_racecourse_id, race_date, racecourse, kai, nichi)
                             VALUES (?1, ?2, ?3, ?4, ?5)
                             ON CONFLICT (date_racecourse_id) DO UPDATE SET
-                            race_date = ?2, racecourse = ?3, kai = ?4, nichi = ?5", params![
-                        data.date_racecourse_id,
-                        data.race_date,
-                        data.racecourse,
-                        data.kai,
-                        data.nichi,
-                    ]).unwrap();
+                            race_date = ?2, racecourse = ?3, kai = ?4, nichi = ?5",
+                        params![
+                            data.date_racecourse_id,
+                            data.race_date,
+                            data.racecourse,
+                            data.kai,
+                            data.nichi,
+                        ],
+                    )
+                    .unwrap();
                 }
+                DbType::RaceRaces(data) => {
+                    tx.execute(
+                        "INSERT INTO races(
+                            race_id, date_racecourse_id, race_num, race_name, race_sub_title,
+                            race_horse_type, race_age, race_weight_type)
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+                            ON CONFLICT (race_id) DO UPDATE SET
+                            date_racecourse_id = ?2, race_num = ?3, race_name = ?4, race_sub_title = ?5,
+                            race_horse_type = ?6, race_age = ?7, race_weight_type = ?8",
+                        params![
+                            data.race_id,
+                            data.date_racecourse_id,
+                            data.race_num,
+                            data.race_name,
+                            data.race_sub_title,
 
-
+                            data.race_horse_type,
+                            data.race_age,
+                            data.race_weight_type,
+                        ],
+                    )
+                    .unwrap();
+                }
             }
             pb.inc(1);
         }

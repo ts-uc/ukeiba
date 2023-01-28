@@ -1,5 +1,7 @@
 use super::*;
+use crate::common::date_racecourse::DateRacecourse;
 use crate::common::race::Race;
+use crate::db_writer::Races;
 use crate::db_writer::DbType;
 use crate::db_writer::RaceHorses;
 use scraper::{Html, Selector};
@@ -23,12 +25,39 @@ impl PageRace {
         let document: String = self.html.nfkc().collect();
         let document = Html::parse_document(&document);
 
+        let race_data = scrap(&document, "ul.dataArea:nth-child(5) > li:nth-child(1)");
+        let (race_horse_type, race_age, race_weight_type) = race_data_split(race_data);
+
         let selector_str = ".cardTable > table:nth-child(1) > tbody:nth-child(1) > tr";
         let selector = Selector::parse(selector_str).unwrap();
 
         let horse_count = ((document.select(&selector).count() - 2) / 5) as i32;
 
-        let mut race_horse_list: Vec<DbType> = Vec::new();
+        let mut data: Vec<DbType> = Vec::new();
+
+        let title_data = Races{
+            race_id: self.race.to_race_id(),
+            date_racecourse_id: DateRacecourse::new(self.race.date,self.race.racecourse).to_date_racecourse_id(),
+            race_num: self.race.race_num,
+            race_name: scrap(&document, ".raceTitle > h3:nth-child(4)"),
+            race_sub_title: scrap(&document, ".subTitle"),
+            race_horse_type: race_horse_type,
+            race_age: race_age,
+            race_weight_type: race_weight_type,
+            post_time: None,
+            change: None,
+            race_type: None,
+            surface: None,
+            direction: None,
+            distance: None,
+            weather: None,
+            going: None,
+            moisture: None,
+            horse_count: None
+        };
+
+        data.push(DbType::RaceRaces(title_data));
+
         for horse_num in 1..=horse_count {
             let (_, bracket_num_index) = calc_wakuban(horse_count, horse_num);
 
@@ -111,9 +140,9 @@ impl PageRace {
                 prize: None,
             };
 
-            race_horse_list.push(DbType::Race(foo));
+            data.push(DbType::Race(foo));
         }
-        race_horse_list
+        data
     }
 }
 
@@ -128,5 +157,21 @@ fn calc_wakuban(horse_count: i32, horse_num: i32) -> (i32, i32) {
             let foo = horse_num - base_num + 1;
             (base_num + foo / 2, foo % 2)
         }
+    }
+}
+
+fn race_data_split(data: Option<String>) -> (Option<String>, Option<String>, Option<String>) {
+    match data {
+        Some(x) => {
+            let a: Vec<&str> = x.split_whitespace().collect();
+            if a.len() < 4{
+                return (None, None, None)
+            }
+            let b = a[a.len() - 4].to_string();
+            let c = a[a.len() - 3].to_string();
+            let d = a[a.len() - 2].to_string();
+            (Some(b), Some(c), Some(d))
+        }
+        None => (None, None, None),
     }
 }

@@ -66,6 +66,10 @@ impl PageRaceList {
                 going: detect_going(&scrapped_row[7]),
                 moisture: detect_num(&scrapped_row[7]),
                 horse_count: scrapped_row[8].parse().ok(),
+                race_age: None,
+                race_horse_type: None,
+                race_weight_type: None,
+                race_sub_title: None,
             };
             data.push(DbType::RaceList(racedata));
         }
