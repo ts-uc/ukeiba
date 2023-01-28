@@ -127,9 +127,8 @@ fn main() {
             let racelist = get_racelist(from_date, to_date);
             let pb = ProgressBar::new(racelist.len() as u64);
             let mut queries: Vec<DbType> = Vec::new();
-            for race_id in racelist {
+            for race in racelist {
                 pb.inc(1);
-                let race = Race::from_race_id(race_id);
                 queries.extend(RaceReader::new(race)
                     .get(args.force_fetch, !args.not_save)
                     .db());
@@ -141,9 +140,8 @@ fn main() {
             let horselist = get_horselist(from_date, to_date);
             let pb = ProgressBar::new(horselist.len() as u64);
             let mut queries: Vec<DbType> = Vec::new();
-            for horse_id in horselist {
+            for horse in horselist {
                 pb.inc(1);
-                let horse = Horse::new(horse_id);
                 queries.extend(HorseHistoryReader::new(horse).get(args.force_fetch, !args.not_save).db());
             }
             Db::new(queries).execute();
@@ -153,9 +151,8 @@ fn main() {
             let horselist = get_horselist(from_date, to_date);
             let pb = ProgressBar::new(horselist.len() as u64);
             let mut queries: Vec<DbType> = Vec::new();
-            for horse_id in horselist {
+            for horse in horselist {
                 pb.inc(1);
-                let horse = Horse::new(horse_id);
                 queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
             }
             Db::new(queries).execute();
@@ -165,9 +162,8 @@ fn main() {
             let racelist = get_racelist(from_date, to_date);
             let pb = ProgressBar::new(racelist.len() as u64);
             let mut queries: Vec<DbType> = Vec::new();
-            for race_id in racelist {
+            for race in racelist {
                 pb.inc(1);
-                let race = Race::from_race_id(race_id);
                 queries.extend(OddsparkOddsReader::new(race)
                     .get(args.force_fetch, !args.not_save)
                     .db());
