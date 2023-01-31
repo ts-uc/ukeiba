@@ -131,6 +131,15 @@ fn detect_inner_bracket(str: &str) -> Option<String> {
     .filter(|s| !s.is_empty())
 }
 
+fn detect_after_bracket(str: &str) -> Option<String> {
+    Some(Regex::new(r"([\(（].*[\)）])?\s*(.*)").unwrap().captures(str)?[2].to_string())
+        .filter(|s| !s.is_empty())
+}
+
+fn remove_whitespace(str: &str) -> String{
+    str.split_whitespace().collect::<Vec<_>>().join("")
+}
+
 fn scrap(html: &Html, selector_str: &str) -> Option<String> {
     let selector = Selector::parse(&selector_str).unwrap();
     let text = scrap_text(&html, &selector);

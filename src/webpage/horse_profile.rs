@@ -41,15 +41,15 @@ impl PageHorseProfile {
                 &document,
                 ".horse_info_table > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(2)",
             ),
-            birthplace: scrap(&document, "td.notopborder:nth-child(2)"),
+            birthplace: scrap(&document, "td.notopborder:nth-child(2)").map(|s| remove_whitespace(&s)),
             breeder: scrap(&document, "td.notopborder:nth-child(4)")
-            .map(|s| s.split_whitespace().collect::<Vec<_>>().join("")),
-            sire_name: scrap(&document, ".fathername"),
-            dam_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(3) > td:nth-child(2)"),
-            sires_sire_name: scrap(&document, ".Paternalfathername"),
-            sires_dam_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(2)"),
-            dams_sire_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(3) > td:nth-child(4)"),
-            dams_dam_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(4) > td:nth-child(2)"),
+            .map(|s| remove_whitespace(&s)),
+            sire_name: scrap(&document, ".fathername").and_then(|s| detect_after_bracket(&s)).map(|s| remove_whitespace(&s)),
+            dam_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(3) > td:nth-child(2)").and_then(|s| detect_after_bracket(&s)).map(|s| remove_whitespace(&s)),
+            sires_sire_name: scrap(&document, ".Paternalfathername").and_then(|s| detect_after_bracket(&s)).map(|s| remove_whitespace(&s)),
+            sires_dam_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(2)").and_then(|s| detect_after_bracket(&s)).map(|s| remove_whitespace(&s)),
+            dams_sire_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(3) > td:nth-child(4)").and_then(|s| detect_after_bracket(&s)).map(|s| remove_whitespace(&s)),
+            dams_dam_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(4) > td:nth-child(2)").and_then(|s| detect_after_bracket(&s)).map(|s| remove_whitespace(&s)),
             deregistration_date: None,
         };
 
