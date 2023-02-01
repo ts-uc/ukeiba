@@ -15,9 +15,7 @@ impl BajikyoSearchReader {
         let v: Value = serde_json::from_str(&text).unwrap();
 
         if v["total"] != json!(1) {
-            println!("{:?}", self.0);
-            println!("{}", text);
-            println!("=================");
+            println!("{}, {:?}", v["total"], self.0);
         }
     }
 }
