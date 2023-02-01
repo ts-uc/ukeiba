@@ -1,4 +1,4 @@
-use crate::{Horse, Race};
+use crate::{common::horse_birthdate_parents::HorseBirthdateParents, Horse, Race};
 use chrono::NaiveDate;
 use rusqlite::Connection;
 
@@ -40,6 +40,34 @@ pub fn get_horselist(from: NaiveDate, to: NaiveDate) -> Vec<Horse> {
     let mut stmt = conn.prepare(&sql).unwrap();
     let data = stmt
         .query_map([], |row| Ok(Horse::new(row.get(0).unwrap())))
+        .unwrap()
+        .map(|d| d.unwrap())
+        .collect();
+    data
+}
+
+pub fn get_horse_birthdate_parents_list(from: NaiveDate, to: NaiveDate) -> Vec<HorseBirthdateParents> {
+    let conn = get_conn();
+    let sql = format!(
+        "select distinct horse_nar_id, horse_birthdate, sire_name, dam_name from date_racecourses
+        inner join races 
+        on date_racecourses.date_racecourse_id = races.date_racecourse_id
+        inner join race_horses on races.race_id = race_horses.race_id
+        inner join horses on race_horses.horse_id = horses.horse_nar_id
+        where '{}' <= race_date and race_date <= '{}'",
+        from.to_string(),
+        to.to_string()
+    );
+    let mut stmt = conn.prepare(&sql).unwrap();
+    let data = stmt
+        .query_map([], |row| {
+            Ok(HorseBirthdateParents {
+                horse: Horse::new(row.get(0).unwrap()),
+                birthdate: row.get(1).unwrap(),
+                sire_name: row.get(2).unwrap(),
+                dam_name: row.get(3).unwrap(),
+            })
+        })
         .unwrap()
         .map(|d| d.unwrap())
         .collect();

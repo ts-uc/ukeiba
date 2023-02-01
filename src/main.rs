@@ -6,12 +6,14 @@ mod webpage;
 use crate::db_writer::DbType;
 use crate::db_writer::Db;
 use crate::common::race::Race;
+use crate::reader::bajikyo_search::BajikyoSearchReader;
 use crate::reader::race::RaceReader;
 use crate::reader::racelist::RaceListReader;
 use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
 use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use common::horse::Horse;
+use db_reader::get_horse_birthdate_parents_list;
 use db_reader::get_horselist;
 use reader::oddspark_odds::OddsparkOddsReader;
 use reader::rakuten_racelist::RakutenRaceListReader;
@@ -59,6 +61,7 @@ enum Mode {
     HorseHistory,
     HorseProfile,
     Odds,
+    BajikyoSearch,
 }
 
 fn main() {
@@ -157,6 +160,19 @@ fn main() {
             }
             Db::new(queries).execute();
         }
+
+        Mode::BajikyoSearch => {
+            let horselist = get_horse_birthdate_parents_list(from_date, to_date);
+            let pb = ProgressBar::new(horselist.len() as u64);
+            //let mut queries: Vec<DbType> = Vec::new();
+            for horse in horselist {
+                pb.inc(1);
+                BajikyoSearchReader::new(horse).get(args.force_fetch, !args.not_save);
+                //queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
+            }
+            //Db::new(queries).execute();
+        }
+
 
         Mode::Odds => {
             let racelist = get_racelist(from_date, to_date);

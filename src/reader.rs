@@ -4,6 +4,7 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 
+pub mod bajikyo_search;
 pub mod racelist;
 pub mod race;
 pub mod horse_history;
