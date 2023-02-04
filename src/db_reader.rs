@@ -49,7 +49,7 @@ pub fn get_horselist(from: NaiveDate, to: NaiveDate) -> Vec<Horse> {
 pub fn get_horse_birthdate_parents_list(from: NaiveDate, to: NaiveDate) -> Vec<HorseBirthdateParents> {
     let conn = get_conn();
     let sql = format!(
-        "select distinct horse_nar_id, horse_birthdate, sire_name, dam_name from date_racecourses
+        "select distinct horse_nar_id, horses.horse_name, horse_birthdate, sire_name, dam_name from date_racecourses
         inner join races 
         on date_racecourses.date_racecourse_id = races.date_racecourse_id
         inner join race_horses on races.race_id = race_horses.race_id
@@ -63,9 +63,10 @@ pub fn get_horse_birthdate_parents_list(from: NaiveDate, to: NaiveDate) -> Vec<H
         .query_map([], |row| {
             Ok(HorseBirthdateParents {
                 horse: Horse::new(row.get(0).unwrap()),
-                birthdate: row.get(1).unwrap(),
-                sire_name: row.get(2).unwrap(),
-                dam_name: row.get(3).unwrap(),
+                horse_name: row.get(1).unwrap(),
+                birthdate: row.get(2).unwrap(),
+                sire_name: row.get(3).unwrap(),
+                dam_name: row.get(4).unwrap(),
             })
         })
         .unwrap()
