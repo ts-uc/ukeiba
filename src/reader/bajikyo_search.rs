@@ -15,6 +15,8 @@ impl BajikyoSearchReader {
         let v: Value = serde_json::from_str(&text).unwrap();
 
         if v["total"] != json!(1) {
+            let text = self.get_string(true, is_save).unwrap();
+            let v: Value = serde_json::from_str(&text).unwrap();    
             println!("{}, {:?}", v["total"], self.0);
         }
     }
@@ -31,6 +33,7 @@ impl Reader for BajikyoSearchReader {
         let sire_name: &str = &self.0.sire_name;
         let dam_name: &str = &self.0.dam_name;
         let birthdate: &str = &self.0.birthdate.format("%Y/%m/%d").to_string();
+        let subname = "";
 
         let original_data = String::new()
             + r#"a:22:{s:5:"assoc";s:1:"0";s:4:"name";s:0:"";s:3:"ph1";s:"#
@@ -41,11 +44,19 @@ impl Reader for BajikyoSearchReader {
             + &dam_name.as_bytes().len().to_string()
             + r#":""#
             + &dam_name
-            + r#"";s:5:"date1";s:10:""#
+            + r#"";s:5:"date1";s:"#
+            + &birthdate.as_bytes().len().to_string()
+            + r#":""#
             + &birthdate
-            + r#"";s:5:"date2";s:10:""#
+            + r#"";s:5:"date2";s:"#
+            + &birthdate.as_bytes().len().to_string()
+            + r#":""#
             + &birthdate
-            + r#"";s:6:"public";s:1:"1";s:5:"color";s:0:"";s:5:"breed";s:0:"";s:7:"breeder";s:0:"";s:5:"owner";s:0:"";s:3:"no1";s:0:"";s:3:"no2";s:0:"";s:2:"mc";s:0:"";s:7:"oldname";s:0:"";s:5:"subno";s:0:"";s:7:"subname";s:0:"";s:10:"savesubmit";s:10:"savesubmit";s:4:"page";s:1:"1";s:2:"rp";s:2:"40";s:8:"sortname";s:6:"m_name";s:9:"sortorder";s:3:"asc";}"#;
+            + r#"";s:6:"public";s:1:"1";s:5:"color";s:0:"";s:5:"breed";s:0:"";s:7:"breeder";s:0:"";s:5:"owner";s:0:"";s:3:"no1";s:0:"";s:3:"no2";s:0:"";s:2:"mc";s:0:"";s:7:"oldname";s:0:"";s:5:"subno";s:0:"";s:7:"subname";s:"#
+            + &subname.as_bytes().len().to_string()
+            + r#":""#
+            + &subname
+            + r#"";s:10:"savesubmit";s:10:"savesubmit";s:4:"page";s:1:"1";s:2:"rp";s:2:"40";s:8:"sortname";s:6:"m_name";s:9:"sortorder";s:3:"asc";}"#;
 
         let encorded = general_purpose::STANDARD.encode(original_data);
 
