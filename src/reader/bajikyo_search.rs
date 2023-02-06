@@ -12,6 +12,8 @@ enum Mode {
     Sire,
     Dam,
     Name,
+    DamSmall,
+    SireSmall,
 }
 
 impl BajikyoSearchReader {
@@ -79,6 +81,26 @@ impl Reader for BajikyoSearchReader {
         }
 
         let original_data = make_query(&self.0, Mode::Dam);
+        let text = send_req(&original_data);
+
+        let v: Value = serde_json::from_str(&text).unwrap();
+        println!("{}", v["total"]);
+
+        if v["total"] == json!(1) {
+            return Some(text);
+        }
+
+        let original_data = make_query(&self.0, Mode::DamSmall);
+        let text = send_req(&original_data);
+
+        let v: Value = serde_json::from_str(&text).unwrap();
+        println!("{}", v["total"]);
+
+        if v["total"] == json!(1) {
+            return Some(text);
+        }
+
+        let original_data = make_query(&self.0, Mode::SireSmall);
         let text = send_req(&original_data);
 
         let v: Value = serde_json::from_str(&text).unwrap();
@@ -162,6 +184,18 @@ fn make_query(data: &HorseBirthdateParents, mode: Mode) -> String {
             "".to_string(),
             "".to_string(),
         ),
+        Mode::DamSmall => (
+            "".to_string(),
+            "".to_string(),
+            smallize(&data.dam_name),
+            "".to_string(),
+        ),
+        Mode::SireSmall => (
+            "".to_string(),
+            smallize(&data.sire_name),
+            "".to_string(),
+            "".to_string(),
+        )
     };
 
     let original_data = String::new()
@@ -191,4 +225,12 @@ fn make_query(data: &HorseBirthdateParents, mode: Mode) -> String {
         + &subname
         + r#"";s:10:"savesubmit";s:10:"savesubmit";s:4:"page";s:1:"1";s:2:"rp";s:2:"10";s:8:"sortname";s:6:"m_name";s:9:"sortorder";s:3:"asc";}"#;
     original_data
+}
+
+fn smallize(from: &str) -> String {
+    from.replace("リユウ", "リュウ")
+        .replace("フロンテイア", "フロンティア")
+        .replace("ミツト", "ミット")
+        .replace("レデイ", "レディ")
+        .replace("ホツカイ", "ホッカイ")
 }
