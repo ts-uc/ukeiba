@@ -1,15 +1,17 @@
 use super::Reader;
 use crate::common::horse_birthdate_parents::HorseBirthdateParents;
 use base64::{engine::general_purpose, Engine as _};
+use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use serde_json::{json, Value};
 
 pub struct BajikyoSearchReader(HorseBirthdateParents);
 
 enum Mode {
     Parents,
-    Name,
+    Subname,
     Sire,
     Dam,
+    Name,
 }
 
 impl BajikyoSearchReader {
@@ -41,6 +43,17 @@ impl Reader for BajikyoSearchReader {
         let text = send_req(&original_data);
 
         let v: Value = serde_json::from_str(&text).unwrap();
+        println!("{}", v["total"]);
+        if v["total"] == json!(1) {
+            return Some(text);
+        }
+
+        let original_data = make_query(&self.0, Mode::Subname);
+        let text = send_req(&original_data);
+
+        let v: Value = serde_json::from_str(&text).unwrap();
+        println!("{}", v["total"]);
+
         if v["total"] == json!(1) {
             return Some(text);
         }
@@ -49,6 +62,8 @@ impl Reader for BajikyoSearchReader {
         let text = send_req(&original_data);
 
         let v: Value = serde_json::from_str(&text).unwrap();
+        println!("{}", v["total"]);
+
         if v["total"] == json!(1) {
             return Some(text);
         }
@@ -57,6 +72,8 @@ impl Reader for BajikyoSearchReader {
         let text = send_req(&original_data);
 
         let v: Value = serde_json::from_str(&text).unwrap();
+        println!("{}", v["total"]);
+
         if v["total"] == json!(1) {
             return Some(text);
         }
@@ -65,6 +82,8 @@ impl Reader for BajikyoSearchReader {
         let text = send_req(&original_data);
 
         let v: Value = serde_json::from_str(&text).unwrap();
+        println!("{}", v["total"]);
+
         if v["total"] == json!(1) {
             return Some(text);
         }
@@ -90,7 +109,11 @@ impl Reader for BajikyoSearchReader {
 
 fn send_req(query: &str) -> String {
     let encorded = general_purpose::STANDARD.encode(query);
-
+    let encorded = utf8_percent_encode(&encorded, NON_ALPHANUMERIC);
+    let body = format!(
+        "page=1&rp=10&sortname=m_name&sortorder=asc&query={}&qtype=",
+        encorded
+    );
     let client = reqwest::blocking::Client::new();
     std::thread::sleep(std::time::Duration::from_millis(3000));
     let res = client
@@ -99,10 +122,7 @@ fn send_req(query: &str) -> String {
             reqwest::header::CONTENT_TYPE,
             "application/x-www-form-urlencoded",
         )
-        .body(format!(
-            "page=1&rp=10&sortname=m_name&sortorder=asc&query={}&qtype=",
-            encorded
-        ))
+        .body(body)
         .send()
         .unwrap();
     let text = res.text().unwrap();
@@ -111,15 +131,45 @@ fn send_req(query: &str) -> String {
 
 fn make_query(data: &HorseBirthdateParents, mode: Mode) -> String {
     let birthdate: &str = &data.birthdate.format("%Y/%m/%d").to_string();
-    let (sire_name, dam_name, subname): (&str, &str, &str) = match mode {
-        Mode::Parents => (&data.sire_name, &data.dam_name, ""),
-        Mode::Name => ("", "", &data.horse_name),
-        Mode::Sire => (&data.sire_name, "", ""),
-        Mode::Dam => ("", &data.dam_name, ""),
+    let (name, sire_name, dam_name, subname): (String, String, String, String) = match mode {
+        Mode::Parents => (
+            "".to_string(),
+            data.sire_name.to_string(),
+            data.dam_name.to_string(),
+            "".to_string(),
+        ),
+        Mode::Subname => (
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            data.horse_name.to_string(),
+        ),
+        Mode::Sire => (
+            "".to_string(),
+            data.sire_name.to_string(),
+            "".to_string(),
+            "".to_string(),
+        ),
+        Mode::Dam => (
+            "".to_string(),
+            "".to_string(),
+            data.dam_name.to_string(),
+            "".to_string(),
+        ),
+        Mode::Name => (
+            data.horse_name.to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+        ),
     };
 
     let original_data = String::new()
-        + r#"a:22:{s:5:"assoc";s:1:"0";s:4:"name";s:0:"";s:3:"ph1";s:"#
+        + r#"a:22:{s:5:"assoc";s:1:"0";s:4:"name";s:"#
+        + &name.as_bytes().len().to_string()
+        + r#":""#
+        + &name
+        + r#"";s:3:"ph1";s:"#
         + &sire_name.as_bytes().len().to_string()
         + r#":""#
         + &sire_name
@@ -139,6 +189,6 @@ fn make_query(data: &HorseBirthdateParents, mode: Mode) -> String {
         + &subname.as_bytes().len().to_string()
         + r#":""#
         + &subname
-        + r#"";s:10:"savesubmit";s:10:"savesubmit";s:4:"page";s:1:"1";s:2:"rp";s:2:"40";s:8:"sortname";s:6:"m_name";s:9:"sortorder";s:3:"asc";}"#;
-        original_data
+        + r#"";s:10:"savesubmit";s:10:"savesubmit";s:4:"page";s:1:"1";s:2:"rp";s:2:"10";s:8:"sortname";s:6:"m_name";s:9:"sortorder";s:3:"asc";}"#;
+    original_data
 }

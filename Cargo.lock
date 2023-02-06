@@ -775,6 +775,7 @@ dependencies = [
  "flate2",
  "indicatif",
  "log",
+ "percent-encoding",
  "regex",
  "reqwest",
  "rusqlite",
