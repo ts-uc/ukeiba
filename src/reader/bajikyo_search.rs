@@ -50,6 +50,24 @@ impl Reader for BajikyoSearchReader {
     }
 
     fn fetch_string(&self) -> Option<String> {
+        if self.0.horse.get_horse_id() == 30892409283 {
+            let query = SearchQuery {
+                name: "".to_string(),
+                subname: "".to_string(),
+                sire_name: "".to_string(),
+                dam_name: "".to_string(),
+                birthdate: "".to_string(),
+                bajikyo_id: "20101 2242".to_string(),
+            };
+            let text = send_req(&query.get());
+
+            let v: Value = serde_json::from_str(&text).unwrap();
+            println!("{}", v["total"]);
+            if v["total"] == json!(1) {
+                return Some(text);
+            }
+    
+        }
         let original_data = make_query(&self.0, Mode::Parents);
         let text = send_req(&original_data);
 
