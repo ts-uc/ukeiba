@@ -6,6 +6,15 @@ use serde_json::{json, Value};
 
 pub struct BajikyoSearchReader(HorseBirthdateParents);
 
+struct SearchQuery {
+    name: String,
+    subname: String,
+    sire_name: String,
+    dam_name: String,
+    birthdate: String,
+    bajikyo_id: String,
+}
+
 enum Mode {
     Parents,
     Subname,
@@ -152,7 +161,7 @@ fn send_req(query: &str) -> String {
 }
 
 fn make_query(data: &HorseBirthdateParents, mode: Mode) -> String {
-    let birthdate: &str = &data.birthdate.format("%Y/%m/%d").to_string();
+    let birthdate = data.birthdate.format("%Y/%m/%d").to_string();
     let (name, sire_name, dam_name, subname): (String, String, String, String) = match mode {
         Mode::Parents => (
             "".to_string(),
@@ -195,36 +204,19 @@ fn make_query(data: &HorseBirthdateParents, mode: Mode) -> String {
             smallize(&data.sire_name),
             "".to_string(),
             "".to_string(),
-        )
+        ),
     };
 
-    let original_data = String::new()
-        + r#"a:22:{s:5:"assoc";s:1:"0";s:4:"name";s:"#
-        + &name.as_bytes().len().to_string()
-        + r#":""#
-        + &name
-        + r#"";s:3:"ph1";s:"#
-        + &sire_name.as_bytes().len().to_string()
-        + r#":""#
-        + &sire_name
-        + r#"";s:3:"ph2";s:"#
-        + &dam_name.as_bytes().len().to_string()
-        + r#":""#
-        + &dam_name
-        + r#"";s:5:"date1";s:"#
-        + &birthdate.as_bytes().len().to_string()
-        + r#":""#
-        + &birthdate
-        + r#"";s:5:"date2";s:"#
-        + &birthdate.as_bytes().len().to_string()
-        + r#":""#
-        + &birthdate
-        + r#"";s:6:"public";s:1:"1";s:5:"color";s:0:"";s:5:"breed";s:0:"";s:7:"breeder";s:0:"";s:5:"owner";s:0:"";s:3:"no1";s:0:"";s:3:"no2";s:0:"";s:2:"mc";s:0:"";s:7:"oldname";s:0:"";s:5:"subno";s:0:"";s:7:"subname";s:"#
-        + &subname.as_bytes().len().to_string()
-        + r#":""#
-        + &subname
-        + r#"";s:10:"savesubmit";s:10:"savesubmit";s:4:"page";s:1:"1";s:2:"rp";s:2:"10";s:8:"sortname";s:6:"m_name";s:9:"sortorder";s:3:"asc";}"#;
-    original_data
+    let query = SearchQuery {
+        name: name,
+        subname: subname,
+        sire_name: sire_name,
+        dam_name: dam_name,
+        birthdate: birthdate,
+        bajikyo_id: "".to_string(),
+    };
+
+    query.get()
 }
 
 fn smallize(from: &str) -> String {
@@ -233,4 +225,39 @@ fn smallize(from: &str) -> String {
         .replace("ミツト", "ミット")
         .replace("レデイ", "レディ")
         .replace("ホツカイ", "ホッカイ")
+}
+
+impl SearchQuery {
+    fn get(&self) -> String {
+        String::new()
+            + r#"a:22:{s:5:"assoc";s:1:"0";s:4:"name";s:"#
+            + &self.name.as_bytes().len().to_string()
+            + r#":""#
+            + &self.name
+            + r#"";s:3:"ph1";s:"#
+            + &self.sire_name.as_bytes().len().to_string()
+            + r#":""#
+            + &self.sire_name
+            + r#"";s:3:"ph2";s:"#
+            + &self.dam_name.as_bytes().len().to_string()
+            + r#":""#
+            + &self.dam_name
+            + r#"";s:5:"date1";s:"#
+            + &self.birthdate.as_bytes().len().to_string()
+            + r#":""#
+            + &self.birthdate
+            + r#"";s:5:"date2";s:"#
+            + &self.birthdate.as_bytes().len().to_string()
+            + r#":""#
+            + &self.birthdate
+            + r#"";s:6:"public";s:1:"1";s:5:"color";s:0:"";s:5:"breed";s:0:"";s:7:"breeder";s:0:"";s:5:"owner";s:0:"";s:3:"no1";s:"#
+            + &self.bajikyo_id.as_bytes().len().to_string()
+            + r#":""#
+            + &self.bajikyo_id
+            + r#"";s:3:"no2";s:0:"";s:2:"mc";s:0:"";s:7:"oldname";s:0:"";s:5:"subno";s:0:"";s:7:"subname";s:"#
+            + &self.subname.as_bytes().len().to_string()
+            + r#":""#
+            + &self.subname
+            + r#"";s:10:"savesubmit";s:10:"savesubmit";s:4:"page";s:1:"1";s:2:"rp";s:2:"10";s:8:"sortname";s:6:"m_name";s:9:"sortorder";s:3:"asc";}"#
+    }
 }
