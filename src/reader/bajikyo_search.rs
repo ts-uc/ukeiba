@@ -3,9 +3,12 @@ use crate::common::horse_birthdate_parents::HorseBirthdateParents;
 use base64::{engine::general_purpose, Engine as _};
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use serde_json::{json, Value};
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 
 pub struct BajikyoSearchReader(HorseBirthdateParents);
 
+#[derive(Debug)]
 struct SearchQuery {
     name: String,
     subname: String,
@@ -15,12 +18,13 @@ struct SearchQuery {
     bajikyo_id: String,
 }
 
+#[derive(Debug, EnumIter)]
 enum Mode {
     Parents,
     Subname,
-    Sire,
-    Dam,
     Name,
+    Dam,
+    Sire,
     DamSmall,
     SireSmall,
 }
@@ -68,74 +72,18 @@ impl Reader for BajikyoSearchReader {
             }
     
         }
-        let original_data = make_query(&self.0, Mode::Parents);
-        let text = send_req(&original_data);
 
-        let v: Value = serde_json::from_str(&text).unwrap();
-        println!("{}", v["total"]);
-        if v["total"] == json!(1) {
-            return Some(text);
+        for mode in Mode::iter(){
+            let original_data = make_query(&self.0, mode);
+            let text = send_req(&original_data);
+    
+            let v: Value = serde_json::from_str(&text).unwrap();
+            println!("{}", v["total"]);
+            if v["total"] == json!(1) {
+                return Some(text);
+            }    
         }
 
-        let original_data = make_query(&self.0, Mode::Subname);
-        let text = send_req(&original_data);
-
-        let v: Value = serde_json::from_str(&text).unwrap();
-        println!("{}", v["total"]);
-
-        if v["total"] == json!(1) {
-            return Some(text);
-        }
-
-        let original_data = make_query(&self.0, Mode::Name);
-        let text = send_req(&original_data);
-
-        let v: Value = serde_json::from_str(&text).unwrap();
-        println!("{}", v["total"]);
-
-        if v["total"] == json!(1) {
-            return Some(text);
-        }
-
-        let original_data = make_query(&self.0, Mode::Sire);
-        let text = send_req(&original_data);
-
-        let v: Value = serde_json::from_str(&text).unwrap();
-        println!("{}", v["total"]);
-
-        if v["total"] == json!(1) {
-            return Some(text);
-        }
-
-        let original_data = make_query(&self.0, Mode::Dam);
-        let text = send_req(&original_data);
-
-        let v: Value = serde_json::from_str(&text).unwrap();
-        println!("{}", v["total"]);
-
-        if v["total"] == json!(1) {
-            return Some(text);
-        }
-
-        let original_data = make_query(&self.0, Mode::DamSmall);
-        let text = send_req(&original_data);
-
-        let v: Value = serde_json::from_str(&text).unwrap();
-        println!("{}", v["total"]);
-
-        if v["total"] == json!(1) {
-            return Some(text);
-        }
-
-        let original_data = make_query(&self.0, Mode::SireSmall);
-        let text = send_req(&original_data);
-
-        let v: Value = serde_json::from_str(&text).unwrap();
-        println!("{}", v["total"]);
-
-        if v["total"] == json!(1) {
-            return Some(text);
-        }
 
         Some(r"{}".to_string())
     }
