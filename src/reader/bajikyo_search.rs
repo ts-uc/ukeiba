@@ -38,12 +38,8 @@ impl BajikyoSearchReader {
         let text = self.get_string(is_force_fetch, is_save).unwrap();
         let v: Value = serde_json::from_str(&text).unwrap();
 
-        if v["total"] != json!(1) {
-            let text = self.get_string(true, is_save).unwrap();
-            let v: Value = serde_json::from_str(&text).unwrap();
-            if v["total"] != json!(1) {
-                println!("!!!! {:?}", self.0);
-            }
+        if !v["rows"].is_array() && v["rows"].as_array().unwrap().len() != 1 {
+            self.get_string(true, is_save).unwrap();
         }
     }
 }
@@ -70,20 +66,18 @@ impl Reader for BajikyoSearchReader {
             if v["total"] == json!(1) {
                 return Some(text);
             }
-    
         }
 
-        for mode in Mode::iter(){
+        for mode in Mode::iter() {
             let original_data = make_query(&self.0, mode);
             let text = send_req(&original_data);
-    
+
             let v: Value = serde_json::from_str(&text).unwrap();
             println!("{}", v["total"]);
             if v["total"] == json!(1) {
                 return Some(text);
-            }    
+            }
         }
-
 
         Some(r"{}".to_string())
     }
