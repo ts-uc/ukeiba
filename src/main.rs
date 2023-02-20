@@ -1,26 +1,27 @@
+#![allow(unused)]
 mod common;
 mod db_reader;
 mod db_writer;
-mod reader;
-mod webpage;
+//mod reader;
+//mod webpage;
 use crate::db_writer::DbType;
 use crate::db_writer::Db;
 use crate::common::race::Race;
-use crate::reader::bajikyo_search::BajikyoSearchReader;
-use crate::reader::race::RaceReader;
-use crate::reader::racelist::RaceListReader;
+// use crate::reader::bajikyo_search::BajikyoSearchReader;
+// use crate::reader::race::RaceReader;
+// use crate::reader::racelist::RaceListReader;
 use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
 use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use common::horse::Horse;
 use db_reader::get_horse_birthdate_parents_list;
 use db_reader::get_horselist;
-use reader::oddspark_odds::OddsparkOddsReader;
-use reader::rakuten_racelist::RakutenRaceListReader;
+// use reader::oddspark_odds::OddsparkOddsReader;
+// use reader::rakuten_racelist::RakutenRaceListReader;
 use crate::common::racecourse::Racecourse;
 use indicatif::ProgressBar;
-use reader::horse_history::HorseHistoryReader;
-use reader::horse_profile::HorseProfileReader;
+// use reader::horse_history::HorseHistoryReader;
+// use reader::horse_profile::HorseProfileReader;
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -104,9 +105,9 @@ fn main() {
                 let date = to_date - Duration::days(day);
 
                 let dateracecourse = DateRacecourse::new(date, racecourse);
-                queries.extend(RaceListReader::new(dateracecourse)
-                .get(args.force_fetch, !args.not_save)
-                .db()) ;
+                // queries.extend(RaceListReader::new(dateracecourse)
+                // .get(args.force_fetch, !args.not_save)
+                // .db()) ;
             }
             Db::new(queries).execute();
         }
@@ -119,9 +120,9 @@ fn main() {
                 let date = to_date - Duration::days(day);
 
                 let dateracecourse = DateRacecourse::new(date, racecourse);
-                queries.extend(RakutenRaceListReader::new(dateracecourse)
-                .get(args.force_fetch, !args.not_save)
-                .db()) ;
+                // queries.extend(RakutenRaceListReader::new(dateracecourse)
+                // .get(args.force_fetch, !args.not_save)
+                // .db()) ;
             }
             Db::new(queries).execute();
         }
@@ -132,9 +133,9 @@ fn main() {
             let mut queries: Vec<DbType> = Vec::new();
             for race in racelist {
                 pb.inc(1);
-                queries.extend(RaceReader::new(race)
-                    .get(args.force_fetch, !args.not_save)
-                    .db());
+                // queries.extend(RaceReader::new(race)
+                //     .get(args.force_fetch, !args.not_save)
+                //     .db());
             }
             Db::new(queries).execute();
         }
@@ -145,7 +146,7 @@ fn main() {
             let mut queries: Vec<DbType> = Vec::new();
             for horse in horselist {
                 pb.inc(1);
-                queries.extend(HorseHistoryReader::new(horse).get(args.force_fetch, !args.not_save).db());
+                // queries.extend(HorseHistoryReader::new(horse).get(args.force_fetch, !args.not_save).db());
             }
             Db::new(queries).execute();
         }
@@ -156,7 +157,7 @@ fn main() {
             let mut queries: Vec<DbType> = Vec::new();
             for horse in horselist {
                 pb.inc(1);
-                queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
+                // queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
             }
             Db::new(queries).execute();
         }
@@ -167,7 +168,7 @@ fn main() {
             //let mut queries: Vec<DbType> = Vec::new();
             for horse in horselist {
                 pb.inc(1);
-                BajikyoSearchReader::new(horse).get(args.force_fetch, !args.not_save);
+                // BajikyoSearchReader::new(horse).get(args.force_fetch, !args.not_save);
                 //queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
             }
             //Db::new(queries).execute();
@@ -180,9 +181,9 @@ fn main() {
             let mut queries: Vec<DbType> = Vec::new();
             for race in racelist {
                 pb.inc(1);
-                queries.extend(OddsparkOddsReader::new(race)
-                    .get(args.force_fetch, !args.not_save)
-                    .db());
+                // queries.extend(OddsparkOddsReader::new(race)
+                //     .get(args.force_fetch, !args.not_save)
+                //     .db());
             }
             Db::new(queries).execute();
         }
