@@ -1,29 +1,20 @@
-#![allow(unused)]
+//#![allow(unused)]
 mod common;
 mod db_reader;
 mod db_writer;
-//mod reader;
-//mod webpage;
-use crate::db_writer::DbType;
-use crate::db_writer::Db;
+mod webpage;
 use crate::common::race::Race;
-// use crate::reader::bajikyo_search::BajikyoSearchReader;
-// use crate::reader::race::RaceReader;
-// use crate::reader::racelist::RaceListReader;
+use crate::common::racecourse::Racecourse;
+use crate::db_writer::Db;
+use crate::db_writer::DbType;
 use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
 use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use common::horse::Horse;
 use db_reader::get_horse_birthdate_parents_list;
 use db_reader::get_horselist;
-// use reader::oddspark_odds::OddsparkOddsReader;
-// use reader::rakuten_racelist::RakutenRaceListReader;
-use crate::common::racecourse::Racecourse;
 use indicatif::ProgressBar;
-// use reader::horse_history::HorseHistoryReader;
-// use reader::horse_profile::HorseProfileReader;
 
-/// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -173,7 +164,6 @@ fn main() {
             }
             //Db::new(queries).execute();
         }
-
 
         Mode::Odds => {
             let racelist = get_racelist(from_date, to_date);
