@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use regex::Regex;
 use scraper::{Html, Selector};
 use std::path::{Path, PathBuf};
@@ -65,4 +65,13 @@ impl WebPageType {
             Self::RakutenRacelist(x) => x.scrap(body),
         }
     }
+}
+
+fn get_from_url(url: &str) -> Result<String> {
+    std::thread::sleep(std::time::Duration::from_millis(2000));
+    log::info!("fetching {}", url);
+    let res = reqwest::blocking::get(url).map_err(|e| anyhow!(e))?;
+    log::info!("Response: {:?} {}", &res.version(), &res.status());
+    let text = res.text().map_err(|e| anyhow!(e))?;
+    Ok(text)
 }

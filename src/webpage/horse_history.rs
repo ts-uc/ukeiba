@@ -1,4 +1,4 @@
-use super::WebPage;
+use super::*;
 use crate::common::horse::Horse;
 use crate::DbType;
 use anyhow::Result;
@@ -16,7 +16,11 @@ impl WebPage for HorseHistoryPage {
             .join(format!("horse_history_{}.html.gz", self.0.get_horse_id()))
     }
     fn fetch(&self) -> Result<String> {
-        todo!()
+        let url = format!(
+            "https://www2.keiba.go.jp/KeibaWeb/DataRoom/HorseMarkInfo?k_lineageLoginCode={}",
+            self.0.get_horse_id()
+        );
+        get_from_url(&url)
     }
     fn scrap(&self, body: &str) -> Vec<DbType> {
         todo!()

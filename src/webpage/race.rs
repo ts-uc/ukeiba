@@ -1,4 +1,4 @@
-use super::WebPage;
+use super::*;
 use crate::common::race::Race;
 use crate::DbType;
 use anyhow::Result;
@@ -17,7 +17,13 @@ impl WebPage for RacePage {
             .join(format!("race_{}.html.gz", self.0.to_string()))
     }
     fn fetch(&self) -> Result<String> {
-        todo!()
+        let url = format!(
+            "https://www.keiba.go.jp/KeibaWeb/TodayRaceInfo/DebaTable?k_raceDate={}&k_raceNo={}&k_babaCode={}",
+            self.0.date.format("%Y/%m/%d"),
+            self.0.race_num,
+            self.0.racecourse.get_keibagojp_id()
+        );
+        get_from_url(&url)
     }
     fn scrap(&self, body: &str) -> Vec<DbType> {
         todo!()

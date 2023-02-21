@@ -1,4 +1,4 @@
-use super::WebPage;
+use super::*;
 use crate::common::race::Race;
 use crate::DbType;
 use anyhow::Result;
@@ -17,7 +17,13 @@ impl WebPage for OddsparkOddsPage {
             .join(format!("oddspark_odds_{}.html.gz", self.0.to_string()))
     }
     fn fetch(&self) -> Result<String> {
-        todo!()
+        let url = format!(
+            "https://www.oddspark.com/keiba/Odds.do?raceDy={}&opTrackCd={:02}&sponsorCd=04&betType=1&viewType=0&raceNb={}",
+            self.0.date.format("%Y%m%d"),
+            self.0.racecourse.get_oddspark_id(),
+            self.0.race_num,
+        );
+        get_from_url(&url)
     }
     fn scrap(&self, body: &str) -> Vec<DbType> {
         todo!()
