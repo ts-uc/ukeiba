@@ -8,7 +8,13 @@ pub struct OddsparkOddsPage(pub Race);
 
 impl WebPage for OddsparkOddsPage {
     fn get_path(&self) -> PathBuf {
-        todo!()
+        dirs::data_dir()
+            .unwrap()
+            .join("ukeiba")
+            .join("oddspark_odds")
+            .join(self.0.racecourse.to_string())
+            .join(format!("{}", self.0.date.format("%Y-%m")))
+            .join(format!("oddspark_odds_{}.html.gz", self.0.to_string()))
     }
     fn fetch(&self) -> Result<String> {
         todo!()

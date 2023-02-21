@@ -8,7 +8,13 @@ pub struct RacelistPage(pub DateRacecourse);
 
 impl WebPage for RacelistPage {
     fn get_path(&self) -> PathBuf {
-        todo!()
+        dirs::data_dir()
+            .unwrap()
+            .join("ukeiba")
+            .join("racelist")
+            .join(self.0.racecourse.to_string())
+            .join(format!("{}", self.0.date.format("%Y-%m")))
+            .join(format!("racelist_{}.html.gz", self.0.to_string()))
     }
     fn fetch(&self) -> Result<String> {
         todo!()
