@@ -19,7 +19,7 @@ impl WebPageTrait for RakutenRacelistPage {
             .join(format!("{}", self.0.date.format("%Y-%m")))
             .join(format!("rakuten_racelist_{}.html.gz", self.0.to_string()))
     }
-    fn fetch(&self) -> Result<String> {
+    fn fetch_string(&self) -> Result<String> {
         let url = format!(
             "https://keiba.rakuten.co.jp/race_card/list/RACEID/{}{:02}00000000",
             self.0.date.format("%Y%m%d"),

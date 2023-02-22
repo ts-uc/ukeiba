@@ -19,7 +19,7 @@ impl WebPageTrait for OddsparkOddsPage {
             .join(format!("{}", self.0.date.format("%Y-%m")))
             .join(format!("oddspark_odds_{}.html.gz", self.0.to_string()))
     }
-    fn fetch(&self) -> Result<String> {
+    fn fetch_string(&self) -> Result<String> {
         let url = format!(
             "https://www.oddspark.com/keiba/Odds.do?raceDy={}&opTrackCd={:02}&sponsorCd=04&betType=1&viewType=0&raceNb={}",
             self.0.date.format("%Y%m%d"),

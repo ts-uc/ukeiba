@@ -25,7 +25,7 @@ impl WebPageTrait for HorseHistoryPage {
             .join(self.0.get_upper_id().to_string())
             .join(format!("horse_history_{}.html.gz", self.0.get_horse_id()))
     }
-    fn fetch(&self) -> Result<String> {
+    fn fetch_string(&self) -> Result<String> {
         let url = format!(
             "https://www2.keiba.go.jp/KeibaWeb/DataRoom/HorseMarkInfo?k_lineageLoginCode={}",
             self.0.get_horse_id()

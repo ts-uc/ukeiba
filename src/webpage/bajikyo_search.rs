@@ -18,7 +18,7 @@ impl WebPageTrait for BajikyoSearchPage {
                 self.0.horse.get_horse_id()
             ))
     }
-    fn fetch(&self) -> Result<String> {
+    fn fetch_string(&self) -> Result<String> {
         todo!()
     }
     fn scrap(&self, body: &str) -> Vec<DbType> {

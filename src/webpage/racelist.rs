@@ -18,7 +18,7 @@ impl WebPageTrait for RacelistPage {
             .join(format!("{}", self.0.date.format("%Y-%m")))
             .join(format!("racelist_{}.html.gz", self.0.to_string()))
     }
-    fn fetch(&self) -> Result<String> {
+    fn fetch_string(&self) -> Result<String> {
         let url = format!(
             "https://www2.keiba.go.jp/KeibaWeb/TodayRaceInfo/RaceList?k_raceDate={}&k_babaCode={}",
             self.0.date.format("%Y/%m/%d"),

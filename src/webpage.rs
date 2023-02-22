@@ -6,6 +6,10 @@ pub mod bajikyo_search;
 pub mod horse_history;
 pub mod horse_profile;
 pub mod oddspark_odds;
+use flate2::Compression;
+use std::fs;
+use std::fs::File;
+use std::io::prelude::*;
 pub mod race;
 pub mod racelist;
 pub mod rakuten_racelist;
@@ -21,77 +25,78 @@ use crate::{
     },
     db_writer::DbType,
 };
+use flate2::write::{GzDecoder, GzEncoder};
 
 pub trait WebPageTrait {
     fn get_path(&self) -> PathBuf;
-    fn fetch(&self) -> Result<String>;
+    fn fetch_string(&self) -> Result<String>;
     fn scrap(&self, body: &str) -> Vec<DbType>;
-}
+    fn exists(&self) -> bool {
+        self.get_path().exists()
+    }
+    fn load_string(&self) -> Result<String> {
+        let mut file = File::open(self.get_path()).map_err(|e| anyhow!(e))?;
+        let mut file_buf = Vec::new();
+        file.read_to_end(&mut file_buf).map_err(|e| anyhow!(e))?;
 
-pub enum WebPage {
-    BajikyoSearch(HorseBirthdateParents),
-    HorseHistory(Horse),
-    HorseProfile(Horse),
-    OddsparkOdds(Race),
-    Race(Race),
-    Racelist(DateRacecourse),
-    RakutenRacelist(DateRacecourse),
-}
-pub enum WebPageType {
-    BajikyoSearch(BajikyoSearchPage),
-    HorseHistory(HorseHistoryPage),
-    HorseProfile(HorseProfilePage),
-    OddsparkOdds(OddsparkOddsPage),
-    Race(RacePage),
-    Racelist(RacelistPage),
-    RakutenRacelist(RakutenRacelistPage),
-}
+        let mut text_buf = Vec::new();
+        let mut decoder = GzDecoder::new(text_buf);
+        decoder.write_all(&file_buf).map_err(|e| anyhow!(e))?;
+        text_buf = decoder.finish().map_err(|e| anyhow!(e))?;
+        let text = String::from_utf8(text_buf).map_err(|e| anyhow!(e))?;
 
-impl WebPageType {
-    fn new(web_page: WebPage) -> Self {
-        match web_page {
-            WebPage::BajikyoSearch(x) => WebPageType::BajikyoSearch(BajikyoSearchPage(x)),
-            WebPage::HorseHistory(x) => WebPageType::HorseHistory(HorseHistoryPage(x)),
-            WebPage::HorseProfile(x) => WebPageType::HorseProfile(HorseProfilePage(x)),
-            WebPage::OddsparkOdds(x) => WebPageType::OddsparkOdds(OddsparkOddsPage(x)),
-            WebPage::Race(x) => WebPageType::Race(RacePage(x)),
-            WebPage::Racelist(x) => WebPageType::Racelist(RacelistPage(x)),
-            WebPage::RakutenRacelist(x) => WebPageType::RakutenRacelist(RakutenRacelistPage(x)),
+        Ok(text)
+    }
+    fn fetch(self) -> WebPage<Self>
+    where
+        Self: Sized,
+    {
+        let body = self.fetch_string().unwrap();
+        WebPage {
+            web_page_trait: self,
+            body: body,
         }
     }
+    fn load(self) -> WebPage<Self>
+    where
+        Self: Sized,
+    {
+        let body = self.load_string().unwrap();
+        WebPage {
+            web_page_trait: self,
+            body: body,
+        }
+    }
+    fn check_and_fetch(self)
+    where
+        Self: Sized,
+    {
+        if self.exists() {
+            return;
+        }
+        self.fetch().save()
+    }
+}
 
-    fn get_path(&self) -> PathBuf {
-        match self {
-            Self::BajikyoSearch(x) => x.get_path(),
-            Self::HorseHistory(x) => x.get_path(),
-            Self::HorseProfile(x) => x.get_path(),
-            Self::OddsparkOdds(x) => x.get_path(),
-            Self::Race(x) => x.get_path(),
-            Self::Racelist(x) => x.get_path(),
-            Self::RakutenRacelist(x) => x.get_path(),
-        }
+pub struct WebPage<T> {
+    web_page_trait: T,
+    body: String,
+}
+
+impl<T: WebPageTrait> WebPage<T> {
+    pub fn db(&self) -> Vec<DbType> {
+        self.web_page_trait.scrap(&self.body)
     }
-    fn fetch(&self) -> Result<String> {
-        match self {
-            Self::BajikyoSearch(x) => x.fetch(),
-            Self::HorseHistory(x) => x.fetch(),
-            Self::HorseProfile(x) => x.fetch(),
-            Self::OddsparkOdds(x) => x.fetch(),
-            Self::Race(x) => x.fetch(),
-            Self::Racelist(x) => x.fetch(),
-            Self::RakutenRacelist(x) => x.fetch(),
-        }
-    }
-    fn scrap(&self, body: &str) -> Vec<DbType> {
-        match self {
-            Self::BajikyoSearch(x) => x.scrap(body),
-            Self::HorseHistory(x) => x.scrap(body),
-            Self::HorseProfile(x) => x.scrap(body),
-            Self::OddsparkOdds(x) => x.scrap(body),
-            Self::Race(x) => x.scrap(body),
-            Self::Racelist(x) => x.scrap(body),
-            Self::RakutenRacelist(x) => x.scrap(body),
-        }
+    pub fn save(&self) {
+        fs::create_dir_all(self.web_page_trait.get_path().parent().unwrap()).unwrap();
+
+        let text_buf = self.body.as_bytes();
+        let mut encoded_buf = GzEncoder::new(Vec::new(), Compression::default());
+        encoded_buf.write_all(&text_buf).unwrap();
+
+        let buffer = encoded_buf.finish().unwrap();
+        let mut file = File::create(self.web_page_trait.get_path()).unwrap();
+        file.write_all(&buffer).unwrap();
     }
 }
 
