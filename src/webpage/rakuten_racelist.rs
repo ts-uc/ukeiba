@@ -9,7 +9,7 @@ use unicode_normalization::UnicodeNormalization;
 
 pub struct RakutenRacelistPage(pub DateRacecourse);
 
-impl WebPage for RakutenRacelistPage {
+impl WebPageTrait for RakutenRacelistPage {
     fn get_path(&self) -> PathBuf {
         dirs::data_dir()
             .unwrap()

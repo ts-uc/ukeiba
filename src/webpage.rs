@@ -14,12 +14,28 @@ use self::{
     horse_profile::HorseProfilePage, oddspark_odds::OddsparkOddsPage, race::RacePage,
     racelist::RacelistPage, rakuten_racelist::RakutenRacelistPage,
 };
-use crate::db_writer::DbType;
+use crate::{
+    common::{
+        date_racecourse::DateRacecourse, horse::Horse,
+        horse_birthdate_parents::HorseBirthdateParents, race::Race,
+    },
+    db_writer::DbType,
+};
 
-pub trait WebPage {
+pub trait WebPageTrait {
     fn get_path(&self) -> PathBuf;
     fn fetch(&self) -> Result<String>;
     fn scrap(&self, body: &str) -> Vec<DbType>;
+}
+
+pub enum WebPage {
+    BajikyoSearch(HorseBirthdateParents),
+    HorseHistory(Horse),
+    HorseProfile(Horse),
+    OddsparkOdds(Race),
+    Race(Race),
+    Racelist(DateRacecourse),
+    RakutenRacelist(DateRacecourse),
 }
 pub enum WebPageType {
     BajikyoSearch(BajikyoSearchPage),
@@ -32,6 +48,18 @@ pub enum WebPageType {
 }
 
 impl WebPageType {
+    fn new(web_page: WebPage) -> Self {
+        match web_page {
+            WebPage::BajikyoSearch(x) => WebPageType::BajikyoSearch(BajikyoSearchPage(x)),
+            WebPage::HorseHistory(x) => WebPageType::HorseHistory(HorseHistoryPage(x)),
+            WebPage::HorseProfile(x) => WebPageType::HorseProfile(HorseProfilePage(x)),
+            WebPage::OddsparkOdds(x) => WebPageType::OddsparkOdds(OddsparkOddsPage(x)),
+            WebPage::Race(x) => WebPageType::Race(RacePage(x)),
+            WebPage::Racelist(x) => WebPageType::Racelist(RacelistPage(x)),
+            WebPage::RakutenRacelist(x) => WebPageType::RakutenRacelist(RakutenRacelistPage(x)),
+        }
+    }
+
     fn get_path(&self) -> PathBuf {
         match self {
             Self::BajikyoSearch(x) => x.get_path(),

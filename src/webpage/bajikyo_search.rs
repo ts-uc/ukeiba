@@ -1,4 +1,4 @@
-use super::WebPage;
+use super::WebPageTrait;
 use crate::common::horse_birthdate_parents::HorseBirthdateParents;
 use crate::DbType;
 use anyhow::Result;
@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 pub struct BajikyoSearchPage(pub HorseBirthdateParents);
 
-impl WebPage for BajikyoSearchPage {
+impl WebPageTrait for BajikyoSearchPage {
     fn get_path(&self) -> PathBuf {
         dirs::data_dir()
             .unwrap()

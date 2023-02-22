@@ -9,7 +9,7 @@ use unicode_normalization::UnicodeNormalization;
 
 pub struct OddsparkOddsPage(pub Race);
 
-impl WebPage for OddsparkOddsPage {
+impl WebPageTrait for OddsparkOddsPage {
     fn get_path(&self) -> PathBuf {
         dirs::data_dir()
             .unwrap()

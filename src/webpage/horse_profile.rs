@@ -10,7 +10,7 @@ use unicode_normalization::UnicodeNormalization;
 
 pub struct HorseProfilePage(pub Horse);
 
-impl WebPage for HorseProfilePage {
+impl WebPageTrait for HorseProfilePage {
     fn get_path(&self) -> PathBuf {
         dirs::data_dir()
             .unwrap()

@@ -8,7 +8,7 @@ use unicode_normalization::UnicodeNormalization;
 
 pub struct RacelistPage(pub DateRacecourse);
 
-impl WebPage for RacelistPage {
+impl WebPageTrait for RacelistPage {
     fn get_path(&self) -> PathBuf {
         dirs::data_dir()
             .unwrap()

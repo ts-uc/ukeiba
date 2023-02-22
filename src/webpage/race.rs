@@ -11,7 +11,7 @@ use unicode_normalization::UnicodeNormalization;
 
 pub struct RacePage(pub Race);
 
-impl WebPage for RacePage {
+impl WebPageTrait for RacePage {
     fn get_path(&self) -> PathBuf {
         dirs::data_dir()
             .unwrap()
