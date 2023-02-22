@@ -4,6 +4,7 @@ use crate::DbType;
 use anyhow::Result;
 use std::path::PathBuf;
 
+#[derive(Debug, Clone)]
 pub struct BajikyoSearchPage(pub HorseBirthdateParents);
 
 impl WebPageTrait for BajikyoSearchPage {

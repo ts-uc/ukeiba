@@ -8,6 +8,7 @@ use scraper::Html;
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
+#[derive(Debug, Clone)]
 pub struct HorseProfilePage(pub Horse);
 
 impl WebPageTrait for HorseProfilePage {

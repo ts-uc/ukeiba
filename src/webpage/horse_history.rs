@@ -14,6 +14,7 @@ use scraper::{Html, Selector};
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
+#[derive(Debug, Clone)]
 pub struct HorseHistoryPage(pub Horse);
 
 impl WebPageTrait for HorseHistoryPage {

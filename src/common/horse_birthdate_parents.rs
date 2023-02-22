@@ -3,7 +3,7 @@ use chrono::NaiveDate;
 
 use super::GetPath;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct HorseBirthdateParents {
     pub horse: Horse,
     pub horse_name: String,

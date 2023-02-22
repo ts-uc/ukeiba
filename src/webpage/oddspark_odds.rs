@@ -7,6 +7,7 @@ use scraper::{Html, Selector};
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
+#[derive(Debug, Clone)]
 pub struct OddsparkOddsPage(pub Race);
 
 impl WebPageTrait for OddsparkOddsPage {
