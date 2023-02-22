@@ -1,8 +1,11 @@
 use super::*;
 use crate::common::date_racecourse::DateRacecourse;
-use crate::DbType;
+use crate::db_writer::DateRacecourses;
+use crate::db_writer::DbType;
 use anyhow::Result;
+use scraper::Html;
 use std::path::PathBuf;
+use unicode_normalization::UnicodeNormalization;
 
 pub struct RakutenRacelistPage(pub DateRacecourse);
 
@@ -25,6 +28,42 @@ impl WebPage for RakutenRacelistPage {
         get_from_url(&url)
     }
     fn scrap(&self, body: &str) -> Vec<DbType> {
-        todo!()
+        let document: String = body.nfkc().collect();
+        let document = Html::parse_document(&document);
+
+        let title = scrap(&document, "div.headline > h2:nth-child(1)");
+
+        if title.is_none() {
+            return Vec::new();
+        }
+
+        let kai: Option<i32> = title
+            .clone()
+            .and_then(|f| detect_kai(&f))
+            .and_then(|f| f.parse().ok());
+        let nichi: Option<i32> = title
+            .and_then(|f| detect_nichi(&f))
+            .and_then(|f| f.parse().ok());
+
+        // 当日メニューをスクレイピングし、ベクタ形式で返す
+        let mut data: Vec<DbType> = Vec::new();
+        let date_racecourse = DateRacecourses {
+            date_racecourse_id: self.0.to_date_racecourse_id(),
+            race_date: self.0.date.to_string(),
+            racecourse: self.0.racecourse.to_japanese(),
+            kai: kai,
+            nichi: nichi,
+        };
+
+        data.push(DbType::RakutenDateRacecourse(date_racecourse));
+        data
     }
+}
+
+fn detect_kai(str: &str) -> Option<String> {
+    Some(Regex::new(r"第(\d+?)回").unwrap().captures(str)?[1].to_string()).filter(|s| !s.is_empty())
+}
+
+fn detect_nichi(str: &str) -> Option<String> {
+    Some(Regex::new(r"第(\d+?)日").unwrap().captures(str)?[1].to_string()).filter(|s| !s.is_empty())
 }
