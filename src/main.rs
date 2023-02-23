@@ -8,12 +8,20 @@ use crate::common::racecourse::Racecourse;
 use crate::db_writer::Db;
 use crate::db_writer::DbType;
 use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
+use chrono::NaiveDateTime;
 use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use common::horse::Horse;
 use db_reader::get_horse_birthdate_parents_list;
 use db_reader::get_horselist;
 use indicatif::ProgressBar;
+use webpage::horse_history::HorseHistoryPage;
+use webpage::horse_profile::HorseProfilePage;
+use webpage::oddspark_odds::OddsparkOddsPage;
+use webpage::race::RacePage;
+use webpage::racelist::RacelistPage;
+use webpage::rakuten_racelist::RakutenRacelistPage;
+use webpage::WebPageTrait;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -89,93 +97,83 @@ fn main() {
 
     match args.mode {
         Mode::Racelist { racecourse } => {
-            let pb = ProgressBar::new((day_count + 1).try_into().unwrap());
-            let mut queries: Vec<DbType> = Vec::new();
-            for day in 0..=day_count {
-                pb.inc(1);
-                let date = to_date - Duration::days(day);
-
-                let dateracecourse = DateRacecourse::new(date, racecourse);
-                // queries.extend(RaceListReader::new(dateracecourse)
-                // .get(args.force_fetch, !args.not_save)
-                // .db()) ;
-            }
-            Db::new(queries).execute();
+            let pagelist: Vec<RacelistPage> = (0..=day_count)
+                .map(|x| to_date - Duration::days(x))
+                .map(|race| DateRacecourse::new(race, racecourse))
+                .map(|race| RacelistPage(race))
+                .collect();
+            routine(pagelist);
         }
 
         Mode::RakutenRacelist { racecourse } => {
-            let pb = ProgressBar::new((day_count + 1).try_into().unwrap());
-            let mut queries: Vec<DbType> = Vec::new();
-            for day in 0..=day_count {
-                pb.inc(1);
-                let date = to_date - Duration::days(day);
-
-                let dateracecourse = DateRacecourse::new(date, racecourse);
-                // queries.extend(RakutenRaceListReader::new(dateracecourse)
-                // .get(args.force_fetch, !args.not_save)
-                // .db()) ;
-            }
-            Db::new(queries).execute();
+            let pagelist: Vec<RakutenRacelistPage> = (0..=day_count)
+                .map(|x| to_date - Duration::days(x))
+                .map(|race| DateRacecourse::new(race, racecourse))
+                .map(|race| RakutenRacelistPage(race))
+                .collect();
+            routine(pagelist);
         }
 
         Mode::Race { racecouse: _ } => {
-            let racelist = get_racelist(from_date, to_date);
-            let pb = ProgressBar::new(racelist.len() as u64);
-            let mut queries: Vec<DbType> = Vec::new();
-            for race in racelist {
-                pb.inc(1);
-                // queries.extend(RaceReader::new(race)
-                //     .get(args.force_fetch, !args.not_save)
-                //     .db());
-            }
-            Db::new(queries).execute();
+            let pagelist: Vec<RacePage> = get_racelist(from_date, to_date)
+                .iter()
+                .map(|race| RacePage(*race))
+                .collect();
+            routine(pagelist);
         }
 
         Mode::HorseHistory => {
-            let horselist = get_horselist(from_date, to_date);
-            let pb = ProgressBar::new(horselist.len() as u64);
-            let mut queries: Vec<DbType> = Vec::new();
-            for horse in horselist {
-                pb.inc(1);
-                // queries.extend(HorseHistoryReader::new(horse).get(args.force_fetch, !args.not_save).db());
-            }
-            Db::new(queries).execute();
+            let pagelist: Vec<HorseHistoryPage> = get_horselist(from_date, to_date)
+                .iter()
+                .map(|race| HorseHistoryPage(*race))
+                .collect();
+            routine(pagelist);
         }
 
         Mode::HorseProfile => {
-            let horselist = get_horselist(from_date, to_date);
-            let pb = ProgressBar::new(horselist.len() as u64);
-            let mut queries: Vec<DbType> = Vec::new();
-            for horse in horselist {
-                pb.inc(1);
-                // queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
-            }
-            Db::new(queries).execute();
+            let pagelist: Vec<HorseProfilePage> = get_horselist(from_date, to_date)
+                .iter()
+                .map(|race| HorseProfilePage(*race))
+                .collect();
+            routine(pagelist);
         }
 
         Mode::BajikyoSearch => {
-            let horselist = get_horse_birthdate_parents_list(from_date, to_date);
-            let pb = ProgressBar::new(horselist.len() as u64);
-            //let mut queries: Vec<DbType> = Vec::new();
-            for horse in horselist {
-                pb.inc(1);
-                // BajikyoSearchReader::new(horse).get(args.force_fetch, !args.not_save);
-                //queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
-            }
-            //Db::new(queries).execute();
+            // let horselist = get_horse_birthdate_parents_list(from_date, to_date);
+            // let pb = ProgressBar::new(horselist.len() as u64);
+            // //let mut queries: Vec<DbType> = Vec::new();
+            // for horse in horselist {
+            //     pb.inc(1);
+            //     // BajikyoSearchReader::new(horse).get(args.force_fetch, !args.not_save);
+            //     //queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
+            // }
+            // //Db::new(queries).execute();
         }
 
         Mode::Odds => {
-            let racelist = get_racelist(from_date, to_date);
-            let pb = ProgressBar::new(racelist.len() as u64);
-            let mut queries: Vec<DbType> = Vec::new();
-            for race in racelist {
-                pb.inc(1);
-                // queries.extend(OddsparkOddsReader::new(race)
-                //     .get(args.force_fetch, !args.not_save)
-                //     .db());
-            }
-            Db::new(queries).execute();
+            let pagelist: Vec<OddsparkOddsPage> = get_racelist(from_date, to_date)
+                .iter()
+                .map(|race| OddsparkOddsPage(*race))
+                .collect();
+            routine(pagelist);
         }
     }
+}
+
+fn routine<T>(pagelist: Vec<T>)
+where
+    T: WebPageTrait + Clone,
+{
+    let pb = ProgressBar::new(pagelist.len() as u64);
+    for race in pagelist.clone() {
+        pb.inc(1);
+        race.check_and_fetch();
+    }
+    let pb = ProgressBar::new(pagelist.len() as u64);
+    let mut queries: Vec<DbType> = Vec::new();
+    for race in pagelist.clone() {
+        pb.inc(1);
+        queries.extend(race.load().db())
+    }
+    Db::new(queries).execute();
 }
