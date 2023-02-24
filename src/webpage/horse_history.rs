@@ -73,8 +73,7 @@ impl WebPageTrait for HorseHistoryPage {
                 date_racecourse_id: DateRacecourse::new(date, racecourse).to_date_racecourse_id(),
                 race_date: date.to_string(),
                 racecourse: racecourse.to_japanese(),
-                kai: None,
-                nichi: None,
+                ..Default::default()
             };
 
             data.push(DbType::DateRacecourse(horse_hisotry_racehorse));
@@ -83,8 +82,6 @@ impl WebPageTrait for HorseHistoryPage {
                 race_id: race.to_race_id(),
                 date_racecourse_id: DateRacecourse::new(date, racecourse).to_date_racecourse_id(),
                 race_num: race_num,
-                change: None,
-                race_type: None,
                 race_name: Some(scrapped_row[3].clone()).filter(|s| !s.is_empty()),
                 surface: detect_surface(&scrapped_row[5]),
                 distance: detect_num(&scrapped_row[5]),
@@ -92,12 +89,7 @@ impl WebPageTrait for HorseHistoryPage {
                 going: detect_going(&scrapped_row[7]),
                 moisture: detect_num(&scrapped_row[7]),
                 horse_count: Some(scrapped_row[9].clone()).filter(|s| !s.is_empty()),
-                post_time: None,
-                direction: None,
-                race_age: None,
-                race_horse_type: None,
-                race_weight_type: None,
-                race_sub_title: None,
+                ..Default::default()
             };
 
             data.push(DbType::HorseHistoryRace(horse_history_race));
@@ -118,19 +110,8 @@ impl WebPageTrait for HorseHistoryPage {
                 trainer_name: Some(scrapped_row[20].clone()).filter(|s| !s.is_empty()),
                 prize: Some(scrapped_row[21].clone()).filter(|s| !s.is_empty()),
                 horse_id: Some(self.0.get_horse_id()),
-                horse_age: None,
                 horse_name: Some(horse_name.clone()).filter(|s| !s.is_empty()),
-                horse_sex: None,
-                horse_weight_delta: None,
-                jockey_id: None,
-                trainer_id: None,
-                change: None,
-                owner_name: None,
-                weight_mark: None,
-                margin: None,
-                win_odds: None,
-                place_odds_max: None,
-                place_odds_min: None,
+                ..Default::default()
             };
             data.push(DbType::HorseHistoryRaceHorse(horse_history_racehorse));
         }

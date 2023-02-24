@@ -46,27 +46,6 @@ impl WebPageTrait for OddsparkOddsPage {
                 race_horse_id: self.0.to_race_horse(horse_num).to_racehorse_id(),
                 race_id: self.0.to_race_id(),
                 horse_num: horse_num,
-                bracket_num: None,
-                horse_name: None,
-                horse_sex: None,
-                horse_age: None,
-                horse_id: None,
-                jockey_name: None,
-                jockey_id: None,
-                trainer_name: None,
-                trainer_id: None,
-                change: None,
-                owner_name: None,
-                weight_mark: None,
-                weight_to_carry: None,
-                horse_weight: None,
-                horse_weight_delta: None,
-                arrival: None,
-                finish_time: None,
-                margin_time: None,
-                margin: None,
-                last_3f: None,
-                win_fav: None,
                 win_odds: scrap(
                     &document,
                     &format!(
@@ -91,7 +70,7 @@ impl WebPageTrait for OddsparkOddsPage {
                         5 - bracket_num_index
                     ),
                 ),
-                prize: None,
+                ..Default::default()
             };
             data.push(DbType::OddsparkOdds(data_))
         }

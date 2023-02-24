@@ -48,8 +48,7 @@ impl WebPageTrait for RacelistPage {
             date_racecourse_id: self.0.to_date_racecourse_id(),
             race_date: self.0.date.to_string(),
             racecourse: self.0.racecourse.to_japanese(),
-            kai: None,
-            nichi: None,
+            ..Default::default()
         };
 
         data.push(DbType::DateRacecourse(date_racecourse));
@@ -75,10 +74,7 @@ impl WebPageTrait for RacelistPage {
                 going: detect_going(&scrapped_row[7]),
                 moisture: detect_num(&scrapped_row[7]),
                 horse_count: scrapped_row[8].parse().ok(),
-                race_age: None,
-                race_horse_type: None,
-                race_weight_type: None,
-                race_sub_title: None,
+                ..Default::default()
             };
             data.push(DbType::RaceList(racedata));
         }

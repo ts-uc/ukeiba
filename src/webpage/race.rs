@@ -55,16 +55,7 @@ impl WebPageTrait for RacePage {
             race_horse_type: race_horse_type,
             race_age: race_age,
             race_weight_type: race_weight_type,
-            post_time: None,
-            change: None,
-            race_type: None,
-            surface: None,
-            direction: None,
-            distance: None,
-            weather: None,
-            going: None,
-            moisture: None,
-            horse_count: None,
+            ..Default::default()
         };
 
         data.push(DbType::RaceRaces(title_data));
@@ -124,10 +115,8 @@ impl WebPageTrait for RacePage {
                 race_horse_id: self.0.to_race_horse(horse_num).to_racehorse_id(),
                 race_id: self.0.to_race_id(),
                 horse_num: horse_num,
-                bracket_num: None,
                 horse_name: horse_name.filter(|s| !s.is_empty()),
                 horse_sex: sex,
-                horse_age: None,
                 horse_id: horse_id,
                 jockey_name: jockey_name,
                 jockey_id: jockey_id,
@@ -138,17 +127,7 @@ impl WebPageTrait for RacePage {
                 weight_mark: Some(weight_mark).filter(|s| !s.is_empty()),
                 weight_to_carry: Some(weight).filter(|s| !s.is_empty()),
                 horse_weight: horse_weight,
-                horse_weight_delta: None,
-                arrival: None,
-                finish_time: None,
-                margin_time: None,
-                margin: None,
-                last_3f: None,
-                win_fav: None,
-                win_odds: None,
-                place_odds_min: None,
-                place_odds_max: None,
-                prize: None,
+                ..Default::default()
             };
 
             data.push(DbType::Race(foo));
