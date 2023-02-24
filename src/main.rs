@@ -8,7 +8,6 @@ use crate::common::racecourse::Racecourse;
 use crate::db_writer::Db;
 use crate::db_writer::DbType;
 use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
-use chrono::NaiveDateTime;
 use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use common::horse::Horse;

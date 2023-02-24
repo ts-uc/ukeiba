@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use regex::Regex;
 use scraper::{Html, Selector};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 pub mod bajikyo_search;
 pub mod horse_history;
 pub mod horse_profile;
@@ -13,18 +13,7 @@ use std::io::prelude::*;
 pub mod race;
 pub mod racelist;
 pub mod rakuten_racelist;
-use self::{
-    bajikyo_search::BajikyoSearchPage, horse_history::HorseHistoryPage,
-    horse_profile::HorseProfilePage, oddspark_odds::OddsparkOddsPage, race::RacePage,
-    racelist::RacelistPage, rakuten_racelist::RakutenRacelistPage,
-};
-use crate::{
-    common::{
-        date_racecourse::DateRacecourse, horse::Horse,
-        horse_birthdate_parents::HorseBirthdateParents, race::Race,
-    },
-    db_writer::DbType,
-};
+use crate::db_writer::DbType;
 use flate2::write::{GzDecoder, GzEncoder};
 
 pub trait WebPageTrait {
