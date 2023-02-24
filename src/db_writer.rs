@@ -96,6 +96,7 @@ pub fn initialize() {
         
         CREATE TABLE IF NOT EXISTS horses (
             horse_nar_id INTEGER UNIQUE,
+            horse_bajikyo_id TEXT UNIQUE,
             horse_name TEXT,
             horse_sex TEXT,
             horse_status TEXT,
@@ -153,7 +154,7 @@ pub fn initialize() {
     ).unwrap();
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct DateRacecourses {
     pub date_racecourse_id: i64,
     pub race_date: String,
@@ -162,7 +163,7 @@ pub struct DateRacecourses {
     pub nichi: Option<i32>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Races {
     pub race_id: i64,
     pub date_racecourse_id: i64,
@@ -187,7 +188,7 @@ pub struct Races {
     pub horse_count: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct RaceHorses {
     pub race_horse_id: i64,
     pub race_id: i64,
@@ -219,9 +220,10 @@ pub struct RaceHorses {
     pub prize: Option<String>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Horses {
     pub horse_nar_id: Option<i64>,
+    pub horse_bajikyo_id: Option<String>,
     pub horse_name: Option<String>,
     pub horse_sex: Option<String>,
     pub horse_status: Option<String>,
@@ -250,6 +252,7 @@ pub enum DbType {
     OddsparkOdds(RaceHorses),
     RakutenDateRacecourse(DateRacecourses),
     RaceRaces(Races),
+    HorseNarToBajikyo(Horses),
 }
 
 pub struct Db(Vec<DbType>);
@@ -489,6 +492,18 @@ impl Db {
                             data.race_age,
                             data.race_weight_type,
                         ],
+                    )
+                    .unwrap();
+                }
+                DbType::HorseNarToBajikyo(data) => {
+                    tx.execute(
+                        "INSERT INTO horses (
+                            horse_nar_id, horse_bajikyo_id
+                            ) 
+                            VALUES (?1, ?2)
+                            ON CONFLICT (horse_nar_id) DO UPDATE SET
+                            horse_bajikyo_id = ?2",
+                        params![data.horse_nar_id, data.horse_bajikyo_id,],
                     )
                     .unwrap();
                 }

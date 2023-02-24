@@ -15,6 +15,7 @@ use common::horse::Horse;
 use db_reader::get_horse_birthdate_parents_list;
 use db_reader::get_horselist;
 use indicatif::ProgressBar;
+use webpage::bajikyo_search::BajikyoSearchPage;
 use webpage::horse_history::HorseHistoryPage;
 use webpage::horse_profile::HorseProfilePage;
 use webpage::oddspark_odds::OddsparkOddsPage;
@@ -139,15 +140,12 @@ fn main() {
         }
 
         Mode::BajikyoSearch => {
-            // let horselist = get_horse_birthdate_parents_list(from_date, to_date);
-            // let pb = ProgressBar::new(horselist.len() as u64);
-            // //let mut queries: Vec<DbType> = Vec::new();
-            // for horse in horselist {
-            //     pb.inc(1);
-            //     // BajikyoSearchReader::new(horse).get(args.force_fetch, !args.not_save);
-            //     //queries.extend(HorseProfileReader::new(horse).get(args.force_fetch, !args.not_save).db());
-            // }
-            // //Db::new(queries).execute();
+            let pagelist: Vec<BajikyoSearchPage> =
+                get_horse_birthdate_parents_list(from_date, to_date)
+                    .iter()
+                    .map(|race| BajikyoSearchPage(race.clone()))
+                    .collect();
+            routine(pagelist);
         }
 
         Mode::Odds => {

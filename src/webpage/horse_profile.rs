@@ -57,7 +57,7 @@ impl WebPageTrait for HorseProfilePage {
             sires_dam_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(2) > td:nth-child(2)").and_then(|s| detect_after_bracket(&s)).map(|s| remove_whitespace(&s)),
             dams_sire_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(3) > td:nth-child(4)").and_then(|s| detect_after_bracket(&s)).map(|s| remove_whitespace(&s)),
             dams_dam_name: scrap(&document, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(4) > td:nth-child(2)").and_then(|s| detect_after_bracket(&s)).map(|s| remove_whitespace(&s)),
-            deregistration_date: None,
+            ..Default::default()
         };
 
         data.push(DbType::HorseProfile(horse_data));
