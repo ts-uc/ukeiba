@@ -29,7 +29,7 @@ impl WebPageTrait for OddsparkOddsPage {
         );
         get_from_url(&url)
     }
-    fn scrap(&self, body: &str) -> Vec<DbType> {
+    fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let document: String = body.nfkc().collect();
         let document = Html::parse_document(&document);
 
@@ -75,7 +75,7 @@ impl WebPageTrait for OddsparkOddsPage {
             data.push(DbType::OddsparkOdds(data_))
         }
         // 当日メニューをスクレイピングし、ベクタ形式で返す
-        data
+        Ok(data)
     }
 }
 

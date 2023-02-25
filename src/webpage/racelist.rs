@@ -27,10 +27,10 @@ impl WebPageTrait for RacelistPage {
         );
         get_from_url(&url)
     }
-    fn scrap(&self, body: &str) -> Vec<DbType> {
+    fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         // 当日メニューをスクレイピングし、ベクタ形式で返す
         if body.contains("ご指定のレース一覧の情報がありません") {
-            return Vec::new();
+            return Ok(Vec::new());
         }
 
         let document: String = body.nfkc().collect();
@@ -78,6 +78,6 @@ impl WebPageTrait for RacelistPage {
             };
             data.push(DbType::RaceList(racedata));
         }
-        data
+        Ok(data)
     }
 }

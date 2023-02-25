@@ -164,13 +164,13 @@ where
     let pb = ProgressBar::new(pagelist.len() as u64);
     for race in pagelist.clone() {
         pb.inc(1);
-        race.check_and_fetch();
+        race.check_and_fetch().unwrap();
     }
     let pb = ProgressBar::new(pagelist.len() as u64);
     let mut queries: Vec<DbType> = Vec::new();
     for race in pagelist.clone() {
         pb.inc(1);
-        queries.extend(race.load().db())
+        queries.extend(race.load().unwrap().db().unwrap())
     }
     Db::new(queries).execute();
 }

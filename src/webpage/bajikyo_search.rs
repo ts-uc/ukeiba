@@ -57,7 +57,7 @@ impl WebPageTrait for BajikyoSearchPage {
 
         Ok(r"{}".to_string())
     }
-    fn scrap(&self, body: &str) -> Vec<DbType> {
+    fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let d: JsonData = serde_json::from_str(body).unwrap();
         let bajikyo_id = regex::Regex::new(r#"\&hno=(.+?)""#)
             .unwrap()
@@ -69,7 +69,7 @@ impl WebPageTrait for BajikyoSearchPage {
             horse_bajikyo_id: Some(bajikyo_id),
             ..Default::default()
         });
-        vec![data]
+        Ok(vec![data])
     }
 }
 

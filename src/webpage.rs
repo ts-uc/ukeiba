@@ -19,7 +19,7 @@ use flate2::write::{GzDecoder, GzEncoder};
 pub trait WebPageTrait {
     fn get_path(&self) -> PathBuf;
     fn fetch_string(&self) -> Result<String>;
-    fn scrap(&self, body: &str) -> Vec<DbType>;
+    fn scrap(&self, body: &str) -> Result<Vec<DbType>>;
     fn exists(&self) -> bool {
         self.get_path().exists()
     }
@@ -36,34 +36,35 @@ pub trait WebPageTrait {
 
         Ok(text)
     }
-    fn fetch(self) -> WebPage<Self>
+    fn fetch(self) -> Result<WebPage<Self>>
     where
         Self: Sized,
     {
-        let body = self.fetch_string().unwrap();
-        WebPage {
+        let body = self.fetch_string()?;
+        Ok(WebPage {
             web_page_trait: self,
             body: body,
-        }
+        })
     }
-    fn load(self) -> WebPage<Self>
+    fn load(self) -> Result<WebPage<Self>>
     where
         Self: Sized,
     {
-        let body = self.load_string().unwrap();
-        WebPage {
+        let body = self.load_string()?;
+        Ok(WebPage {
             web_page_trait: self,
             body: body,
-        }
+        })
     }
-    fn check_and_fetch(self)
+    fn check_and_fetch(self) -> Result<()>
     where
         Self: Sized,
     {
         if self.exists() {
-            return;
+            return Ok(());
         }
-        self.fetch().save()
+        self.fetch()?.save()?;
+        Ok(())
     }
 }
 
@@ -73,19 +74,26 @@ pub struct WebPage<T> {
 }
 
 impl<T: WebPageTrait> WebPage<T> {
-    pub fn db(&self) -> Vec<DbType> {
+    pub fn db(&self) -> Result<Vec<DbType>> {
         self.web_page_trait.scrap(&self.body)
     }
-    pub fn save(&self) {
-        fs::create_dir_all(self.web_page_trait.get_path().parent().unwrap()).unwrap();
+    pub fn save(&self) -> Result<()> {
+        fs::create_dir_all(
+            self.web_page_trait
+                .get_path()
+                .parent()
+                .ok_or(anyhow!("get path parent error"))?,
+        )
+        .map_err(|e| anyhow!(e))?;
 
         let text_buf = self.body.as_bytes();
         let mut encoded_buf = GzEncoder::new(Vec::new(), Compression::default());
-        encoded_buf.write_all(&text_buf).unwrap();
+        encoded_buf.write_all(&text_buf).map_err(|e| anyhow!(e))?;
 
-        let buffer = encoded_buf.finish().unwrap();
-        let mut file = File::create(self.web_page_trait.get_path()).unwrap();
-        file.write_all(&buffer).unwrap();
+        let buffer = encoded_buf.finish().map_err(|e| anyhow!(e))?;
+        let mut file = File::create(self.web_page_trait.get_path()).map_err(|e| anyhow!(e))?;
+        file.write_all(&buffer).map_err(|e| anyhow!(e))?;
+        Ok(())
     }
 }
 
@@ -230,7 +238,7 @@ fn remove_whitespace(str: &str) -> String {
 }
 
 fn scrap(html: &Html, selector_str: &str) -> Option<String> {
-    let selector = Selector::parse(&selector_str).unwrap();
+    let selector = Selector::parse(&selector_str).ok()?;
     let text = scrap_text(&html, &selector);
     text.filter(|s| !s.is_empty())
 }

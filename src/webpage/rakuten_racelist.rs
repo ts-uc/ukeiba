@@ -28,14 +28,14 @@ impl WebPageTrait for RakutenRacelistPage {
         );
         get_from_url(&url)
     }
-    fn scrap(&self, body: &str) -> Vec<DbType> {
+    fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let document: String = body.nfkc().collect();
         let document = Html::parse_document(&document);
 
         let title = scrap(&document, "div.headline > h2:nth-child(1)");
 
         if title.is_none() {
-            return Vec::new();
+            return Ok(Vec::new());
         }
 
         let kai: Option<i32> = title
@@ -57,7 +57,7 @@ impl WebPageTrait for RakutenRacelistPage {
         };
 
         data.push(DbType::RakutenDateRacecourse(date_racecourse));
-        data
+        Ok(data)
     }
 }
 

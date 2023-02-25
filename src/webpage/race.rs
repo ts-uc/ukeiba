@@ -31,7 +31,7 @@ impl WebPageTrait for RacePage {
         );
         get_from_url(&url)
     }
-    fn scrap(&self, body: &str) -> Vec<DbType> {
+    fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let document: String = body.nfkc().collect();
         let document = Html::parse_document(&document);
 
@@ -132,7 +132,7 @@ impl WebPageTrait for RacePage {
 
             data.push(DbType::Race(foo));
         }
-        data
+        Ok(data)
     }
 }
 
