@@ -1,7 +1,7 @@
 use super::WebPageTrait;
 use crate::DbType;
 use crate::{common::horse_birthdate_parents::HorseBirthdateParents, db_writer::Horses};
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use base64::{engine::general_purpose, Engine as _};
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use serde::{Deserialize, Serialize};
@@ -38,8 +38,7 @@ impl WebPageTrait for BajikyoSearchPage {
             let text = send_req(&query.get());
 
             let v: Value = serde_json::from_str(&text).unwrap();
-            println!("{}", v["total"]);
-            if v["total"] == json!(1) {
+            if v["total"] == json!(1) && v["rows"].as_array().unwrap().len() == 1 {
                 return Ok(text);
             }
         }
@@ -49,13 +48,12 @@ impl WebPageTrait for BajikyoSearchPage {
             let text = send_req(&original_data);
 
             let v: Value = serde_json::from_str(&text).unwrap();
-            println!("{}", v["total"]);
-            if v["total"] == json!(1) {
+            if v["total"] == json!(1) && v["rows"].as_array().unwrap().len() == 1 {
                 return Ok(text);
             }
         }
 
-        Ok(r"{}".to_string())
+        Err(anyhow!("failed to narrow down"))
     }
     fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let d: JsonData = serde_json::from_str(body).unwrap();

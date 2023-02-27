@@ -8,7 +8,7 @@ use crate::db_writer::DateRacecourses;
 use crate::db_writer::DbType;
 use crate::db_writer::RaceHorses;
 use crate::db_writer::Races;
-use anyhow::Result;
+use anyhow::{bail, Result};
 use chrono::NaiveDate;
 use scraper::{Html, Selector};
 use std::path::PathBuf;
@@ -31,7 +31,11 @@ impl WebPageTrait for HorseHistoryPage {
             "https://www2.keiba.go.jp/KeibaWeb/DataRoom/HorseMarkInfo?k_lineageLoginCode={}",
             self.0.get_horse_id()
         );
-        get_from_url(&url)
+        let got_string = get_from_url(&url)?;
+        if !got_string.contains("html") {
+            bail!("required tag is not exist");
+        }
+        Ok(got_string)
     }
     fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let document: String = body.nfkc().collect();

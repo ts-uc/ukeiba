@@ -2,7 +2,7 @@ use super::*;
 use crate::common::race::Race;
 use crate::db_writer::DbType;
 use crate::db_writer::RaceHorses;
-use anyhow::Result;
+use anyhow::{bail, Result};
 use scraper::{Html, Selector};
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
@@ -27,7 +27,11 @@ impl WebPageTrait for OddsparkOddsPage {
             self.0.racecourse.get_oddspark_id(),
             self.0.race_num,
         );
-        get_from_url(&url)
+        let got_string = get_from_url(&url)?;
+        if !got_string.contains("html") {
+            bail!("required tag is not exist");
+        }
+        Ok(got_string)
     }
     fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let document: String = body.nfkc().collect();

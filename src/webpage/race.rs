@@ -4,6 +4,7 @@ use crate::common::race::Race;
 use crate::db_writer::DbType;
 use crate::db_writer::RaceHorses;
 use crate::db_writer::Races;
+use anyhow::bail;
 use anyhow::Result;
 use scraper::{Html, Selector};
 use std::path::PathBuf;
@@ -29,7 +30,11 @@ impl WebPageTrait for RacePage {
             self.0.race_num,
             self.0.racecourse.get_keibagojp_id()
         );
-        get_from_url(&url)
+        let got_string = get_from_url(&url)?;
+        if !got_string.contains("html") {
+            bail!("required tag is not exist");
+        }
+        Ok(got_string)
     }
     fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let document: String = body.nfkc().collect();

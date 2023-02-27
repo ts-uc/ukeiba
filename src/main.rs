@@ -8,6 +8,7 @@ use crate::common::racecourse::Racecourse;
 use crate::db_writer::Db;
 use crate::db_writer::DbType;
 use crate::{common::date_racecourse::DateRacecourse, db_reader::get_racelist};
+use anyhow::Result;
 use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use common::horse::Horse;
@@ -164,13 +165,32 @@ where
     let pb = ProgressBar::new(pagelist.len() as u64);
     for race in pagelist.clone() {
         pb.inc(1);
-        race.check_and_fetch().unwrap();
+        match race.check_and_fetch() {
+            Ok(_) => (),
+            Err(e) => {
+                log::error!("{:#}", e);
+                continue;
+            }
+        }
     }
     let pb = ProgressBar::new(pagelist.len() as u64);
     let mut queries: Vec<DbType> = Vec::new();
     for race in pagelist.clone() {
         pb.inc(1);
-        queries.extend(race.load().unwrap().db().unwrap())
+        match load(race) {
+            Ok(q) => queries.extend(q),
+            Err(e) => {
+                log::error!("{:#}", e);
+                continue;
+            }
+        }
     }
     Db::new(queries).execute();
+}
+
+fn load<T>(race: T) -> Result<Vec<DbType>>
+where
+    T: WebPageTrait + Clone,
+{
+    Ok(race.load()?.db()?)
 }

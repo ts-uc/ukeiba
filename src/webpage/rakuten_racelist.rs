@@ -2,7 +2,7 @@ use super::*;
 use crate::common::date_racecourse::DateRacecourse;
 use crate::db_writer::DateRacecourses;
 use crate::db_writer::DbType;
-use anyhow::Result;
+use anyhow::{bail, Result};
 use scraper::Html;
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
@@ -26,7 +26,11 @@ impl WebPageTrait for RakutenRacelistPage {
             self.0.date.format("%Y%m%d"),
             self.0.racecourse.get_keibagojp_id()
         );
-        get_from_url(&url)
+        let got_string = get_from_url(&url)?;
+        if !got_string.contains("html") {
+            bail!("required tag is not exist");
+        }
+        Ok(got_string)
     }
     fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let document: String = body.nfkc().collect();

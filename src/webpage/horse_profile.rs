@@ -3,7 +3,7 @@ use crate::common::horse::Horse;
 use crate::db_writer::DbType;
 use crate::db_writer::Horses;
 use crate::NaiveDate;
-use anyhow::Result;
+use anyhow::{bail, Result};
 use scraper::Html;
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
@@ -25,7 +25,11 @@ impl WebPageTrait for HorseProfilePage {
             "https://www.keiba.go.jp/KeibaWeb/DataRoom/RaceHorseInfo?k_lineageLoginCode={}&k_activeCode=1",
             self.0.get_horse_id()
         );
-        get_from_url(&url)
+        let got_string = get_from_url(&url)?;
+        if !got_string.contains("html") {
+            bail!("required tag is not exist");
+        }
+        Ok(got_string)
     }
     fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
         let document: String = body.nfkc().collect();

@@ -99,7 +99,10 @@ impl<T: WebPageTrait> WebPage<T> {
 fn get_from_url(url: &str) -> Result<String> {
     std::thread::sleep(std::time::Duration::from_millis(2000));
     log::info!("fetching {}", url);
-    let res = reqwest::blocking::get(url).map_err(|e| anyhow!(e))?;
+    let res = reqwest::blocking::get(url)
+        .map_err(|e| anyhow!(e))?
+        .error_for_status()
+        .map_err(|e| anyhow!(e))?;
     log::info!("Response: {:?} {}", &res.version(), &res.status());
     let text = res.text().map_err(|e| anyhow!(e))?;
     Ok(text)
