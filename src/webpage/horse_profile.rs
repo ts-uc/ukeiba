@@ -18,7 +18,7 @@ impl WebPageTrait for HorseProfilePage {
             .join("ukeiba")
             .join("horse_profile")
             .join(self.0.get_upper_id().to_string())
-            .join(format!("horse_profile_{}.html.gz", self.0.get_horse_id()))
+            .join(format!("horse_profile_{}.html.xz", self.0.get_horse_id()))
     }
     fn fetch_string(&self) -> Result<String> {
         let url = format!(

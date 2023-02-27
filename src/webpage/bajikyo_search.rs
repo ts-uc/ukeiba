@@ -21,7 +21,7 @@ impl WebPageTrait for BajikyoSearchPage {
             .join("bajikyo_search")
             .join(self.0.horse.get_upper_id().to_string())
             .join(format!(
-                "bajikyo_search_{}.json.gz",
+                "bajikyo_search_{}.json.xz",
                 self.0.horse.get_horse_id()
             ))
     }

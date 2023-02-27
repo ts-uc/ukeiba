@@ -6,7 +6,6 @@ pub mod bajikyo_search;
 pub mod horse_history;
 pub mod horse_profile;
 pub mod oddspark_odds;
-use flate2::Compression;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
@@ -14,7 +13,7 @@ pub mod race;
 pub mod racelist;
 pub mod rakuten_racelist;
 use crate::db_writer::DbType;
-use flate2::write::{GzDecoder, GzEncoder};
+use xz2::write::{XzDecoder, XzEncoder};
 
 pub trait WebPageTrait {
     fn get_path(&self) -> PathBuf;
@@ -29,7 +28,7 @@ pub trait WebPageTrait {
         file.read_to_end(&mut file_buf).map_err(|e| anyhow!(e))?;
 
         let mut text_buf = Vec::new();
-        let mut decoder = GzDecoder::new(text_buf);
+        let mut decoder = XzDecoder::new(text_buf);
         decoder.write_all(&file_buf).map_err(|e| anyhow!(e))?;
         text_buf = decoder.finish().map_err(|e| anyhow!(e))?;
         let text = String::from_utf8(text_buf).map_err(|e| anyhow!(e))?;
@@ -87,7 +86,7 @@ impl<T: WebPageTrait> WebPage<T> {
         .map_err(|e| anyhow!(e))?;
 
         let text_buf = self.body.as_bytes();
-        let mut encoded_buf = GzEncoder::new(Vec::new(), Compression::default());
+        let mut encoded_buf = XzEncoder::new(Vec::new(), 9);
         encoded_buf.write_all(&text_buf).map_err(|e| anyhow!(e))?;
 
         let buffer = encoded_buf.finish().map_err(|e| anyhow!(e))?;

@@ -18,7 +18,7 @@ impl WebPageTrait for OddsparkOddsPage {
             .join("oddspark_odds")
             .join(self.0.racecourse.to_string())
             .join(format!("{}", self.0.date.format("%Y-%m")))
-            .join(format!("oddspark_odds_{}.html.gz", self.0.to_string()))
+            .join(format!("oddspark_odds_{}.html.xz", self.0.to_string()))
     }
     fn fetch_string(&self) -> Result<String> {
         let url = format!(

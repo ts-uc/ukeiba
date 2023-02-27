@@ -20,7 +20,7 @@ impl WebPageTrait for RacePage {
             .join("race")
             .join(self.0.racecourse.to_string())
             .join(format!("{}", self.0.date.format("%Y-%m")))
-            .join(format!("race_{}.html.gz", self.0.to_string()))
+            .join(format!("race_{}.html.xz", self.0.to_string()))
     }
     fn fetch_string(&self) -> Result<String> {
         let url = format!(
