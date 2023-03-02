@@ -35,7 +35,7 @@ impl WebPageTrait for BajikyoSearchPage {
                 birthdate: "".to_string(),
                 bajikyo_id: "20101 2242".to_string(),
             };
-            let text = send_req(&query.get());
+            let text = send_req(&query.get())?;
 
             let v: Value = serde_json::from_str(&text).unwrap();
             if v["total"] == json!(1) && v["rows"].as_array().unwrap().len() == 1 {
@@ -45,7 +45,7 @@ impl WebPageTrait for BajikyoSearchPage {
 
         for mode in Mode::iter() {
             let original_data = make_query(&self.0, mode);
-            let text = send_req(&original_data);
+            let text = send_req(&original_data)?;
 
             let v: Value = serde_json::from_str(&text).unwrap();
             if v["total"] == json!(1) && v["rows"].as_array().unwrap().len() == 1 {
@@ -56,7 +56,7 @@ impl WebPageTrait for BajikyoSearchPage {
         Err(anyhow!("failed to narrow down"))
     }
     fn scrap(&self, body: &str) -> Result<Vec<DbType>> {
-        let d: JsonData = serde_json::from_str(body).unwrap();
+        let d: JsonData = serde_json::from_str(body).map_err(|e| anyhow!(e))?;
         let bajikyo_id = regex::Regex::new(r#"\&hno=(.+?)""#)
             .unwrap()
             .captures(&d.rows[0].cell[1])
@@ -106,7 +106,7 @@ struct JsonDataRow {
     cell: Vec<String>,
 }
 
-fn send_req(query: &str) -> String {
+fn send_req(query: &str) -> Result<String> {
     let encorded = general_purpose::STANDARD.encode(query);
     let encorded = utf8_percent_encode(&encorded, NON_ALPHANUMERIC);
     let body = format!(
@@ -123,9 +123,11 @@ fn send_req(query: &str) -> String {
         )
         .body(body)
         .send()
-        .unwrap();
-    let text = res.text().unwrap();
-    text
+        .map_err(|e| anyhow!(e))?
+        .error_for_status()
+        .map_err(|e| anyhow!(e))?;
+    let text = res.text().map_err(|e| anyhow!(e))?;
+    Ok(text)
 }
 
 fn make_query(data: &HorseBirthdateParents, mode: Mode) -> String {
