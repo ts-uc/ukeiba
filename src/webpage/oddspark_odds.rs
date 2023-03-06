@@ -57,7 +57,8 @@ impl WebPageTrait for OddsparkOddsPage {
                         horse_num + 1,
                         4 - bracket_num_index
                     ),
-                ),
+                )
+                .and_then(|f| f.parse().ok()),
                 place_odds_min: scrap(
                     &document,
                     &format!(
@@ -65,7 +66,8 @@ impl WebPageTrait for OddsparkOddsPage {
                         horse_num + 1,
                         5 - bracket_num_index
                     ),
-                ),
+                )
+                .and_then(|f| f.parse().ok()),
                 place_odds_max: scrap(
                     &document,
                     &format!(
@@ -73,7 +75,8 @@ impl WebPageTrait for OddsparkOddsPage {
                         horse_num + 1,
                         5 - bracket_num_index
                     ),
-                ),
+                )
+                .and_then(|f| f.parse().ok()),
                 ..Default::default()
             };
             data.push(DbType::OddsparkOdds(data_))

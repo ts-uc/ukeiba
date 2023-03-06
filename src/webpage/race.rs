@@ -130,8 +130,10 @@ impl WebPageTrait for RacePage {
                 change: change.filter(|s| !s.is_empty()),
                 owner_name: owner_name.filter(|s| !s.is_empty()),
                 weight_mark: Some(weight_mark).filter(|s| !s.is_empty()),
-                weight_to_carry: Some(weight).filter(|s| !s.is_empty()),
-                horse_weight: horse_weight,
+                weight_to_carry: Some(weight)
+                    .filter(|s| !s.is_empty())
+                    .and_then(|f| f.parse().ok()),
+                horse_weight: horse_weight.and_then(|f| f.parse().ok()),
                 ..Default::default()
             };
 

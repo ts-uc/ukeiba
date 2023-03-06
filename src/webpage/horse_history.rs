@@ -101,18 +101,30 @@ impl WebPageTrait for HorseHistoryPage {
             let horse_history_racehorse = RaceHorses {
                 race_horse_id: racehorse.to_racehorse_id(),
                 race_id: race.to_race_id(),
-                bracket_num: Some(scrapped_row[10].clone()).filter(|s| !s.is_empty()),
+                bracket_num: Some(scrapped_row[10].clone())
+                    .filter(|s| !s.is_empty())
+                    .and_then(|f| f.parse().ok()),
                 horse_num: scrapped_row[11].parse().unwrap(),
-                win_fav: Some(scrapped_row[12].clone()).filter(|s| !s.is_empty()),
+                win_fav: Some(scrapped_row[12].clone())
+                    .filter(|s| !s.is_empty())
+                    .and_then(|f| f.parse().ok()),
                 arrival: Some(scrapped_row[13].clone()).filter(|s| !s.is_empty()),
-                finish_time: Some(scrapped_row[14].clone()).filter(|s| !s.is_empty()),
-                margin_time: Some(scrapped_row[15].clone()).filter(|s| !s.is_empty()),
+                finish_time: convert_time(&scrapped_row[14]),
+                margin_time: Some(scrapped_row[15].clone())
+                    .filter(|s| !s.is_empty())
+                    .and_then(|f| f.parse().ok()),
                 last_3f: Some(scrapped_row[16].clone()).filter(|s| !s.is_empty()),
-                horse_weight: Some(scrapped_row[17].clone()).filter(|s| !s.is_empty()),
+                horse_weight: Some(scrapped_row[17].clone())
+                    .filter(|s| !s.is_empty())
+                    .and_then(|f| f.parse().ok()),
                 jockey_name: detect_before_bracket(&scrapped_row[18]),
-                weight_to_carry: Some(scrapped_row[19].clone()).filter(|s| !s.is_empty()),
+                weight_to_carry: Some(scrapped_row[19].clone())
+                    .filter(|s| !s.is_empty())
+                    .and_then(|f| f.parse().ok()),
                 trainer_name: Some(scrapped_row[20].clone()).filter(|s| !s.is_empty()),
-                prize: Some(scrapped_row[21].clone()).filter(|s| !s.is_empty()),
+                prize: Some(scrapped_row[21].clone())
+                    .filter(|s| !s.is_empty())
+                    .and_then(|f| f.replace(",", "").parse().ok()),
                 horse_id: Some(self.0.get_horse_id()),
                 horse_name: Some(horse_name.clone()).filter(|s| !s.is_empty()),
                 ..Default::default()

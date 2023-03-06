@@ -196,6 +196,17 @@ fn detect_horse_sex(course: &str) -> Option<String> {
     }
 }
 
+fn convert_time(str_time: &str) -> Option<f64> {
+    let captured = regex::Regex::new(r"((\d+):)?([\d\.]+)")
+        .unwrap()
+        .captures(str_time)?;
+
+    let minutes: f64 = captured.get(2).map_or("0", |m| m.as_str()).parse().ok()?;
+    let seconds: f64 = captured.get(3).map_or("0", |m| m.as_str()).parse().ok()?;
+    let time = minutes * 60.0 + seconds;
+    Some(time)
+}
+
 fn get_req_param_num<T: std::str::FromStr>(element_ref: &Html, selector: &Selector) -> Option<T> {
     let id_url = element_ref
         .select(selector)
