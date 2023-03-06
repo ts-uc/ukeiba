@@ -62,7 +62,7 @@ impl WebPageTrait for BajikyoSearchPage {
             .captures(&d.rows[0].cell[1])
             .unwrap()[1]
             .to_string();
-        let data = DbType::HorseNarToBajikyo(Horses {
+        let data = DbType::BajikyoSearchHorses(Horses {
             horse_nar_id: Some(self.0.horse.get_horse_id()),
             horse_bajikyo_id: Some(bajikyo_id),
             ..Default::default()

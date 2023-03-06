@@ -80,7 +80,7 @@ impl WebPageTrait for HorseHistoryPage {
                 ..Default::default()
             };
 
-            data.push(DbType::DateRacecourse(horse_hisotry_racehorse));
+            data.push(DbType::HorseHistoryDateRacecourses(horse_hisotry_racehorse));
 
             let horse_history_race = Races {
                 race_id: race.to_race_id(),
@@ -96,7 +96,7 @@ impl WebPageTrait for HorseHistoryPage {
                 ..Default::default()
             };
 
-            data.push(DbType::HorseHistoryRace(horse_history_race));
+            data.push(DbType::HorseHistoryRaces(horse_history_race));
 
             let horse_history_racehorse = RaceHorses {
                 race_horse_id: racehorse.to_racehorse_id(),
@@ -129,7 +129,7 @@ impl WebPageTrait for HorseHistoryPage {
                 horse_name: Some(horse_name.clone()).filter(|s| !s.is_empty()),
                 ..Default::default()
             };
-            data.push(DbType::HorseHistoryRaceHorse(horse_history_racehorse));
+            data.push(DbType::HorseHistoryRaceHorses(horse_history_racehorse));
         }
         Ok(data)
     }

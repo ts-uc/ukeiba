@@ -55,7 +55,7 @@ impl WebPageTrait for RacelistPage {
             ..Default::default()
         };
 
-        data.push(DbType::DateRacecourse(date_racecourse));
+        data.push(DbType::RaceListDateRacecourses(date_racecourse));
 
         for scrapped_row in scrapped {
             let race_num: i32 = scrapped_row[0].replace("R", "").parse().unwrap();
@@ -80,7 +80,7 @@ impl WebPageTrait for RacelistPage {
                 horse_count: scrapped_row[8].parse().ok(),
                 ..Default::default()
             };
-            data.push(DbType::RaceList(racedata));
+            data.push(DbType::RaceListRaces(racedata));
         }
         Ok(data)
     }

@@ -137,7 +137,7 @@ impl WebPageTrait for RacePage {
                 ..Default::default()
             };
 
-            data.push(DbType::Race(foo));
+            data.push(DbType::RaceRaceHorses(foo));
         }
         Ok(data)
     }
