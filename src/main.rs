@@ -103,7 +103,7 @@ fn main() {
                 .map(|race| DateRacecourse::new(race, racecourse))
                 .map(|race| RacelistPage(race))
                 .collect();
-            routine(pagelist);
+            routine(pagelist, false);
         }
 
         Mode::RakutenRacelist { racecourse } => {
@@ -112,7 +112,7 @@ fn main() {
                 .map(|race| DateRacecourse::new(race, racecourse))
                 .map(|race| RakutenRacelistPage(race))
                 .collect();
-            routine(pagelist);
+            routine(pagelist, false);
         }
 
         Mode::Race { racecouse: _ } => {
@@ -120,7 +120,7 @@ fn main() {
                 .iter()
                 .map(|race| RacePage(*race))
                 .collect();
-            routine(pagelist);
+            routine(pagelist, false);
         }
 
         Mode::HorseHistory => {
@@ -128,7 +128,7 @@ fn main() {
                 .iter()
                 .map(|race| HorseHistoryPage(*race))
                 .collect();
-            routine(pagelist);
+            routine(pagelist, false);
         }
 
         Mode::HorseProfile => {
@@ -136,7 +136,7 @@ fn main() {
                 .iter()
                 .map(|race| HorseProfilePage(*race))
                 .collect();
-            routine(pagelist);
+            routine(pagelist, false);
         }
 
         Mode::BajikyoSearch => {
@@ -145,7 +145,7 @@ fn main() {
                     .iter()
                     .map(|race| BajikyoSearchPage(race.clone()))
                     .collect();
-            routine(pagelist);
+            routine(pagelist, false);
         }
 
         Mode::Odds => {
@@ -153,19 +153,19 @@ fn main() {
                 .iter()
                 .map(|race| OddsparkOddsPage(*race))
                 .collect();
-            routine(pagelist);
+            routine(pagelist, false);
         }
     }
 }
 
-fn routine<T>(pagelist: Vec<T>)
+fn routine<T>(pagelist: Vec<T>, force_fetch: bool)
 where
     T: WebPageTrait + Clone,
 {
     let pb = ProgressBar::new(pagelist.len() as u64);
     for race in pagelist.clone() {
         pb.inc(1);
-        match race.check_and_fetch() {
+        match race.check_and_fetch(force_fetch) {
             Ok(_) => (),
             Err(e) => {
                 log::error!("{:#}", e);

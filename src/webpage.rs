@@ -55,11 +55,11 @@ pub trait WebPageTrait {
             body: body,
         })
     }
-    fn check_and_fetch(self) -> Result<()>
+    fn check_and_fetch(self, force_fetch: bool) -> Result<()>
     where
         Self: Sized,
     {
-        if self.exists() {
+        if self.exists() && !force_fetch {
             return Ok(());
         }
         self.fetch()?.save()?;
