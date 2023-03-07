@@ -14,6 +14,7 @@ use clap::{Parser, Subcommand};
 use common::horse::Horse;
 use db_reader::get_horse_birthdate_parents_list;
 use db_reader::get_horselist;
+use db_reader::get_horselist_blankprize;
 use indicatif::ProgressBar;
 use webpage::bajikyo_search::BajikyoSearchPage;
 use webpage::horse_history::HorseHistoryPage;
@@ -60,6 +61,7 @@ enum Mode {
     RakutenRacelist { racecourse: Racecourse },
     Race { racecouse: Option<Racecourse> },
     HorseHistory,
+    HorseHistoryBrankPrize,
     HorseProfile,
     Odds,
     BajikyoSearch,
@@ -129,6 +131,14 @@ fn main() {
                 .map(|race| HorseHistoryPage(*race))
                 .collect();
             routine(pagelist, false);
+        }
+
+        Mode::HorseHistoryBrankPrize => {
+            let pagelist: Vec<HorseHistoryPage> = get_horselist_blankprize(from_date, to_date)
+                .iter()
+                .map(|race| HorseHistoryPage(*race))
+                .collect();
+            routine(pagelist, true);
         }
 
         Mode::HorseProfile => {

@@ -46,7 +46,30 @@ pub fn get_horselist(from: NaiveDate, to: NaiveDate) -> Vec<Horse> {
     data
 }
 
-pub fn get_horse_birthdate_parents_list(from: NaiveDate, to: NaiveDate) -> Vec<HorseBirthdateParents> {
+pub fn get_horselist_blankprize(from: NaiveDate, to: NaiveDate) -> Vec<Horse> {
+    let conn = get_conn();
+    let sql = format!(
+        "select distinct horse_id from date_racecourses
+        inner join races 
+        on date_racecourses.date_racecourse_id = races.date_racecourse_id
+        inner join race_horses on races.race_id = race_horses.race_id
+        where '{}' <= race_date and race_date <= '{}' and prize IS NULL",
+        from.to_string(),
+        to.to_string()
+    );
+    let mut stmt = conn.prepare(&sql).unwrap();
+    let data = stmt
+        .query_map([], |row| Ok(Horse::new(row.get(0).unwrap())))
+        .unwrap()
+        .map(|d| d.unwrap())
+        .collect();
+    data
+}
+
+pub fn get_horse_birthdate_parents_list(
+    from: NaiveDate,
+    to: NaiveDate,
+) -> Vec<HorseBirthdateParents> {
     let conn = get_conn();
     let sql = format!(
         "select distinct horse_nar_id, horses.horse_name, horse_birthdate, sire_name, dam_name from date_racecourses
