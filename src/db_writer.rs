@@ -147,6 +147,9 @@ pub fn initialize() {
             trainer_sex TEXT,
             trainer_status TEXT,
             trainer_affiliation TEXT,
+            trainer_birthdate TEXT,
+            trainer_first_run_date TEXT,
+            trainer_first_win_date TEXT,
             created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
             updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
         );
@@ -169,6 +172,18 @@ pub struct Jockeys {
     pub jockey_birthdate: Option<String>,
     pub jockey_first_run_date: Option<String>,
     pub jockey_first_win_date: Option<String>,
+}
+
+#[derive(Debug, Default)]
+pub struct Trainers {
+    pub trainer_id: i64,
+    pub trainer_name: String,
+    pub trainer_sex: String,
+    pub trainer_status: String,
+    pub trainer_affiliation: String,
+    pub trainer_birthdate: Option<String>,
+    pub trainer_first_run_date: Option<String>,
+    pub trainer_first_win_date: Option<String>,
 }
 
 #[derive(Debug, Default)]
@@ -270,6 +285,7 @@ pub enum DbType {
     RakutenRaceListHeader(DateRacecourses),
     BajikyoSearchHeader(Horses),
     JockeyHeader(Jockeys),
+    TrainerHeader(Trainers),
 }
 
 pub struct Db(Vec<DbType>);
@@ -303,6 +319,26 @@ impl Db {
                             data.jockey_birthdate,
                             data.jockey_first_run_date,
                             data.jockey_first_win_date
+                        ],
+                    )
+                    .unwrap();
+                }
+
+                DbType::TrainerHeader(data) => {
+                    tx.execute(
+                        "REPLACE INTO trainers(
+                            trainer_id, trainer_name, trainer_sex, trainer_status, trainer_affiliation,
+                            trainer_birthdate, trainer_first_run_date, trainer_first_win_date)
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                        params![
+                            data.trainer_id,
+                            data.trainer_name,
+                            data.trainer_sex,
+                            data.trainer_status,
+                            data.trainer_affiliation,
+                            data.trainer_birthdate,
+                            data.trainer_first_run_date,
+                            data.trainer_first_win_date
                         ],
                     )
                     .unwrap();

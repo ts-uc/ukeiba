@@ -15,6 +15,7 @@ pub mod oddspark_odds;
 pub mod race;
 pub mod racelist;
 pub mod rakuten_racelist;
+pub mod trainer;
 
 pub trait WebPageTrait {
     fn get_path(&self) -> PathBuf;

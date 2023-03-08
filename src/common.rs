@@ -5,3 +5,4 @@ pub mod jockey;
 pub mod race;
 pub mod race_horse;
 pub mod racecourse;
+pub mod trainer;
