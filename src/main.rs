@@ -12,6 +12,7 @@ use anyhow::Result;
 use chrono::{Duration, Local, NaiveDate};
 use clap::{Parser, Subcommand};
 use common::horse::Horse;
+use common::jockey::Jockey;
 use db_reader::get_horse_birthdate_parents_list;
 use db_reader::get_horselist;
 use db_reader::get_horselist_blankprize;
@@ -19,6 +20,7 @@ use indicatif::ProgressBar;
 use webpage::bajikyo_search::BajikyoSearchPage;
 use webpage::horse_history::HorseHistoryPage;
 use webpage::horse_profile::HorseProfilePage;
+use webpage::jockey::JockeyPage;
 use webpage::oddspark_odds::OddsparkOddsPage;
 use webpage::race::RacePage;
 use webpage::racelist::RacelistPage;
@@ -57,6 +59,7 @@ struct Args {
 
 #[derive(Subcommand, Debug)]
 enum Mode {
+    Jockey,
     Racelist { racecourse: Racecourse },
     RakutenRacelist { racecourse: Racecourse },
     Race { racecouse: Option<Racecourse> },
@@ -99,6 +102,13 @@ fn main() {
     db_writer::initialize();
 
     match args.mode {
+        Mode::Jockey => {
+            let pagelist: Vec<JockeyPage> = (38000..=38086)
+                .map(|x| Jockey::new(x))
+                .map(|x| JockeyPage(x))
+                .collect();
+            routine(pagelist, false);
+        }
         Mode::Racelist { racecourse } => {
             let pagelist: Vec<RacelistPage> = (0..=day_count)
                 .map(|x| to_date - Duration::days(x))

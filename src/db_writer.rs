@@ -129,6 +129,9 @@ pub fn initialize() {
             jockey_sex TEXT,
             jockey_status TEXT,
             jockey_affiliation TEXT,
+            jockey_birthdate TEXT,
+            jockey_first_run_date TEXT,
+            jockey_first_win_date TEXT,
             created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
             updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
         );
@@ -154,6 +157,18 @@ pub fn initialize() {
         END;
         ",
     ).unwrap();
+}
+
+#[derive(Debug, Default)]
+pub struct Jockeys {
+    pub jockey_id: i64,
+    pub jockey_name: String,
+    pub jockey_sex: String,
+    pub jockey_status: String,
+    pub jockey_affiliation: String,
+    pub jockey_birthdate: Option<String>,
+    pub jockey_first_run_date: Option<String>,
+    pub jockey_first_win_date: Option<String>,
 }
 
 #[derive(Debug, Default)]
@@ -254,6 +269,7 @@ pub enum DbType {
     OddsparkOddsBody(RaceHorses),
     RakutenRaceListHeader(DateRacecourses),
     BajikyoSearchHeader(Horses),
+    JockeyHeader(Jockeys),
 }
 
 pub struct Db(Vec<DbType>);
@@ -272,6 +288,26 @@ impl Db {
         let pb = indicatif::ProgressBar::new(self.0.len() as u64);
         for db_type in &self.0 {
             match db_type {
+                DbType::JockeyHeader(data) => {
+                    tx.execute(
+                        "REPLACE INTO jockeys(
+                            jockey_id, jockey_name, jockey_sex, jockey_status, jockey_affiliation,
+                            jockey_birthdate, jockey_first_run_date, jockey_first_win_date)
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                        params![
+                            data.jockey_id,
+                            data.jockey_name,
+                            data.jockey_sex,
+                            data.jockey_status,
+                            data.jockey_affiliation,
+                            data.jockey_birthdate,
+                            data.jockey_first_run_date,
+                            data.jockey_first_win_date
+                        ],
+                    )
+                    .unwrap();
+                }
+
                 DbType::RaceListHeader(data) => {
                     tx.execute(
                         "INSERT INTO date_racecourses(

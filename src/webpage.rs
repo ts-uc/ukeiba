@@ -1,19 +1,20 @@
+use crate::db_writer::DbType;
 use anyhow::{anyhow, Result};
 use regex::Regex;
 use scraper::{Html, Selector};
-use std::path::PathBuf;
-pub mod bajikyo_search;
-pub mod horse_history;
-pub mod horse_profile;
-pub mod oddspark_odds;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
+use std::path::PathBuf;
+use xz2::write::{XzDecoder, XzEncoder};
+pub mod bajikyo_search;
+pub mod horse_history;
+pub mod horse_profile;
+pub mod jockey;
+pub mod oddspark_odds;
 pub mod race;
 pub mod racelist;
 pub mod rakuten_racelist;
-use crate::db_writer::DbType;
-use xz2::write::{XzDecoder, XzEncoder};
 
 pub trait WebPageTrait {
     fn get_path(&self) -> PathBuf;
