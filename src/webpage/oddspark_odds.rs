@@ -79,7 +79,7 @@ impl WebPageTrait for OddsparkOddsPage {
                 .and_then(|f| f.parse().ok()),
                 ..Default::default()
             };
-            data.push(DbType::OddsparkOddsRaceHorses(data_))
+            data.push(DbType::OddsparkOddsBody(data_))
         }
         // 当日メニューをスクレイピングし、ベクタ形式で返す
         Ok(data)

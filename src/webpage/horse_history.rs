@@ -91,14 +91,12 @@ impl WebPageTrait for HorseHistoryPage {
                 race_num: race_num,
                 horse_num: horse_num,
             };
-            let horse_hisotry_racehorse = DateRacecourses {
+            let horse_hisotry_dataracecourse = DateRacecourses {
                 date_racecourse_id: DateRacecourse::new(date, racecourse).to_date_racecourse_id(),
                 race_date: date.to_string(),
                 racecourse: racecourse.to_japanese(),
                 ..Default::default()
             };
-
-            data.push(DbType::HorseHistoryDateRacecourses(horse_hisotry_racehorse));
 
             let horse_history_race = Races {
                 race_id: race.to_race_id(),
@@ -114,8 +112,6 @@ impl WebPageTrait for HorseHistoryPage {
                 horse_count: Some(scrapped_row[9].clone()).filter(|s| !s.is_empty()),
                 ..Default::default()
             };
-
-            data.push(DbType::HorseHistoryRaces(horse_history_race));
 
             let horse_history_racehorse = RaceHorses {
                 race_horse_id: racehorse.to_racehorse_id(),
@@ -148,7 +144,11 @@ impl WebPageTrait for HorseHistoryPage {
                 horse_name: Some(horse_name.clone()).filter(|s| !s.is_empty()),
                 ..Default::default()
             };
-            data.push(DbType::HorseHistoryRaceHorses(horse_history_racehorse));
+            data.push(DbType::HorseHistoryBody(
+                horse_hisotry_dataracecourse,
+                horse_history_race,
+                horse_history_racehorse,
+            ));
         }
         Ok(data)
     }

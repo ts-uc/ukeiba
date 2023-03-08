@@ -64,7 +64,7 @@ impl WebPageTrait for HorseProfilePage {
             ..Default::default()
         };
 
-        data.push(DbType::HorseProfileHorses(horse_data));
+        data.push(DbType::HorseProfileHeader(horse_data));
 
         Ok(data)
     }

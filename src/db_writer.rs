@@ -1,6 +1,8 @@
 #![allow(unused)]
 use rusqlite::{params, Connection};
 
+use crate::common::{date_racecourse, race::Race};
+
 fn get_conn() -> Connection {
     let db_path = dirs::data_dir().unwrap().join("ukeiba").join("ukeiba.db");
     Connection::open(&db_path).unwrap()
@@ -243,17 +245,15 @@ pub struct Horses {
 
 #[derive(Debug)]
 pub enum DbType {
-    RaceListDateRacecourses(DateRacecourses),
-    RaceListRaces(Races),
-    RaceRaces(Races),
-    RaceRaceHorses(RaceHorses),
-    HorseHistoryDateRacecourses(DateRacecourses),
-    HorseHistoryRaces(Races),
-    HorseHistoryRaceHorses(RaceHorses),
-    HorseProfileHorses(Horses),
-    OddsparkOddsRaceHorses(RaceHorses),
-    RakutenDateRacecourse(DateRacecourses),
-    BajikyoSearchHorses(Horses),
+    RaceListHeader(DateRacecourses),
+    RaceListBody(Races),
+    RaceHeader(Races),
+    RaceBody(RaceHorses),
+    HorseHistoryBody(DateRacecourses, Races, RaceHorses),
+    HorseProfileHeader(Horses),
+    OddsparkOddsBody(RaceHorses),
+    RakutenRaceListHeader(DateRacecourses),
+    BajikyoSearchHeader(Horses),
 }
 
 pub struct Db(Vec<DbType>);
@@ -272,18 +272,7 @@ impl Db {
         let pb = indicatif::ProgressBar::new(self.0.len() as u64);
         for db_type in &self.0 {
             match db_type {
-                DbType::HorseHistoryDateRacecourses(data) => {
-                    tx.execute(
-                        "INSERT INTO date_racecourses(
-                            date_racecourse_id, race_date, racecourse)
-                            VALUES (?1, ?2, ?3)
-                            ON CONFLICT (date_racecourse_id) DO UPDATE SET
-                            race_date = ?2, racecourse = ?3",
-                        params![data.date_racecourse_id, data.race_date, data.racecourse,],
-                    )
-                    .unwrap();
-                }
-                DbType::RaceListDateRacecourses(data) => {
+                DbType::RaceListHeader(data) => {
                     tx.execute(
                         "INSERT INTO date_racecourses(
                             date_racecourse_id, race_date, racecourse)
@@ -295,7 +284,7 @@ impl Db {
                     .unwrap();
                 }
 
-                DbType::RaceListRaces(data) => {
+                DbType::RaceListBody(data) => {
                     tx.execute(
                         "INSERT OR IGNORE INTO races (
                             race_id, date_racecourse_id, race_num, post_time,
@@ -323,7 +312,7 @@ impl Db {
                     )
                     .unwrap();
                 }
-                DbType::RaceRaceHorses(data) => {
+                DbType::RaceBody(data) => {
                     tx.execute(
                         "REPLACE  INTO race_horses (
                             race_horse_id, race_id, horse_num,  horse_name,
@@ -354,7 +343,21 @@ impl Db {
                     )
                     .unwrap();
                 }
-                DbType::HorseHistoryRaces(data) => {
+                DbType::HorseHistoryBody(date_racecourse_data, race_data, race_horse_data) => {
+                    tx.execute(
+                        "INSERT INTO date_racecourses(
+                            date_racecourse_id, race_date, racecourse)
+                            VALUES (?1, ?2, ?3)
+                            ON CONFLICT (date_racecourse_id) DO UPDATE SET
+                            race_date = ?2, racecourse = ?3",
+                        params![
+                            date_racecourse_data.date_racecourse_id,
+                            date_racecourse_data.race_date,
+                            date_racecourse_data.racecourse,
+                        ],
+                    )
+                    .unwrap();
+
                     tx.execute(
                         "INSERT INTO races (
                             race_id, date_racecourse_id, race_num, change, 
@@ -366,25 +369,24 @@ impl Db {
                             race_type = ?5, surface = ?7, distance = ?8, weather = ?9,
                             going = ?10, moisture = ?11, horse_count = ?12",
                         params![
-                            data.race_id,
-                            data.date_racecourse_id,
-                            data.race_num,
-                            data.change,
+                            race_data.race_id,
+                            race_data.date_racecourse_id,
+                            race_data.race_num,
+                            race_data.change,
                             //
-                            data.race_type,
-                            data.race_name,
-                            data.surface,
-                            data.distance,
-                            data.weather,
+                            race_data.race_type,
+                            race_data.race_name,
+                            race_data.surface,
+                            race_data.distance,
+                            race_data.weather,
                             //
-                            data.going,
-                            data.moisture,
-                            data.horse_count
+                            race_data.going,
+                            race_data.moisture,
+                            race_data.horse_count
                         ],
                     )
                     .unwrap();
-                }
-                DbType::HorseHistoryRaceHorses(data) => {
+
                     tx.execute(
                         "INSERT INTO race_horses (
                             race_horse_id, race_id, bracket_num, horse_num, win_fav,
@@ -397,30 +399,30 @@ impl Db {
                             arrival = ?6, finish_time = ?7, margin_time = ?8, last_3f = ?9,
                             prize = ?14",
                     params![
-                        data.race_horse_id,
-                        data.race_id,
-                        data.bracket_num,
-                        data.horse_num,
-                        data.win_fav,
+                        race_horse_data.race_horse_id,
+                        race_horse_data.race_id,
+                        race_horse_data.bracket_num,
+                        race_horse_data.horse_num,
+                        race_horse_data.win_fav,
                         //
-                        data.arrival,
-                        data.finish_time,
-                        data.margin_time,
-                        data.last_3f,
-                        data.horse_weight,
+                        race_horse_data.arrival,
+                        race_horse_data.finish_time,
+                        race_horse_data.margin_time,
+                        race_horse_data.last_3f,
+                        race_horse_data.horse_weight,
                         //
-                        data.jockey_name,
-                        data.weight_to_carry,
-                        data.trainer_name,
-                        data.prize,
-                        data.horse_id,
+                        race_horse_data.jockey_name,
+                        race_horse_data.weight_to_carry,
+                        race_horse_data.trainer_name,
+                        race_horse_data.prize,
+                        race_horse_data.horse_id,
                         //
-                        data.horse_name,
+                        race_horse_data.horse_name,
                         ],
                 )
                 .unwrap();
                 }
-                DbType::HorseProfileHorses(data) => {
+                DbType::HorseProfileHeader(data) => {
                     tx.execute(
                         "INSERT INTO horses (
                             horse_nar_id, horse_name, horse_sex, horse_status, horse_type,
@@ -454,7 +456,7 @@ impl Db {
                 )
                 .unwrap();
                 }
-                DbType::OddsparkOddsRaceHorses(data) => {
+                DbType::OddsparkOddsBody(data) => {
                     tx.execute(
                         "INSERT INTO race_horses (
                             race_horse_id, race_id, horse_num, win_odds, place_odds_min, place_odds_max) 
@@ -472,7 +474,7 @@ impl Db {
                     )
                     .unwrap();
                 }
-                DbType::RakutenDateRacecourse(data) => {
+                DbType::RakutenRaceListHeader(data) => {
                     tx.execute(
                         "INSERT INTO date_racecourses(
                             date_racecourse_id, race_date, racecourse, kai, nichi)
@@ -489,7 +491,7 @@ impl Db {
                     )
                     .unwrap();
                 }
-                DbType::RaceRaces(data) => {
+                DbType::RaceHeader(data) => {
                     tx.execute(
                         "INSERT INTO races(
                             race_id, date_racecourse_id, race_num, race_name, race_sub_title,
@@ -512,7 +514,7 @@ impl Db {
                     )
                     .unwrap();
                 }
-                DbType::BajikyoSearchHorses(data) => {
+                DbType::BajikyoSearchHeader(data) => {
                     tx.execute(
                         "INSERT INTO horses (
                             horse_nar_id, horse_bajikyo_id

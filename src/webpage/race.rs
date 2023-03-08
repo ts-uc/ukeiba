@@ -63,7 +63,7 @@ impl WebPageTrait for RacePage {
             ..Default::default()
         };
 
-        data.push(DbType::RaceRaces(title_data));
+        data.push(DbType::RaceHeader(title_data));
 
         for horse_num in 1..=horse_count {
             let (_, bracket_num_index) = calc_wakuban(horse_count, horse_num);
@@ -137,7 +137,7 @@ impl WebPageTrait for RacePage {
                 ..Default::default()
             };
 
-            data.push(DbType::RaceRaceHorses(foo));
+            data.push(DbType::RaceBody(foo));
         }
         Ok(data)
     }

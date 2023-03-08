@@ -60,7 +60,7 @@ impl WebPageTrait for RakutenRacelistPage {
             nichi: nichi,
         };
 
-        data.push(DbType::RakutenDateRacecourse(date_racecourse));
+        data.push(DbType::RakutenRaceListHeader(date_racecourse));
         Ok(data)
     }
 }
