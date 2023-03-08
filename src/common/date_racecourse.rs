@@ -1,9 +1,8 @@
 #![allow(dead_code)]
 use super::race::Race;
-use super::*;
 use crate::common::racecourse::Racecourse;
 use chrono::{Datelike, NaiveDate};
-use std::{fmt, path::PathBuf};
+use std::fmt;
 
 #[derive(Debug, Clone, Copy)]
 pub struct DateRacecourse {
@@ -55,17 +54,5 @@ impl DateRacecourse {
             racecourse: self.racecourse,
             race_num: race_num,
         }
-    }
-}
-
-impl GetPath for DateRacecourse {
-    fn get_dir_path(&self) -> std::path::PathBuf {
-        PathBuf::new()
-            .join(self.racecourse.to_string())
-            .join(format!("{}", self.date.format("%Y-%m")))
-    }
-
-    fn get_data_id(&self) -> String {
-        self.to_date_racecourse_id().to_string()
     }
 }
