@@ -52,6 +52,8 @@ pub fn initialize() {
             created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
             updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
         );
+
+        CREATE INDEX IF NOT EXISTS index_races ON races(date_racecourse_id); 
         
         CREATE TRIGGER IF NOT EXISTS trigger_races_updated_at AFTER UPDATE ON races
         BEGIN
@@ -90,6 +92,8 @@ pub fn initialize() {
             created_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime')),
             updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
         );
+
+        CREATE INDEX IF NOT EXISTS index_race_horses ON race_horses(race_id, horse_id, jockey_id, trainer_id); 
         
         CREATE TRIGGER IF NOT EXISTS trigger_race_horses_updated_at AFTER UPDATE ON race_horses
         BEGIN
