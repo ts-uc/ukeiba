@@ -57,7 +57,25 @@ impl WebPageTrait for HorseHistoryPage {
 
         let mut data = Vec::new();
 
-        for scrapped_row in scrapped {
+        for (i, scrapped_row) in scrapped.iter().enumerate() {
+            let race_name_selector = Selector::parse(&format!(
+                ".HorseMarkInfo_table > tbody:nth-child(2) > tr:nth-child({}) > td:nth-child(4)",
+                i + 1
+            ))
+            .unwrap();
+            let selected = document
+                .select(&race_name_selector)
+                .next()
+                .unwrap()
+                .value()
+                .attr("class");
+            let race_type = match selected {
+                Some("green") => "特別",
+                Some("yellow") => "準重賞",
+                Some("pink") => "重賞",
+                _ => "一般",
+            };
+
             let date = NaiveDate::parse_from_str(&scrapped_row[0], "%Y/%m/%d").unwrap();
             let racecourse = Racecourse::from_str(&scrapped_row[1]);
             let race_num: i32 = scrapped_row[2].parse().unwrap();
@@ -86,6 +104,7 @@ impl WebPageTrait for HorseHistoryPage {
                 race_id: race.to_race_id(),
                 date_racecourse_id: DateRacecourse::new(date, racecourse).to_date_racecourse_id(),
                 race_num: race_num,
+                race_type: Some(race_type.to_string()),
                 race_name: Some(scrapped_row[3].clone()).filter(|s| !s.is_empty()),
                 surface: detect_surface(&scrapped_row[5]),
                 distance: detect_num(&scrapped_row[5]),

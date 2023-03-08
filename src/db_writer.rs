@@ -356,11 +356,15 @@ impl Db {
                 }
                 DbType::HorseHistoryRaces(data) => {
                     tx.execute(
-                        "INSERT OR IGNORE INTO races (
+                        "INSERT INTO races (
                             race_id, date_racecourse_id, race_num, change, 
                             race_type, race_name,  surface, distance, weather, 
                             going, moisture, horse_count) 
-                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)",
+                            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
+                            ON CONFLICT (race_id) DO UPDATE SET
+                            date_racecourse_id = ?2, race_num = ?3, change = ?4, 
+                            race_type = ?5, surface = ?7, distance = ?8, weather = ?9,
+                            going = ?10, moisture = ?11, horse_count = ?12",
                         params![
                             data.race_id,
                             data.date_racecourse_id,
