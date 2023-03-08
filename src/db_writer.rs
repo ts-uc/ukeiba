@@ -162,6 +162,14 @@ pub fn initialize() {
         BEGIN
             UPDATE trainers SET updated_at = DATETIME('now', 'localtime') WHERE rowid == NEW.rowid;
         END;
+
+        CREATE VIEW IF NOT EXISTS joined AS select * from date_racecourses
+        inner join races 
+        on date_racecourses.date_racecourse_id = races.date_racecourse_id
+        inner join race_horses on races.race_id = race_horses.race_id
+        inner join horses on race_horses.horse_id = horses.horse_nar_id
+        inner join jockeys on race_horses.jockey_id = jockeys.jockey_id
+        inner join trainers on race_horses.trainer_id = trainers.trainer_id;
         ",
     ).unwrap();
 }
