@@ -174,6 +174,11 @@ pub fn initialize() {
     ).unwrap();
 }
 
+pub fn vacuum() {
+    let conn = get_conn();
+    conn.execute_batch("VACUUM;").unwrap();
+}
+
 #[derive(Debug, Default)]
 pub struct Jockeys {
     pub jockey_id: i64,

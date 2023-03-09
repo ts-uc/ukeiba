@@ -71,6 +71,7 @@ enum Mode {
     HorseProfile,
     Odds,
     BajikyoSearch,
+    Vacuum,
 }
 
 fn main() {
@@ -105,6 +106,9 @@ fn main() {
     db_writer::initialize();
 
     match args.mode {
+        Mode::Vacuum => {
+            db_writer::vacuum();
+        }
         Mode::Jockey => {
             let pagelist: Vec<JockeyPage> = (38000..=38086)
                 .map(|x| Jockey::new(x))
