@@ -122,7 +122,7 @@ impl WebPageTrait for RacePage {
                 horse_num: horse_num,
                 horse_name: horse_name.filter(|s| !s.is_empty()),
                 horse_sex: sex,
-                horse_id: horse_id,
+                horse_nar_id: horse_id,
                 jockey_name: jockey_name,
                 jockey_id: jockey_id,
                 trainer_name: trainer_name,

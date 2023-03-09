@@ -68,7 +68,7 @@ pub fn initialize() {
             horse_name TEXT,
             horse_sex TEXT,
             horse_age INTEGER,
-            horse_id INTEGER,
+            horse_nar_id INTEGER,
             jockey_name TEXT,
             jockey_id INTEGER,
             trainer_name TEXT,
@@ -93,7 +93,7 @@ pub fn initialize() {
             updated_at TEXT NOT NULL DEFAULT (DATETIME('now', 'localtime'))
         );
 
-        CREATE INDEX IF NOT EXISTS index_race_horses ON race_horses(race_id, horse_id, jockey_id, trainer_id); 
+        CREATE INDEX IF NOT EXISTS index_race_horses ON race_horses(race_id, horse_nar_id, jockey_id, trainer_id); 
         
         CREATE TRIGGER IF NOT EXISTS trigger_race_horses_updated_at AFTER UPDATE ON race_horses
         BEGIN
@@ -167,7 +167,7 @@ pub fn initialize() {
         inner join races 
         on date_racecourses.date_racecourse_id = races.date_racecourse_id
         inner join race_horses on races.race_id = race_horses.race_id
-        inner join horses on race_horses.horse_id = horses.horse_nar_id
+        inner join horses on race_horses.horse_nar_id = horses.horse_nar_id
         inner join jockeys on race_horses.jockey_id = jockeys.jockey_id
         inner join trainers on race_horses.trainer_id = trainers.trainer_id;
         ",
@@ -246,7 +246,7 @@ pub struct RaceHorses {
     pub horse_name: Option<String>,
     pub horse_sex: Option<String>,
     pub horse_age: Option<i32>,
-    pub horse_id: Option<i64>,
+    pub horse_nar_id: Option<i64>,
     pub jockey_name: Option<String>,
     pub jockey_id: Option<i32>,
     pub trainer_name: Option<String>,
@@ -405,7 +405,7 @@ impl Db {
                     tx.execute(
                         "REPLACE  INTO race_horses (
                             race_horse_id, race_id, horse_num,  horse_name,
-                            horse_sex,  horse_id, jockey_name, jockey_id, 
+                            horse_sex, horse_nar_id, jockey_name, jockey_id, 
                             trainer_name, trainer_id, change, owner_name, weight_mark,
                             weight_to_carry, horse_weight) 
                             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)",
@@ -416,7 +416,7 @@ impl Db {
                             data.horse_name,
                             //
                             data.horse_sex,
-                            data.horse_id,
+                            data.horse_nar_id,
                             data.jockey_name,
                             data.jockey_id,
                             //
@@ -480,7 +480,7 @@ impl Db {
                         "INSERT INTO race_horses (
                             race_horse_id, race_id, bracket_num, horse_num, win_fav,
                             arrival, finish_time, margin_time, last_3f, horse_weight, 
-                            jockey_name, weight_to_carry, trainer_name, prize, horse_id, horse_name
+                            jockey_name, weight_to_carry, trainer_name, prize, horse_nar_id, horse_name
                             ) 
                             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)
                             ON CONFLICT (race_horse_id) DO UPDATE SET
@@ -504,7 +504,7 @@ impl Db {
                         race_horse_data.weight_to_carry,
                         race_horse_data.trainer_name,
                         race_horse_data.prize,
-                        race_horse_data.horse_id,
+                        race_horse_data.horse_nar_id,
                         //
                         race_horse_data.horse_name,
                         ],

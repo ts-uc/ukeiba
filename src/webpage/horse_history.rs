@@ -140,7 +140,7 @@ impl WebPageTrait for HorseHistoryPage {
                 prize: Some(scrapped_row[21].clone())
                     .filter(|s| !s.is_empty())
                     .and_then(|f| f.replace(",", "").parse().ok()),
-                horse_id: Some(self.0.get_horse_id()),
+                horse_nar_id: Some(self.0.get_horse_id()),
                 horse_name: Some(horse_name.clone()).filter(|s| !s.is_empty()),
                 ..Default::default()
             };

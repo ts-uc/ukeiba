@@ -29,7 +29,7 @@ pub fn get_racelist(from: NaiveDate, to: NaiveDate) -> Vec<Race> {
 pub fn get_horselist(from: NaiveDate, to: NaiveDate) -> Vec<Horse> {
     let conn = get_conn();
     let sql = format!(
-        "select distinct horse_id from date_racecourses
+        "select distinct horse_nar_id from date_racecourses
         inner join races 
         on date_racecourses.date_racecourse_id = races.date_racecourse_id
         inner join race_horses on races.race_id = race_horses.race_id
@@ -49,7 +49,7 @@ pub fn get_horselist(from: NaiveDate, to: NaiveDate) -> Vec<Horse> {
 pub fn get_horselist_blankprize(from: NaiveDate, to: NaiveDate) -> Vec<Horse> {
     let conn = get_conn();
     let sql = format!(
-        "select distinct horse_id from date_racecourses
+        "select distinct horse_nar_id from date_racecourses
         inner join races 
         on date_racecourses.date_racecourse_id = races.date_racecourse_id
         inner join race_horses on races.race_id = race_horses.race_id
@@ -72,11 +72,11 @@ pub fn get_horse_birthdate_parents_list(
 ) -> Vec<HorseBirthdateParents> {
     let conn = get_conn();
     let sql = format!(
-        "select distinct horse_nar_id, horses.horse_name, horse_birthdate, sire_name, dam_name from date_racecourses
+        "select distinct horses.horse_nar_id, horses.horse_name, horse_birthdate, sire_name, dam_name from date_racecourses
         inner join races 
         on date_racecourses.date_racecourse_id = races.date_racecourse_id
         inner join race_horses on races.race_id = race_horses.race_id
-        inner join horses on race_horses.horse_id = horses.horse_nar_id
+        inner join horses on race_horses.horse_nar_id = horses.horse_nar_id
         where '{}' <= race_date and race_date <= '{}'",
         from.to_string(),
         to.to_string()
