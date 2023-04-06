@@ -1,9 +1,11 @@
 use anyhow::{anyhow, Result};
+use scraper::{Html, Selector};
 use std::fs::{create_dir_all, File};
 use std::io::{Read, Write};
 use std::path::PathBuf;
 use std::time::Duration;
 use xz2::write::{XzDecoder, XzEncoder};
+pub mod horse_profile;
 
 #[derive(Debug, Clone)]
 pub enum Mode {
@@ -98,4 +100,34 @@ fn get_from_url(url: &str, interval: Duration) -> Result<String> {
     let res = reqwest::blocking::get(url)?.error_for_status()?;
     let text = res.text()?;
     Ok(text)
+}
+
+fn scrap(html: &Html, selector_str: &str) -> Option<String> {
+    let selector = Selector::parse(&selector_str).ok()?;
+    html.select(&selector)
+        .next()
+        .map(|x| x.inner_html().trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+// fn scrap_remove_tag(html: &Html, selector_str: &str) -> Option<String> {
+//     let selector = Selector::parse(&selector_str).ok()?;
+//     html.select(&selector)
+//         .next()
+//         .map(|x| x.text().collect::<Vec<_>>().join("").trim().to_string())
+//         .filter(|s| !s.is_empty())
+// }
+
+fn split_blacket<'a>(raw: &'a str) -> (&'a str, &'a str, &'a str) {
+    let captured = regex::Regex::new(r"^\s*(.*?)\s*\(\s*(.*?)\s*\)\s*(.*?)\s*$")
+        .unwrap()
+        .captures(&raw);
+    match captured {
+        Some(x) => (
+            x.get(1).map_or("", |x| x.as_str()),
+            x.get(2).map_or("", |x| x.as_str()),
+            x.get(3).map_or("", |x| x.as_str()),
+        ),
+        None => (raw, "", raw),
+    }
 }
