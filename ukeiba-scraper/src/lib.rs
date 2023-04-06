@@ -5,14 +5,19 @@ use std::path::PathBuf;
 use std::time::Duration;
 use xz2::write::{XzDecoder, XzEncoder};
 
+#[derive(Debug, Clone)]
+pub enum Mode {
+    Fetch,
+    Load,
+    Normal,
+    FetchSave,
+    NormalSave,
+}
+
 pub trait WebPageTrait {
     fn get_path(&self) -> PathBuf;
 
     fn fetch_string(&self, interval: Duration) -> Result<String>;
-
-    fn exists(&self) -> bool {
-        self.get_path().exists()
-    }
 
     fn load_string(&self) -> Result<String> {
         let mut file = File::open(self.get_path())?;
@@ -28,29 +33,41 @@ pub trait WebPageTrait {
         Ok(text)
     }
 
-    fn fetch(&self, interval: Duration) -> Result<WebPage<Self>>
+    fn get(&self, mode: Mode, interval: Duration) -> Result<WebPage<Self>>
     where
         Self: Clone,
     {
-        let body = self.fetch_string(interval)?;
-        Ok(WebPage {
+        let (text, is_save) = match mode {
+            Mode::Load => (self.load_string()?, false),
+            Mode::FetchSave => (self.fetch_string(interval)?, true),
+            Mode::Fetch => (self.fetch_string(interval)?, false),
+            Mode::NormalSave => {
+                if self.get_path().exists() {
+                    (self.load_string()?, false)
+                } else {
+                    (self.fetch_string(interval)?, true)
+                }
+            }
+            Mode::Normal => {
+                if self.get_path().exists() {
+                    (self.load_string()?, false)
+                } else {
+                    (self.fetch_string(interval)?, false)
+                }
+            }
+        };
+        let webpage = WebPage {
             web_page_trait: self.clone(),
-            body: body,
-        })
-    }
-
-    fn load(&self) -> Result<WebPage<Self>>
-    where
-        Self: Clone,
-    {
-        let body = self.load_string()?;
-        Ok(WebPage {
-            web_page_trait: self.clone(),
-            body: body,
-        })
+            body: text,
+        };
+        if is_save {
+            webpage.save()?;
+        }
+        Ok(webpage)
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct WebPage<T> {
     web_page_trait: T,
     body: String,
