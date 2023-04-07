@@ -47,6 +47,8 @@ impl WebPage<HorseProfilePage> {
     pub fn scrap(&self) -> Result<HorseProfileData> {
         let doc: String = self.body.nfkc().collect();
         let doc = Html::parse_document(&doc);
+        let doc = doc.root_element();
+
         Ok(HorseProfileData {
             horse_name: scrap(&doc, ".odd_title").context("essential error")?,
             horse_sex: scrap(&doc, ".sex").context("essential error")?,

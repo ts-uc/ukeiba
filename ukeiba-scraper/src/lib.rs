@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use scraper::{Html, Selector};
+use scraper::{ElementRef, Selector};
 use std::fs::{create_dir_all, File};
 use std::io::{Read, Write};
 use std::path::PathBuf;
@@ -102,7 +102,7 @@ fn get_from_url(url: &str, interval: Duration) -> Result<String> {
     Ok(text)
 }
 
-fn scrap(html: &Html, selector_str: &str) -> Option<String> {
+fn scrap(html: &ElementRef, selector_str: &str) -> Option<String> {
     let selector = Selector::parse(&selector_str).ok()?;
     html.select(&selector)
         .next()
