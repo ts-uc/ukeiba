@@ -119,7 +119,7 @@ fn scrap_remove_tag(html: &ElementRef, selector_str: &str) -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
-fn split_blacket<'a>(raw: &'a str) -> (&'a str, &'a str, &'a str) {
+fn split_bracket<'a>(raw: &'a str) -> (&'a str, &'a str, &'a str) {
     let captured = regex::Regex::new(r"^\s*(.*?)\s*\(\s*(.*?)\s*\)\s*(.*?)\s*$")
         .unwrap()
         .captures(&raw);
