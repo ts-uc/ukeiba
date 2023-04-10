@@ -7,6 +7,7 @@ use std::time::Duration;
 use xz2::write::{XzDecoder, XzEncoder};
 pub mod horse_history;
 pub mod horse_profile;
+pub mod horse_search;
 
 #[derive(Debug, Clone)]
 pub enum Mode {
@@ -117,6 +118,15 @@ fn scrap_remove_tag(html: &ElementRef, selector_str: &str) -> Option<String> {
         .next()
         .map(|x| x.text().collect::<Vec<_>>().join("").trim().to_string())
         .filter(|s| !s.is_empty())
+}
+
+fn scrap_link(html: &ElementRef, selector_str: &str) -> Option<String> {
+    let selector = Selector::parse(&selector_str).ok()?;
+    html.select(&selector)
+        .next()?
+        .value()
+        .attr("href")
+        .map(str::to_string)
 }
 
 fn split_bracket<'a>(raw: &'a str) -> (&'a str, &'a str, &'a str) {
