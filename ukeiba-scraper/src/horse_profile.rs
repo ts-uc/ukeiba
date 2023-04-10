@@ -6,12 +6,12 @@ use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug, Clone)]
-pub struct HorseProfilePage {
+pub struct Page {
     pub horse_nar_id: i64,
 }
 
 #[derive(Debug, Clone)]
-pub struct HorseProfileData {
+pub struct Data {
     pub horse_name: String,
     pub horse_sex: String,
     pub horse_status: String,
@@ -21,7 +21,7 @@ pub struct HorseProfileData {
     pub dam_name: Option<String>,
 }
 
-impl WebPageTrait for HorseProfilePage {
+impl WebPageTrait for Page {
     fn get_path(&self) -> PathBuf {
         dirs::data_dir()
             .unwrap()
@@ -43,13 +43,13 @@ impl WebPageTrait for HorseProfilePage {
     }
 }
 
-impl WebPage<HorseProfilePage> {
-    pub fn scrap(&self) -> Result<HorseProfileData> {
+impl WebPage<Page> {
+    pub fn scrap(&self) -> Result<Data> {
         let doc: String = self.body.nfkc().collect();
         let doc = Html::parse_document(&doc);
         let doc = doc.root_element();
 
-        Ok(HorseProfileData {
+        Ok(Data {
             horse_name: scrap(&doc, ".odd_title").context("essential error")?,
             horse_sex: scrap(&doc, ".sex").context("essential error")?,
             horse_status: scrap(&doc, ".horseinfo > li:nth-child(3) > div:nth-child(1)")

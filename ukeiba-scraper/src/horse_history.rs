@@ -6,22 +6,22 @@ use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug, Clone)]
-pub struct HorseHistoryPage {
+pub struct Page {
     pub horse_nar_id: i64,
 }
 
 #[derive(Debug, Clone)]
-pub struct HorseProfileData {
+pub struct Data {
     pub horse_name: String,
     pub horse_sex: String,
     pub horse_status: String,
     pub horse_type: Option<String>,
     pub deregistration_date: Option<NaiveDate>,
-    pub data: Vec<HorseProfileDataRow>,
+    pub data: Vec<DataRow>,
 }
 
 #[derive(Debug, Clone)]
-pub struct HorseProfileDataRow {
+pub struct DataRow {
     pub race_date: NaiveDate,
     pub racecourse: String,
     pub race_num: i32,
@@ -50,7 +50,7 @@ pub struct HorseProfileDataRow {
     pub win_horse_name: Option<String>,
 }
 
-impl WebPageTrait for HorseHistoryPage {
+impl WebPageTrait for Page {
     fn get_path(&self) -> PathBuf {
         dirs::data_dir()
             .unwrap()
@@ -72,8 +72,8 @@ impl WebPageTrait for HorseHistoryPage {
     }
 }
 
-impl WebPage<HorseHistoryPage> {
-    pub fn scrap(&self) -> Result<HorseProfileData> {
+impl WebPage<Page> {
+    pub fn scrap(&self) -> Result<Data> {
         let doc: String = self.body.nfkc().collect();
         let doc = Html::parse_document(&doc);
         let doc = doc.root_element();
@@ -93,7 +93,7 @@ impl WebPage<HorseHistoryPage> {
                 Some("pink") => "重賞",
                 _ => "一般",
             };
-            data.push(HorseProfileDataRow {
+            data.push(DataRow {
                 race_date: scrap(&element, "td:nth-child(1)")
                     .and_then(|s| NaiveDate::parse_from_str(&s, "%Y/%m/%d").ok())
                     .unwrap_or_default(),
@@ -130,7 +130,7 @@ impl WebPage<HorseHistoryPage> {
             });
         }
 
-        Ok(HorseProfileData {
+        Ok(Data {
             horse_name: scrap(&doc, ".odd_title").context("essential error")?,
             horse_sex: scrap(&doc, ".sex").context("essential error")?,
             horse_status: scrap(&doc, ".horseinfo > li:nth-child(3) > div:nth-child(1)")
