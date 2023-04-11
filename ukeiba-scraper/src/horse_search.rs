@@ -70,15 +70,7 @@ impl WebPage<Page> {
             data.push(DataRow {
                 horse_name: scrap(&element, "td:nth-child(2) > a:nth-child(1)").unwrap_or_default(),
                 horse_nar_id: scrap_link(&element, "td:nth-child(2) > a:nth-child(1)")
-                    .and_then(|s| {
-                        Some(
-                            regex::Regex::new(r"k_lineageLoginCode=(\d+)")
-                                .unwrap()
-                                .captures(&s)?[1]
-                                .to_string(),
-                        )
-                    })
-                    .and_then(|s| s.parse().ok())
+                    .and_then(|s| get_query(&s, "k_lineageLoginCode")?.parse().ok())
                     .unwrap_or_default(),
             });
         }

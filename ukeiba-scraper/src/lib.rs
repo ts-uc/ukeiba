@@ -153,3 +153,13 @@ fn convert_time(str_time: &str) -> Option<f64> {
     let time = minutes * 60.0 + seconds;
     Some(time)
 }
+
+fn get_query<'a>(url: &'a str, query: &str) -> Option<&'a str> {
+    let regex_str = format!("[?&]{}=(.*?)(&|$)", query);
+    let r = regex::Regex::new(&regex_str)
+        .ok()?
+        .captures(&url)?
+        .get(1)?
+        .as_str();
+    Some(r)
+}
