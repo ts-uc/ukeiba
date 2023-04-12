@@ -8,7 +8,9 @@ use xz2::write::{XzDecoder, XzEncoder};
 pub mod horse_history;
 pub mod horse_profile;
 pub mod horse_search;
+pub mod jockey_profile;
 pub mod jockey_search;
+pub mod trainer_profile;
 pub mod trainer_search;
 
 #[derive(Debug, Clone)]

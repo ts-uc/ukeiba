@@ -11,6 +11,7 @@
         "reqwest",
         "searchconditionindex",
         "tbody",
+        "trainerinfo",
         "ukeiba"
     ]
 }
