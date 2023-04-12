@@ -8,6 +8,8 @@ use xz2::write::{XzDecoder, XzEncoder};
 pub mod horse_history;
 pub mod horse_profile;
 pub mod horse_search;
+pub mod jockey_search;
+pub mod trainer_search;
 
 #[derive(Debug, Clone)]
 pub enum Mode {
@@ -127,6 +129,10 @@ fn scrap_link(html: &ElementRef, selector_str: &str) -> Option<String> {
         .value()
         .attr("href")
         .map(str::to_string)
+}
+
+fn remove_whitespace(str: &str) -> String {
+    str.split_whitespace().collect::<Vec<_>>().join("")
 }
 
 fn split_bracket<'a>(raw: &'a str) -> (&'a str, &'a str, &'a str) {
