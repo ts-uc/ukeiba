@@ -41,6 +41,24 @@ pub trait WebPageTrait {
         Ok(text)
     }
 
+    fn save_string(&self, body: &str) -> Result<()> {
+        create_dir_all(
+            self.get_path()
+                .parent()
+                .ok_or(anyhow!("get path parent error"))?,
+        )?;
+
+        let text_buf = body.as_bytes();
+        let mut encoded_buf = XzEncoder::new(Vec::new(), 9);
+        encoded_buf.write_all(&text_buf)?;
+
+        let buffer = encoded_buf.finish()?;
+        let mut file = File::create(self.get_path())?;
+        file.write_all(&buffer)?;
+
+        Ok(())
+    }
+
     fn get(&self, mode: Mode, interval: Duration) -> Result<WebPage<Self>>
     where
         Self: Clone,
@@ -64,14 +82,13 @@ pub trait WebPageTrait {
                 }
             }
         };
-        let webpage = WebPage {
+        if is_save {
+            self.save_string(&text)?;
+        }
+        Ok(WebPage {
             web_page_trait: self.clone(),
             body: text,
-        };
-        if is_save {
-            webpage.save()?;
-        }
-        Ok(webpage)
+        })
     }
 }
 
@@ -83,20 +100,7 @@ pub struct WebPage<T> {
 
 impl<T: WebPageTrait> WebPage<T> {
     pub fn save(&self) -> Result<()> {
-        create_dir_all(
-            self.web_page_trait
-                .get_path()
-                .parent()
-                .ok_or(anyhow!("get path parent error"))?,
-        )?;
-
-        let text_buf = self.body.as_bytes();
-        let mut encoded_buf = XzEncoder::new(Vec::new(), 9);
-        encoded_buf.write_all(&text_buf)?;
-
-        let buffer = encoded_buf.finish()?;
-        let mut file = File::create(self.web_page_trait.get_path())?;
-        file.write_all(&buffer)?;
+        self.web_page_trait.save_string(&(self.body))?;
         Ok(())
     }
 }
