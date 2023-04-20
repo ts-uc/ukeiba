@@ -22,6 +22,8 @@ pub struct Data {
 }
 
 impl WebPageTrait for Page {
+    type Data = Data;
+
     fn get_path(&self) -> PathBuf {
         dirs::data_dir()
             .unwrap()
@@ -41,11 +43,8 @@ impl WebPageTrait for Page {
         }
         Ok(got_string)
     }
-}
-
-impl WebPage<Page> {
-    pub fn scrap(&self) -> Result<Data> {
-        let doc: String = self.body.nfkc().collect();
+    fn scrap_string(&self, body: &str) -> Result<Self::Data> {
+        let doc: String = body.nfkc().collect();
         let doc = Html::parse_document(&doc);
         let doc = doc.root_element();
 

@@ -23,9 +23,13 @@ pub enum Mode {
 }
 
 pub trait WebPageTrait {
+    type Data;
+
     fn get_path(&self) -> PathBuf;
 
     fn fetch_string(&self, interval: Duration) -> Result<String>;
+
+    fn scrap_string(&self, body: &str) -> Result<Self::Data>;
 
     fn load_string(&self) -> Result<String> {
         let mut file = File::open(self.get_path())?;
@@ -59,7 +63,7 @@ pub trait WebPageTrait {
         Ok(())
     }
 
-    fn get(&self, mode: Mode, interval: Duration) -> Result<WebPage<Self>>
+    fn scrap(&self, mode: Mode, interval: Duration) -> Result<Self::Data>
     where
         Self: Clone,
     {
@@ -85,23 +89,7 @@ pub trait WebPageTrait {
         if is_save {
             self.save_string(&text)?;
         }
-        Ok(WebPage {
-            web_page_trait: self.clone(),
-            body: text,
-        })
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct WebPage<T> {
-    web_page_trait: T,
-    body: String,
-}
-
-impl<T: WebPageTrait> WebPage<T> {
-    pub fn save(&self) -> Result<()> {
-        self.web_page_trait.save_string(&(self.body))?;
-        Ok(())
+        self.scrap_string(&text)
     }
 }
 
