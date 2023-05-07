@@ -58,9 +58,9 @@ impl WebPageTrait for Page {
                 &doc,
                 ".horse_info_table > tbody:nth-child(2) > tr:nth-child(1) > td:nth-child(2)",
             ).and_then(|s| NaiveDate::parse_from_str(&s, "%Y.%m.%d生").ok()),
-            sire_name: scrap(&doc, ".fathername").map(|s| split_bracket(&s).2.to_string()),
+            sire_name: scrap(&doc, ".fathername").map(|s| split_bracket(&s).2.to_string()).map(|s| remove_whitespace(&s)),
             dam_name: scrap(&doc, ".pedigree > table:nth-child(1) > tbody:nth-child(2) > tr:nth-child(3) > td:nth-child(2)")
-            .map(|s| split_bracket(&s).2.to_string()),
+            .map(|s| split_bracket(&s).2.to_string()).map(|s| remove_whitespace(&s)),
         })
     }
 }
