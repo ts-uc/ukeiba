@@ -21,6 +21,7 @@ pub struct Page {
 #[derive(Debug, Clone)]
 pub struct Data {
     pub hits: i32,
+    pub hits_all: i32,
     pub data: Vec<DataRow>,
 }
 
@@ -74,13 +75,21 @@ impl WebPageTrait for Page {
             });
         }
 
+        let hits: i32 = scrap(
+            &doc,
+            ".searchconditionindex > li:nth-child(1) > span:nth-child(1)",
+        )
+        .and_then(|s| s.parse().ok())
+        .unwrap_or_default();
+
         Ok(Data {
-            hits: scrap(
+            hits: hits,
+            hits_all: scrap(
                 &doc,
-                ".searchconditionindex > li:nth-child(1) > span:nth-child(1)",
+                ".searchconditionindex > li:nth-child(1) > span:nth-child(2)",
             )
-            .and_then(|s| s.parse().ok())
-            .unwrap_or_default(),
+            .and_then(|s| s.replace("件", "").parse().ok())
+            .unwrap_or(hits),
             data: data,
         })
     }
