@@ -6,13 +6,10 @@ use serde::Serialize;
 use std::fs::File;
 use ukeiba_scraper::{Mode, WebPageTrait};
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Default)]
 struct HorseData {
     pub horse_nar_id: i64,
-    pub horse_bajikyo_id: String,
     pub horse_name: String,
-    pub horse_sex: String,
-    pub horse_status: String,
     pub horse_type: Option<String>,
     pub birthdate: Option<NaiveDate>,
     pub sire_name: Option<String>,
@@ -79,18 +76,16 @@ fn sub() {
             }
         }
     }
-    let mut b = Vec::new();
-    for horse_nar_id in horses {
-        match get_horse_profile(horse_nar_id) {
-            Some(ht) => {
-                b.push(ht);
-                println!("{}", horse_nar_id);
-            }
-            None => continue,
-        }
-    }
+    let horses: Vec<HorseData> = horses
+        .into_iter()
+        .map(|horse_nar_id| get_horse_profile(horse_nar_id).unwrap_or_default())
+        .filter(|data| match data.horse_type.as_deref() {
+            Some("(アア)") | Some("(サラ系)") | None => false,
+            _ => true,
+        })
+        .collect();
 
-    write_csv("horses.csv", &b).unwrap();
+    write_csv("horses.csv", &horses).unwrap();
 }
 
 //3659958
@@ -102,17 +97,9 @@ fn get_horse_profile(horse_nar_id: i64) -> Option<HorseData> {
     .scrap(Mode::NormalSave, std::time::Duration::from_secs(1))
     .ok()?;
 
-    match data.horse_type.as_deref() {
-        Some("(アア)") | Some("(サラ系)") | None => return None,
-        _ => (),
-    }
-
     Some(HorseData {
         horse_nar_id: horse_nar_id,
-        horse_bajikyo_id: to_bajikyo_id(horse_nar_id),
         horse_name: data.horse_name,
-        horse_sex: data.horse_sex,
-        horse_status: data.horse_status,
         horse_type: data.horse_type,
         birthdate: data.birthdate,
         sire_name: data.sire_name,
