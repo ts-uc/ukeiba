@@ -1,6 +1,7 @@
 use super::*;
 use anyhow::{bail, Result};
 use scraper::Html;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
@@ -16,13 +17,13 @@ pub struct Page {
     pub belong: HorseBelong,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Data {
     pub hits: i32,
     pub data: Vec<DataRow>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataRow {
     pub trainer_nar_id: i64,
     pub trainer_name: String,

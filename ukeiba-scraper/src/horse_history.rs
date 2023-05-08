@@ -2,6 +2,7 @@ use super::*;
 use anyhow::{bail, Context, Result};
 use chrono::NaiveDate;
 use scraper::Html;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
@@ -10,7 +11,7 @@ pub struct Page {
     pub horse_nar_id: i64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Data {
     pub horse_name: String,
     pub horse_sex: String,
@@ -20,7 +21,7 @@ pub struct Data {
     pub data: Vec<DataRow>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DataRow {
     pub race_date: NaiveDate,
     pub racecourse: String,
