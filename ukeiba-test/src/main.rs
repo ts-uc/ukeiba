@@ -24,7 +24,7 @@ fn main() {
 }
 
 fn sub() {
-    let mut a = Vec::new();
+    let mut horses = Vec::new();
     for year in (1969..=2021).rev() {
         println!("{}", year);
         let page_data = ukeiba_scraper::horse_search::Page {
@@ -47,15 +47,7 @@ fn sub() {
                 }
                 .scrap(Mode::NormalSave, std::time::Duration::from_secs(1))
                 .unwrap();
-                let horses = page_data.data.iter().map(|x| x.horse_nar_id);
-                for horse_nar_id in horses {
-                    match get_horse_profile(horse_nar_id) {
-                        Some(ht) => {
-                            a.push(ht);
-                        }
-                        None => continue,
-                    }
-                }
+                horses.extend(page_data.data.iter().map(|x| x.horse_nar_id));
             }
         }
     }
@@ -82,18 +74,23 @@ fn sub() {
                     }
                     .scrap(Mode::NormalSave, std::time::Duration::from_secs(1))
                     .unwrap();
-                    let horses = page_data.data.iter().map(|x| x.horse_nar_id);
-                    for horse_nar_id in horses {
-                        match get_horse_profile(horse_nar_id) {
-                            Some(ht) => {a.push(ht);},
-                            None => continue,
-                        }
-                    }
+                    horses.extend(page_data.data.iter().map(|x| x.horse_nar_id));
                 }
             }
         }
     }
-    write_csv("horses.csv", &a).unwrap();
+    let mut b = Vec::new();
+    for horse_nar_id in horses {
+        match get_horse_profile(horse_nar_id) {
+            Some(ht) => {
+                b.push(ht);
+                println!("{}", horse_nar_id);
+            }
+            None => continue,
+        }
+    }
+
+    write_csv("horses.csv", &b).unwrap();
 }
 
 //3659958
