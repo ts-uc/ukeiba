@@ -11,7 +11,7 @@ pub struct Page {
     pub horse_nar_id: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Data {
     pub horse_name: String,
     pub horse_sex: String,

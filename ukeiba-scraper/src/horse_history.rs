@@ -11,7 +11,8 @@ pub struct Page {
     pub horse_nar_id: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+
 pub struct Data {
     pub horse_name: String,
     pub horse_sex: String,
@@ -21,7 +22,8 @@ pub struct Data {
     pub data: Vec<DataRow>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+
 pub struct DataRow {
     pub race_date: NaiveDate,
     pub racecourse: String,

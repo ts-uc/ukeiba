@@ -19,14 +19,16 @@ pub struct Page {
     pub birth_year: i32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+
 pub struct Data {
     pub hits: i32,
     pub hits_all: i32,
     pub data: Vec<DataRow>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+
 pub struct DataRow {
     pub horse_nar_id: i64,
     pub horse_name: String,

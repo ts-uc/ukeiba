@@ -17,13 +17,15 @@ pub struct Page {
     pub belong: HorseBelong,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+
 pub struct Data {
     pub hits: i32,
     pub data: Vec<DataRow>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+
 pub struct DataRow {
     pub trainer_nar_id: i64,
     pub trainer_name: String,
