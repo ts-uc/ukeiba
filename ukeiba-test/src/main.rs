@@ -2,6 +2,7 @@ extern crate ukeiba_scraper;
 use anyhow::Result;
 use chrono::NaiveDate;
 use csv::Writer;
+use rayon::prelude::*;
 use serde::Serialize;
 use std::fs::File;
 use ukeiba_scraper::{Mode, WebPageTrait};
@@ -77,8 +78,8 @@ fn sub() {
         }
     }
     let horses: Vec<HorseData> = horses
-        .into_iter()
-        .map(|horse_nar_id| get_horse_profile(horse_nar_id).unwrap_or_default())
+        .par_iter()
+        .map(|horse_nar_id| get_horse_profile(*horse_nar_id).unwrap_or_default())
         .filter(|data| match data.horse_type.as_deref() {
             Some("(アア)") | Some("(サラ系)") | None => false,
             _ => true,
