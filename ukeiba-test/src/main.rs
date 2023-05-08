@@ -79,11 +79,18 @@ fn sub() {
     }
     let horses: Vec<HorseData> = horses
         .par_iter()
-        .map(|horse_nar_id| get_horse_profile(*horse_nar_id).unwrap_or_default())
+        .map(|horse_nar_id| {
+            horse_profile::Page {
+                horse_nar_id: *horse_nar_id,
+            }
+            .scrap(Mode::NormalSave, Duration::from_secs(1))
+        })
+        .filter_map(Result::ok)
         .filter(|data| match data.horse_type.as_deref() {
             Some("(アア)") | Some("(サラ系)") | None => false,
             _ => true,
         })
+        .map(|data| get_horse_profile(data).unwrap_or_default())
         .collect();
 
     write_csv("horses.csv", &horses).unwrap();
@@ -91,15 +98,9 @@ fn sub() {
 
 //3659958
 
-fn get_horse_profile(horse_nar_id: i64) -> Option<HorseData> {
-    let data = horse_profile::Page {
-        horse_nar_id: horse_nar_id,
-    }
-    .scrap(Mode::NormalSave, Duration::from_secs(1))
-    .ok()?;
-
+fn get_horse_profile(data: horse_profile::Data) -> Option<HorseData> {
     Some(HorseData {
-        horse_nar_id: horse_nar_id,
+        horse_nar_id: data.horse_nar_id,
         horse_name: data.horse_name,
         horse_type: data.horse_type,
         birthdate: data.birthdate,
