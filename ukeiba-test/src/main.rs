@@ -4,8 +4,8 @@ use chrono::NaiveDate;
 use csv::Writer;
 use rayon::prelude::*;
 use serde::Serialize;
-use std::fs::File;
-use ukeiba_scraper::{Mode, WebPageTrait};
+use std::time::Duration;
+use ukeiba_scraper::{horse_profile, horse_search, Mode, WebPageTrait};
 
 #[derive(Debug, Clone, Serialize, Default)]
 struct HorseData {
@@ -25,25 +25,25 @@ fn sub() {
     let mut horses = Vec::new();
     for year in (1969..=2021).rev() {
         println!("{}", year);
-        let page_data = ukeiba_scraper::horse_search::Page {
+        let page_data = horse_search::Page {
             page_num: 1,
             horse_name: "".to_string(),
-            horse_belong: ukeiba_scraper::horse_search::HorseBelong::Banei,
+            horse_belong: horse_search::HorseBelong::Banei,
             birth_year: year,
         }
-        .scrap(Mode::NormalSave, std::time::Duration::from_secs(1))
+        .scrap(Mode::NormalSave, Duration::from_secs(1))
         .unwrap();
         println!("{} {}", page_data.hits, year);
         if page_data.hits > 0 {
             let pages = (page_data.hits - 1) / 50 + 1;
             for page in 1..=pages {
-                let page_data = ukeiba_scraper::horse_search::Page {
+                let page_data = horse_search::Page {
                     page_num: page,
                     horse_name: "".to_string(),
-                    horse_belong: ukeiba_scraper::horse_search::HorseBelong::Banei,
+                    horse_belong: horse_search::HorseBelong::Banei,
                     birth_year: year,
                 }
-                .scrap(Mode::NormalSave, std::time::Duration::from_secs(1))
+                .scrap(Mode::NormalSave, Duration::from_secs(1))
                 .unwrap();
                 horses.extend(page_data.data.iter().map(|x| x.horse_nar_id));
             }
@@ -52,25 +52,25 @@ fn sub() {
 
     for year in (1969..=2021).rev() {
         for kana in "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンヴ".chars() {
-            let page_data = ukeiba_scraper::horse_search::Page {
+            let page_data = horse_search::Page {
                 page_num: 1,
                 horse_name: kana.to_string(),
-                horse_belong: ukeiba_scraper::horse_search::HorseBelong::Left,
+                horse_belong: horse_search::HorseBelong::Left,
                 birth_year: year,
             }
-            .scrap(Mode::NormalSave, std::time::Duration::from_secs(1))
+            .scrap(Mode::NormalSave, Duration::from_secs(1))
             .unwrap();
             println!("{} {} {}",page_data.hits, kana, year);
             if page_data.hits > 0 {
                 let pages = (page_data.hits - 1) / 50 + 1;
                 for page in 1..=pages {
-                    let page_data = ukeiba_scraper::horse_search::Page {
+                    let page_data = horse_search::Page {
                         page_num: page,
                         horse_name: kana.to_string(),
-                        horse_belong: ukeiba_scraper::horse_search::HorseBelong::Left,
+                        horse_belong: horse_search::HorseBelong::Left,
                         birth_year: year,
                     }
-                    .scrap(Mode::NormalSave, std::time::Duration::from_secs(1))
+                    .scrap(Mode::NormalSave, Duration::from_secs(1))
                     .unwrap();
                     horses.extend(page_data.data.iter().map(|x| x.horse_nar_id));
                 }
@@ -92,10 +92,10 @@ fn sub() {
 //3659958
 
 fn get_horse_profile(horse_nar_id: i64) -> Option<HorseData> {
-    let data = ukeiba_scraper::horse_profile::Page {
+    let data = horse_profile::Page {
         horse_nar_id: horse_nar_id,
     }
-    .scrap(Mode::NormalSave, std::time::Duration::from_secs(1))
+    .scrap(Mode::NormalSave, Duration::from_secs(1))
     .ok()?;
 
     Some(HorseData {
