@@ -13,6 +13,7 @@ pub struct Page {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Data {
+    pub horse_nar_id: i64,
     pub horse_name: String,
     pub horse_sex: String,
     pub horse_status: String,
@@ -50,6 +51,7 @@ impl WebPageTrait for Page {
         let doc = doc.root_element();
 
         Ok(Data {
+            horse_nar_id: self.horse_nar_id,
             horse_name: scrap(&doc, ".odd_title").context("essential error")?,
             horse_sex: scrap(&doc, ".sex").context("essential error")?,
             horse_status: scrap(&doc, ".horseinfo > li:nth-child(3) > div:nth-child(1)")
