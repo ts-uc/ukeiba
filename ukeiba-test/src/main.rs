@@ -88,6 +88,7 @@ fn sub() {
     search_pages
         .clone()
         .iter()
+        .progress()
         .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
         .for_each(drop);
 
@@ -103,6 +104,7 @@ fn sub() {
 
     let pages: Vec<horse_profile::Page> = horses
         .into_iter()
+        .progress()
         .map(|horse_nar_id| horse_profile::Page {
             horse_nar_id: horse_nar_id,
         })
@@ -111,6 +113,7 @@ fn sub() {
     pages
         .clone()
         .iter()
+        .progress()
         .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
         .for_each(drop);
 
