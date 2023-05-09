@@ -76,14 +76,24 @@ fn sub() {
             }
         }
     }
-    let horses: Vec<HorseData> = horses
-        .par_iter()
-        .map(|horse_nar_id| {
-            horse_profile::Page {
-                horse_nar_id: *horse_nar_id,
-            }
-            .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
+
+    let pages: Vec<horse_profile::Page> = horses
+        .into_iter()
+        .map(|horse_nar_id| horse_profile::Page {
+            horse_nar_id: horse_nar_id,
         })
+        .collect();
+
+    for page in pages.clone() {
+        match page.fetch(Duration::from_secs(1)) {
+            Ok(_) => (),
+            Err(_) => continue,
+        };
+    }
+
+    let horses: Vec<HorseData> = pages
+        .par_iter()
+        .map(|page| page.scrap())
         .filter_map(Result::ok)
         .filter(|data| match data.horse_type.as_deref() {
             Some("(アア)") | Some("(サラ系)") | None => false,
