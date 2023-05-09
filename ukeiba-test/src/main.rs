@@ -2,6 +2,7 @@ extern crate ukeiba_scraper;
 use anyhow::Result;
 use chrono::NaiveDate;
 use csv::Writer;
+use itertools::{iproduct, Itertools};
 use rayon::prelude::*;
 use serde::Serialize;
 use std::time::Duration;
@@ -21,61 +22,84 @@ fn main() {
 }
 
 fn sub() {
-    let mut horses = Vec::new();
-    for year in (1969..=2021).rev() {
-        println!("{}", year);
-        let page_data = horse_search::Page {
+    let mut search_pages: Vec<horse_search::Page> = Vec::new();
+    for (belong, year) in iproduct!(
+        [
+            horse_search::HorseBelong::Banei,
+            horse_search::HorseBelong::Left
+        ],
+        (1969..=2021).rev()
+    ) {
+        println!("{:?} {:?}", belong, year);
+        let hits = horse_search::Page {
             page_num: 1,
             horse_name: "".to_string(),
-            horse_belong: horse_search::HorseBelong::Banei,
+            horse_belong: belong,
             birth_year: year,
         }
         .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
-        .unwrap();
-        println!("{} {}", page_data.hits, year);
-        if page_data.hits > 0 {
-            let pages = (page_data.hits - 1) / 50 + 1;
-            for page in 1..=pages {
-                let page_data = horse_search::Page {
-                    page_num: page,
+        .unwrap_or_default()
+        .hits_all;
+
+        if hits == 0 {
+            continue;
+        } else if 0 < hits && hits <= 2000 {
+            let pages = (hits - 1) / 50 + 1;
+            let tmp_search_pages: Vec<horse_search::Page> = (1..=pages)
+                .map(|page_num| horse_search::Page {
+                    page_num: page_num,
                     horse_name: "".to_string(),
-                    horse_belong: horse_search::HorseBelong::Banei,
+                    horse_belong: belong,
+                    birth_year: year,
+                })
+                .collect();
+            search_pages.extend(tmp_search_pages);
+        } else {
+            for kana in "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンヴ".chars() {
+                println!("{}", kana);
+                let hits = horse_search::Page {
+                    page_num: 1,
+                    horse_name: kana.to_string(),
+                    horse_belong: belong,
                     birth_year: year,
                 }
                 .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
-                .unwrap();
-                horses.extend(page_data.data.iter().map(|x| x.horse_nar_id));
+                .unwrap_or_default()
+                .hits_all;
+                if hits == 0 {
+                    continue;
+                } else if 0 < hits {
+                    let pages = (hits - 1) / 50 + 1;
+                    let tmp_search_pages: Vec<horse_search::Page> = (1..=pages)
+                        .map(|page_num| horse_search::Page {
+                            page_num: page_num,
+                            horse_name: kana.to_string(),
+                            horse_belong: belong,
+                            birth_year: year,
+                        })
+                        .collect();
+                    search_pages.extend(tmp_search_pages);
+                }
             }
         }
     }
 
-    for year in (1969..=2021).rev() {
-        for kana in "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンヴ".chars() {
-            let page_data = horse_search::Page {
-                page_num: 1,
-                horse_name: kana.to_string(),
-                horse_belong: horse_search::HorseBelong::Left,
-                birth_year: year,
-            }
-            .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
-            .unwrap();
-            println!("{} {} {}",page_data.hits, kana, year);
-            if page_data.hits > 0 {
-                let pages = (page_data.hits - 1) / 50 + 1;
-                for page in 1..=pages {
-                    let page_data = horse_search::Page {
-                        page_num: page,
-                        horse_name: kana.to_string(),
-                        horse_belong: horse_search::HorseBelong::Left,
-                        birth_year: year,
-                    }
-                    .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
-                    .unwrap();
-                    horses.extend(page_data.data.iter().map(|x| x.horse_nar_id));
-                }
-            }
-        }
+    for page in search_pages.clone() {
+        println!("{:?}", page);
+        match page.fetch(Duration::from_secs(1)) {
+            Ok(_) => (),
+            Err(_) => continue,
+        };
     }
+
+    let horses: Vec<Vec<i64>> = search_pages
+        .par_iter()
+        .map(|page| page.scrap())
+        .filter_map(Result::ok)
+        .map(|data| data.data.iter().map(|x| x.horse_nar_id).collect())
+        .collect();
+
+    let horses: Vec<i64> = horses.into_iter().flat_map(|x| x).collect();
 
     let pages: Vec<horse_profile::Page> = horses
         .into_iter()
