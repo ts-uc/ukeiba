@@ -11,7 +11,6 @@ use ukeiba_scraper::{horse_profile, horse_search, Mode, WebPageTrait};
 struct HorseData {
     pub horse_nar_id: i64,
     pub horse_name: String,
-    pub horse_type: Option<String>,
     pub birthdate: Option<NaiveDate>,
     pub sire_name: Option<String>,
     pub dam_name: Option<String>,
@@ -102,7 +101,6 @@ fn get_horse_profile(data: horse_profile::Data) -> Option<HorseData> {
     Some(HorseData {
         horse_nar_id: data.horse_nar_id,
         horse_name: data.horse_name,
-        horse_type: data.horse_type,
         birthdate: data.birthdate,
         sire_name: data.sire_name,
         dam_name: data.dam_name,
