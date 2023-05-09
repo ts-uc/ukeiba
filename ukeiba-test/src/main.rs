@@ -2,6 +2,7 @@ extern crate ukeiba_scraper;
 use anyhow::Result;
 use chrono::NaiveDate;
 use csv::Writer;
+use indicatif::{ParallelProgressIterator, ProgressBar, ProgressIterator};
 use itertools::{iproduct, Itertools};
 use rayon::prelude::*;
 use serde::Serialize;
@@ -94,6 +95,7 @@ fn sub() {
 
     let horses: Vec<Vec<i64>> = search_pages
         .par_iter()
+        .progress_count(search_pages.len() as u64)
         .map(|page| page.scrap())
         .filter_map(Result::ok)
         .map(|data| data.data.iter().map(|x| x.horse_nar_id).collect())
@@ -117,6 +119,7 @@ fn sub() {
 
     let horses: Vec<HorseData> = pages
         .par_iter()
+        .progress_count(pages.len() as u64)
         .map(|page| page.scrap())
         .filter_map(Result::ok)
         .filter(|data| match data.horse_type.as_deref() {
