@@ -63,7 +63,7 @@ pub trait WebPageTrait {
         Ok(())
     }
 
-    fn scrap(&self, mode: Mode, interval: Duration) -> Result<Self::Data>
+    fn fetch_scrap(&self, mode: Mode, interval: Duration) -> Result<Self::Data>
     where
         Self: Clone,
     {

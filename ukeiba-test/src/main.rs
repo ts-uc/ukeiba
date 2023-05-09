@@ -30,7 +30,7 @@ fn sub() {
             horse_belong: horse_search::HorseBelong::Banei,
             birth_year: year,
         }
-        .scrap(Mode::NormalSave, Duration::from_secs(1))
+        .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
         .unwrap();
         println!("{} {}", page_data.hits, year);
         if page_data.hits > 0 {
@@ -42,7 +42,7 @@ fn sub() {
                     horse_belong: horse_search::HorseBelong::Banei,
                     birth_year: year,
                 }
-                .scrap(Mode::NormalSave, Duration::from_secs(1))
+                .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
                 .unwrap();
                 horses.extend(page_data.data.iter().map(|x| x.horse_nar_id));
             }
@@ -57,7 +57,7 @@ fn sub() {
                 horse_belong: horse_search::HorseBelong::Left,
                 birth_year: year,
             }
-            .scrap(Mode::NormalSave, Duration::from_secs(1))
+            .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
             .unwrap();
             println!("{} {} {}",page_data.hits, kana, year);
             if page_data.hits > 0 {
@@ -69,7 +69,7 @@ fn sub() {
                         horse_belong: horse_search::HorseBelong::Left,
                         birth_year: year,
                     }
-                    .scrap(Mode::NormalSave, Duration::from_secs(1))
+                    .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
                     .unwrap();
                     horses.extend(page_data.data.iter().map(|x| x.horse_nar_id));
                 }
@@ -82,7 +82,7 @@ fn sub() {
             horse_profile::Page {
                 horse_nar_id: *horse_nar_id,
             }
-            .scrap(Mode::NormalSave, Duration::from_secs(1))
+            .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
         })
         .filter_map(Result::ok)
         .filter(|data| match data.horse_type.as_deref() {
