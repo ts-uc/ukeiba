@@ -85,13 +85,11 @@ fn sub() {
         }
     }
 
-    for page in search_pages.clone() {
-        println!("{:?}", page);
-        match page.fetch(Duration::from_secs(1)) {
-            Ok(_) => (),
-            Err(_) => continue,
-        };
-    }
+    search_pages
+        .clone()
+        .iter()
+        .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
+        .for_each(drop);
 
     let horses: Vec<Vec<i64>> = search_pages
         .par_iter()
@@ -110,12 +108,11 @@ fn sub() {
         })
         .collect();
 
-    for page in pages.clone() {
-        match page.fetch(Duration::from_secs(1)) {
-            Ok(_) => (),
-            Err(_) => continue,
-        };
-    }
+    pages
+        .clone()
+        .iter()
+        .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
+        .for_each(drop);
 
     let horses: Vec<HorseData> = pages
         .par_iter()
