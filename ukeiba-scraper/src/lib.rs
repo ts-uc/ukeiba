@@ -91,6 +91,26 @@ pub trait WebPageTrait {
         }
         self.scrap_string(&text)
     }
+
+    fn fetch(&self, interval: Duration) -> Result<()> {
+        if self.get_path().exists() {
+            return Ok(());
+        }
+        let text = self.fetch_string(interval)?;
+        self.save_string(&text)?;
+        Ok(())
+    }
+
+    fn force_fetch(&self, interval: Duration) -> Result<()> {
+        let text = self.fetch_string(interval)?;
+        self.save_string(&text)?;
+        Ok(())
+    }
+
+    fn scrap(&self) -> Result<Self::Data> {
+        let text = self.load_string()?;
+        self.scrap_string(&text)
+    }
 }
 
 fn get_from_url(url: &str, interval: Duration) -> Result<String> {
