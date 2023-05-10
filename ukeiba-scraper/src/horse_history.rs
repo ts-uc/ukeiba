@@ -26,6 +26,7 @@ pub struct Data {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 
 pub struct DataRow {
+    pub horse_nar_id: i64,
     pub race_date: NaiveDate,
     pub racecourse: String,
     pub race_num: i32,
@@ -97,6 +98,7 @@ impl WebPageTrait for Page {
                     _ => "一般",
                 };
                 data.push(DataRow {
+                    horse_nar_id: self.horse_nar_id,
                     race_date: scrap(&element, "td:nth-child(1)")
                         .and_then(|s| NaiveDate::parse_from_str(&s, "%Y/%m/%d").ok())
                         .unwrap_or_default(),
