@@ -7,7 +7,7 @@ use itertools::{iproduct, Itertools};
 use rayon::prelude::*;
 use serde::Serialize;
 use std::time::Duration;
-use ukeiba_scraper::{horse_profile, horse_search, Mode, WebPageTrait};
+use ukeiba_scraper::{horse_history, horse_profile, horse_search, Mode, WebPageTrait};
 
 #[derive(Debug, Clone, Serialize, Default)]
 struct HorseData {
@@ -128,6 +128,21 @@ fn sub() {
         })
         .map(|data| get_horse_profile(data).unwrap_or_default())
         .collect();
+
+    let horse_history_pages: Vec<horse_history::Page> = horses
+        .iter()
+        .progress()
+        .map(|horse| horse_history::Page {
+            horse_nar_id: horse.horse_nar_id,
+        })
+        .collect();
+
+    horse_history_pages
+        .clone()
+        .iter()
+        .progress()
+        .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
+        .for_each(drop);
 
     write_csv("horses.csv", &horses).unwrap();
 }
