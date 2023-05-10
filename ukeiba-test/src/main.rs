@@ -87,21 +87,22 @@ fn sub() {
 
     fetch_all(&search_pages);
 
-    let horses: Vec<Vec<i64>> = search_pages
+    let horses: Vec<i64> = search_pages
         .par_iter()
         .progress_count(search_pages.len() as u64)
         .map(|page| page.scrap())
         .filter_map(Result::ok)
         .map(|data| data.data.iter().map(|x| x.horse_nar_id).collect())
+        .collect::<Vec<Vec<i64>>>()
+        .into_iter()
+        .flat_map(|x| x)
         .collect();
 
-    let horses: Vec<i64> = horses.into_iter().flat_map(|x| x).collect();
-
     let pages: Vec<horse_profile::Page> = horses
-        .into_iter()
+        .iter()
         .progress()
         .map(|horse_nar_id| horse_profile::Page {
-            horse_nar_id: horse_nar_id,
+            horse_nar_id: *horse_nar_id,
         })
         .collect();
 
@@ -193,5 +194,5 @@ fn to_bajikyo_id(nar_id: i64) -> String {
         }
     }
 
-    num_chars.into_iter().rev().collect()
+    num_chars.iter().rev().collect()
 }
