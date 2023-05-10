@@ -2,8 +2,8 @@ extern crate ukeiba_scraper;
 use anyhow::Result;
 use chrono::NaiveDate;
 use csv::Writer;
-use indicatif::{ParallelProgressIterator, ProgressBar, ProgressIterator};
-use itertools::{iproduct, Itertools};
+use indicatif::{ParallelProgressIterator, ProgressIterator};
+use itertools::iproduct;
 use rayon::prelude::*;
 use serde::Serialize;
 use std::time::Duration;
@@ -167,32 +167,32 @@ where
     Ok(())
 }
 
-fn to_bajikyo_id(nar_id: i64) -> String {
-    let chars: Vec<char> = nar_id.to_string().chars().collect();
-    let shuffled: i64 = format!(
-        "{}{}{}{}{}{}{}{}{}{}",
-        chars[5],
-        chars[1],
-        chars[10],
-        chars[9],
-        chars[2],
-        chars[0],
-        chars[4],
-        chars[8],
-        chars[3],
-        chars[7]
-    )
-    .parse()
-    .unwrap();
-    let mut num_chars: Vec<char> = (shuffled - 2046971875).to_string().chars().rev().collect();
+// fn to_bajikyo_id(nar_id: i64) -> String {
+//     let chars: Vec<char> = nar_id.to_string().chars().collect();
+//     let shuffled: i64 = format!(
+//         "{}{}{}{}{}{}{}{}{}{}",
+//         chars[5],
+//         chars[1],
+//         chars[10],
+//         chars[9],
+//         chars[2],
+//         chars[0],
+//         chars[4],
+//         chars[8],
+//         chars[3],
+//         chars[7]
+//     )
+//     .parse()
+//     .unwrap();
+//     let mut num_chars: Vec<char> = (shuffled - 2046971875).to_string().chars().rev().collect();
 
-    if num_chars.len() >= 5 {
-        if num_chars[4] == '5' {
-            num_chars[4] = ' ';
-        } else if num_chars[4] == '4' {
-            num_chars[4] = 'H';
-        }
-    }
+//     if num_chars.len() >= 5 {
+//         if num_chars[4] == '5' {
+//             num_chars[4] = ' ';
+//         } else if num_chars[4] == '4' {
+//             num_chars[4] = 'H';
+//         }
+//     }
 
-    num_chars.iter().rev().collect()
-}
+//     num_chars.iter().rev().collect()
+// }
