@@ -23,67 +23,69 @@ fn main() {
 }
 
 fn sub() {
-    let mut search_pages: Vec<horse_search::Page> = Vec::new();
-    for (belong, year) in iproduct!(
+    let pages: Vec<horse_search::Page> = iproduct!(
         [
             horse_search::HorseBelong::Banei,
             horse_search::HorseBelong::Left
         ],
         (1969..=2021).rev()
-    ) {
-        println!("{:?} {:?}", belong, year);
-        let hits = horse_search::Page {
-            page_num: 1,
-            horse_name: "".to_string(),
-            horse_belong: belong,
-            birth_year: year,
-        }
-        .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
-        .unwrap_or_default()
-        .hits_all;
+    )
+    .map(|(belong, year)| horse_search::Page {
+        page_num: 1,
+        horse_name: "".to_string(),
+        horse_belong: belong,
+        birth_year: year,
+    })
+    .collect();
 
-        if hits == 0 {
-            continue;
-        } else if 0 < hits && hits <= 2000 {
-            let pages = (hits - 1) / 50 + 1;
-            let tmp_search_pages: Vec<horse_search::Page> = (1..=pages)
+    fetch_all(&pages);
+
+    let pages: Vec<Vec<horse_search::Page>> = pages
+        .par_iter()
+        .progress_count(pages.len() as u64)
+        .map(|page| {
+            let hits = page.scrap().unwrap_or_default().hits_all;
+            match hits {
+                0 => Vec::new(),
+                0..=2000 => [page.clone()].to_vec(),
+                _ => "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンヴ"
+                    .chars()
+                    .map(|kana| horse_search::Page {
+                        page_num: 1,
+                        horse_name: kana.to_string(),
+                        horse_belong: page.horse_belong,
+                        birth_year: page.birth_year,
+                    })
+                    .collect(),
+            }
+        })
+        .collect();
+
+    let search_pages: Vec<horse_search::Page> = pages.into_iter().flat_map(|x| x).collect();
+
+    fetch_all(&search_pages);
+
+    let search_pages: Vec<Vec<horse_search::Page>> = search_pages
+        .par_iter()
+        .progress_count(search_pages.len() as u64)
+        .map(|page| {
+            let hits = page.scrap().unwrap_or_default().hits_all;
+            if hits == 0 {
+                return Vec::new();
+            }
+            let page_count = (hits - 1) / 50 + 1;
+            (1..=page_count)
                 .map(|page_num| horse_search::Page {
                     page_num: page_num,
-                    horse_name: "".to_string(),
-                    horse_belong: belong,
-                    birth_year: year,
+                    horse_name: page.horse_name.clone(),
+                    horse_belong: page.horse_belong,
+                    birth_year: page.birth_year,
                 })
-                .collect();
-            search_pages.extend(tmp_search_pages);
-        } else {
-            for kana in "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンヴ".chars() {
-                println!("{}", kana);
-                let hits = horse_search::Page {
-                    page_num: 1,
-                    horse_name: kana.to_string(),
-                    horse_belong: belong,
-                    birth_year: year,
-                }
-                .fetch_scrap(Mode::NormalSave, Duration::from_secs(1))
-                .unwrap_or_default()
-                .hits_all;
-                if hits == 0 {
-                    continue;
-                } else if 0 < hits {
-                    let pages = (hits - 1) / 50 + 1;
-                    let tmp_search_pages: Vec<horse_search::Page> = (1..=pages)
-                        .map(|page_num| horse_search::Page {
-                            page_num: page_num,
-                            horse_name: kana.to_string(),
-                            horse_belong: belong,
-                            birth_year: year,
-                        })
-                        .collect();
-                    search_pages.extend(tmp_search_pages);
-                }
-            }
-        }
-    }
+                .collect()
+        })
+        .collect();
+
+    let search_pages: Vec<horse_search::Page> = search_pages.into_iter().flat_map(|x| x).collect();
 
     fetch_all(&search_pages);
 
