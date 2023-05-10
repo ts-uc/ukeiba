@@ -100,7 +100,6 @@ fn sub() {
 
     let pages: Vec<horse_profile::Page> = horses
         .iter()
-        .progress()
         .map(|horse_nar_id| horse_profile::Page {
             horse_nar_id: *horse_nar_id,
         })
@@ -122,7 +121,6 @@ fn sub() {
 
     let horse_history_pages: Vec<horse_history::Page> = horses
         .iter()
-        .progress()
         .map(|horse| horse_history::Page {
             horse_nar_id: horse.horse_nar_id,
         })
