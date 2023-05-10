@@ -85,12 +85,7 @@ fn sub() {
         }
     }
 
-    search_pages
-        .clone()
-        .iter()
-        .progress()
-        .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
-        .for_each(drop);
+    fetch_all(&search_pages);
 
     let horses: Vec<Vec<i64>> = search_pages
         .par_iter()
@@ -110,12 +105,7 @@ fn sub() {
         })
         .collect();
 
-    pages
-        .clone()
-        .iter()
-        .progress()
-        .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
-        .for_each(drop);
+    fetch_all(&pages);
 
     let horses: Vec<HorseData> = pages
         .par_iter()
@@ -137,17 +127,20 @@ fn sub() {
         })
         .collect();
 
-    horse_history_pages
-        .clone()
-        .iter()
-        .progress()
-        .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
-        .for_each(drop);
+    fetch_all(&horse_history_pages);
 
     write_csv("horses.csv", &horses).unwrap();
 }
 
 //3659958
+
+fn fetch_all<T: WebPageTrait>(pages: &[T]) {
+    pages
+        .iter()
+        .progress()
+        .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
+        .for_each(drop);
+}
 
 fn get_horse_profile(data: horse_profile::Data) -> Option<HorseData> {
     Some(HorseData {
