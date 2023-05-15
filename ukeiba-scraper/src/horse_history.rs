@@ -107,7 +107,7 @@ impl WebPageTrait for Page {
                         .and_then(|s| s.parse().ok())
                         .unwrap_or_default(),
                     race_type: Some(race_type.to_string()),
-                    race_name: scrap_remove_tag(&element, "a:nth-child(1) > p:nth-child(1)"),
+                    race_name: scrap_remove_tag(&element, "td:nth-child(4)"),
                     race_class: scrap_remove_tag(&element, "td:nth-child(5)"),
                     distance: scrap(&element, "td:nth-child(6)").and_then(|s| s.parse().ok()),
                     weather: scrap_remove_tag(&element, "td:nth-child(7)"),
