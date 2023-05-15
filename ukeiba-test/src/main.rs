@@ -40,7 +40,7 @@ fn sub() {
 
     fetch_all(&pages);
 
-    let pages: Vec<Vec<horse_search::Page>> = pages
+    let search_pages: Vec<horse_search::Page> = pages
         .par_iter()
         .progress_count(pages.len() as u64)
         .map(|page| {
@@ -59,13 +59,12 @@ fn sub() {
                     .collect(),
             }
         })
-        .collect();
-
-    let search_pages: Vec<horse_search::Page> = pages.into_iter().flat_map(|x| x).collect();
+        .collect::<Vec<Vec<_>>>()
+        .concat();
 
     fetch_all(&search_pages);
 
-    let search_pages: Vec<Vec<horse_search::Page>> = search_pages
+    let search_pages: Vec<horse_search::Page> = search_pages
         .par_iter()
         .progress_count(search_pages.len() as u64)
         .map(|page| {
@@ -83,9 +82,8 @@ fn sub() {
                 })
                 .collect()
         })
-        .collect();
-
-    let search_pages: Vec<horse_search::Page> = search_pages.into_iter().flat_map(|x| x).collect();
+        .collect::<Vec<Vec<_>>>()
+        .concat();
 
     fetch_all(&search_pages);
 
@@ -95,10 +93,8 @@ fn sub() {
         .map(|page| page.scrap())
         .filter_map(Result::ok)
         .map(|data| data.data.iter().map(|x| x.horse_nar_id).collect())
-        .collect::<Vec<Vec<i64>>>()
-        .into_iter()
-        .flat_map(|x| x)
-        .collect();
+        .collect::<Vec<Vec<_>>>()
+        .concat();
 
     let pages: Vec<horse_profile::Page> = horses
         .iter()
@@ -132,16 +128,14 @@ fn sub() {
 
     fetch_all(&horse_history_pages);
 
-    let horse_history_data_row: Vec<Vec<horse_history::DataRow>> = horse_history_pages
+    let horse_history_data_row: Vec<horse_history::DataRow> = horse_history_pages
         .par_iter()
         .progress_count(horse_history_pages.len() as u64)
         .map(|page| page.scrap())
         .filter_map(Result::ok)
         .map(|data| data.data)
-        .collect();
-
-    let horse_history_data_row: Vec<horse_history::DataRow> =
-        horse_history_data_row.into_iter().flat_map(|x| x).collect();
+        .collect::<Vec<Vec<_>>>()
+        .concat();
 
     write_csv("races.csv", &horse_history_data_row).unwrap();
 }
