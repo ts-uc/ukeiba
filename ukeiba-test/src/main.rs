@@ -8,6 +8,7 @@ use rayon::prelude::*;
 use serde::Serialize;
 use std::time::Duration;
 use ukeiba_scraper::{horse_history, horse_profile, horse_search, WebPageTrait};
+pub mod db;
 
 #[derive(Debug, Clone, Serialize, Default)]
 struct HorseData {

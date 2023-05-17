@@ -12,5 +12,6 @@ csv = "1.1"
 indicatif = {version = "0.17", features = ["rayon"]}
 itertools = "0.10"
 rayon = "1.7"
+rusqlite = "0.29"
 serde = { version = "1.0", features = ["derive"] }
 ukeiba-scraper = { path = "../ukeiba-scraper" }
