@@ -5,13 +5,14 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub enum HorseBelong {
+    #[default]
     Left = 0,
     Banei = 21,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Page {
     pub page_num: i32,
     pub horse_name: String,
@@ -22,6 +23,7 @@ pub struct Page {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 
 pub struct Data {
+    pub args: Page,
     pub hits: i32,
     pub hits_all: i32,
     pub data: Vec<DataRow>,
@@ -86,6 +88,7 @@ impl WebPageTrait for Page {
         .unwrap_or_default();
 
         Ok(Data {
+            args: self.clone(),
             hits: hits,
             hits_all: scrap(
                 &doc,

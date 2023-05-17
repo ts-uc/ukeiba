@@ -41,23 +41,30 @@ fn sub() {
 
     fetch_all(&pages);
 
+    let pages = pages
+        .par_iter()
+        .progress_count(pages.len() as u64)
+        .map(|page| page.scrap())
+        .filter_map(Result::ok)
+        .collect::<Vec<_>>();
+
     let search_pages: Vec<horse_search::Page> = pages
         .par_iter()
         .progress_count(pages.len() as u64)
         .map(|page| {
-            let hits = page.scrap().unwrap_or_default().hits_all;
+            let hits = page.hits_all;
             match hits {
                 0 => Vec::new(),
-                0..=2000 => [page.clone()].to_vec(),
+                0..=2000 => [page.args.clone()].to_vec(),
                 _ => "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンヴ"
                     .chars()
                     .map(|kana| horse_search::Page {
                         page_num: 1,
                         horse_name: kana.to_string(),
-                        horse_belong: page.horse_belong,
-                        birth_year: page.birth_year,
-                    })
-                    .collect(),
+                        horse_belong: page.args.horse_belong,
+                        birth_year: page.args.birth_year,
+                        })
+                    .collect::<Vec<_>>(),
             }
         })
         .collect::<Vec<Vec<_>>>()
@@ -65,11 +72,18 @@ fn sub() {
 
     fetch_all(&search_pages);
 
-    let search_pages: Vec<horse_search::Page> = search_pages
+    let pages = search_pages
         .par_iter()
         .progress_count(search_pages.len() as u64)
+        .map(|page| page.scrap())
+        .filter_map(Result::ok)
+        .collect::<Vec<_>>();
+
+    let search_pages: Vec<horse_search::Page> = pages
+        .par_iter()
+        .progress_count(pages.len() as u64)
         .map(|page| {
-            let hits = page.scrap().unwrap_or_default().hits_all;
+            let hits = page.hits_all;
             if hits == 0 {
                 return Vec::new();
             }
@@ -77,9 +91,9 @@ fn sub() {
             (1..=page_count)
                 .map(|page_num| horse_search::Page {
                     page_num: page_num,
-                    horse_name: page.horse_name.clone(),
-                    horse_belong: page.horse_belong,
-                    birth_year: page.birth_year,
+                    horse_name: page.args.horse_name.clone(),
+                    horse_belong: page.args.horse_belong,
+                    birth_year: page.args.birth_year,
                 })
                 .collect()
         })
@@ -88,14 +102,17 @@ fn sub() {
 
     fetch_all(&search_pages);
 
-    let horses: Vec<i64> = search_pages
+    let pages = search_pages
         .par_iter()
         .progress_count(search_pages.len() as u64)
         .map(|page| page.scrap())
         .filter_map(Result::ok)
-        .map(|data| data.data.iter().map(|x| x.horse_nar_id).collect())
-        .collect::<Vec<Vec<_>>>()
-        .concat();
+        .collect::<Vec<_>>();
+
+    let horses: Vec<i64> = pages
+        .into_iter()
+        .flat_map(|data| data.data.iter().map(|x| x.horse_nar_id).collect::<Vec<_>>())
+        .collect::<Vec<_>>();
 
     let pages: Vec<horse_profile::Page> = horses
         .iter()
@@ -106,11 +123,15 @@ fn sub() {
 
     fetch_all(&pages);
 
-    let horses: Vec<HorseData> = pages
+    let pages = pages
         .par_iter()
         .progress_count(pages.len() as u64)
         .map(|page| page.scrap())
         .filter_map(Result::ok)
+        .collect::<Vec<_>>();
+
+    let horses: Vec<HorseData> = pages
+        .into_iter()
         .filter(|data| match data.horse_type.as_deref() {
             Some("(アア)") | Some("(サラ系)") | None => false,
             _ => true,
@@ -120,23 +141,26 @@ fn sub() {
 
     write_csv("horses.csv", &horses).unwrap();
 
-    let horse_history_pages: Vec<horse_history::Page> = horses
+    let pages: Vec<horse_history::Page> = horses
         .iter()
         .map(|horse| horse_history::Page {
             horse_nar_id: horse.horse_nar_id,
         })
         .collect();
 
-    fetch_all(&horse_history_pages);
+    fetch_all(&pages);
 
-    let horse_history_data_row: Vec<horse_history::DataRow> = horse_history_pages
+    let pages = pages
         .par_iter()
-        .progress_count(horse_history_pages.len() as u64)
+        .progress_count(pages.len() as u64)
         .map(|page| page.scrap())
         .filter_map(Result::ok)
-        .map(|data| data.data)
-        .collect::<Vec<Vec<_>>>()
-        .concat();
+        .collect::<Vec<_>>();
+
+    let horse_history_data_row: Vec<horse_history::DataRow> = pages
+        .into_iter()
+        .flat_map(|data| data.data)
+        .collect::<Vec<_>>();
 
     write_csv("races.csv", &horse_history_data_row).unwrap();
 }
