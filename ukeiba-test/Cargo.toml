@@ -14,4 +14,5 @@ itertools = "0.10"
 rayon = "1.7"
 rusqlite = "0.29"
 serde = { version = "1.0", features = ["derive"] }
+serde_rusqlite = "0.33"
 ukeiba-scraper = { path = "../ukeiba-scraper" }

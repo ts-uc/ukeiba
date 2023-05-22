@@ -1,5 +1,8 @@
+use anyhow::Result;
 use chrono::{NaiveDate, NaiveTime};
-use rusqlite::{params, Connection, Result};
+use rusqlite::{params, Connection, Transaction};
+use serde::{Deserialize, Serialize};
+use serde_rusqlite::to_params_named;
 
 // 以下の構造体に基づいて、rusqliteでcreate tableする関数を作成してください。
 // なお、サロゲートキーは使わず、optionのついていないメンバ変数を主キーにしてください。
@@ -7,7 +10,7 @@ use rusqlite::{params, Connection, Result};
 // CREATE TABLE文は、IF NOT EXISTS を使ったものにしてください。
 // テーブル名、およびカラム名はすべてスネークケースにしてください。
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Dates {
     date: NaiveDate,
     racecourse: Option<String>,
@@ -15,7 +18,7 @@ pub struct Dates {
     nichi: Option<String>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Races {
     date: NaiveDate,
     race_num: i32,
@@ -30,7 +33,7 @@ pub struct Races {
     race_weight_type: Option<String>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RaceHorses {
     date: NaiveDate,
     race_num: i32,
@@ -55,14 +58,14 @@ pub struct RaceHorses {
     place_odds_max: Option<f64>,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Horses {
-    horse_nar_id: i64,
-    horse_birthdate: Option<NaiveDate>,
-    horse_name: Option<String>,
-    horse_status: Option<String>,
-    horse_type: Option<String>,
-    deregistration_date: Option<NaiveDate>,
+    pub horse_nar_id: i64,
+    pub horse_birthdate: Option<NaiveDate>,
+    pub horse_name: Option<String>,
+    pub horse_status: Option<String>,
+    pub horse_type: Option<String>,
+    pub deregistration_date: Option<NaiveDate>,
 }
 
 pub fn create_table(connection: &Connection) -> Result<()> {
@@ -145,5 +148,37 @@ pub fn create_table(connection: &Connection) -> Result<()> {
 
 pub fn vacuum_database(connection: &Connection) -> Result<()> {
     connection.execute("VACUUM", [])?;
+    Ok(())
+}
+
+pub fn upsert_dates(transaction: &Transaction, dates: &Dates) -> Result<()> {
+    transaction.execute(
+        "
+        INSERT INTO dates (date, racecourse, kai, nichi)
+        VALUES (:date, :racecourse, :kai, :nichi)
+        ON CONFLICT(date) DO UPDATE SET
+            racecourse = COALESCE(:racecourse, dates.racecourse),
+            kai = COALESCE(:kai, dates.kai),
+            nichi = COALESCE(:nichi, dates.nichi)
+    ",
+        to_params_named(&dates)?.to_slice().as_slice(),
+    )?;
+    Ok(())
+}
+
+pub fn upsert_horses(transaction: &Transaction, horses: &Horses) -> Result<()> {
+    transaction.execute(
+    "
+    INSERT INTO horses (horse_nar_id, horse_birthdate, horse_name, horse_status, horse_type, deregistration_date)
+    VALUES (:horse_nar_id, :horse_birthdate, :horse_name, :horse_status, :horse_type, :deregistration_date)
+    ON CONFLICT(horse_nar_id) DO UPDATE SET
+    horse_birthdate = COALESCE(:horse_birthdate, horses.horse_birthdate),
+    horse_name = COALESCE(:horse_name, horses.horse_name),
+    horse_status = COALESCE(:horse_status, horses.horse_status),
+    horse_type = COALESCE(:horse_type, horses.horse_type),
+    deregistration_date = COALESCE(:deregistration_date, horses.deregistration_date)
+    ",
+    to_params_named(&horses)?.to_slice().as_slice(),
+    )?;
     Ok(())
 }
