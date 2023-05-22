@@ -39,14 +39,7 @@ fn sub() {
     })
     .collect();
 
-    fetch_all(&pages);
-
-    let pages = pages
-        .par_iter()
-        .progress_count(pages.len() as u64)
-        .map(|page| page.scrap())
-        .filter_map(Result::ok)
-        .collect::<Vec<_>>();
+    let pages = fetch_and_scrap_all(pages);
 
     let search_pages: Vec<horse_search::Page> = pages
         .par_iter()
@@ -70,14 +63,7 @@ fn sub() {
         .collect::<Vec<Vec<_>>>()
         .concat();
 
-    fetch_all(&search_pages);
-
-    let pages = search_pages
-        .par_iter()
-        .progress_count(search_pages.len() as u64)
-        .map(|page| page.scrap())
-        .filter_map(Result::ok)
-        .collect::<Vec<_>>();
+    let pages = fetch_and_scrap_all(search_pages);
 
     let search_pages: Vec<horse_search::Page> = pages
         .par_iter()
@@ -100,14 +86,7 @@ fn sub() {
         .collect::<Vec<Vec<_>>>()
         .concat();
 
-    fetch_all(&search_pages);
-
-    let pages = search_pages
-        .par_iter()
-        .progress_count(search_pages.len() as u64)
-        .map(|page| page.scrap())
-        .filter_map(Result::ok)
-        .collect::<Vec<_>>();
+    let pages = fetch_and_scrap_all(search_pages);
 
     let horses: Vec<i64> = pages
         .into_iter()
@@ -121,14 +100,7 @@ fn sub() {
         })
         .collect();
 
-    fetch_all(&pages);
-
-    let pages = pages
-        .par_iter()
-        .progress_count(pages.len() as u64)
-        .map(|page| page.scrap())
-        .filter_map(Result::ok)
-        .collect::<Vec<_>>();
+    let pages = fetch_and_scrap_all(pages);
 
     let horses: Vec<HorseData> = pages
         .into_iter()
@@ -148,14 +120,7 @@ fn sub() {
         })
         .collect();
 
-    fetch_all(&pages);
-
-    let pages = pages
-        .par_iter()
-        .progress_count(pages.len() as u64)
-        .map(|page| page.scrap())
-        .filter_map(Result::ok)
-        .collect::<Vec<_>>();
+    let pages = fetch_and_scrap_all(pages);
 
     let horse_history_data_row: Vec<horse_history::DataRow> = pages
         .into_iter()
@@ -167,12 +132,32 @@ fn sub() {
 
 //3659958
 
+fn fetch_and_scrap_all<T: WebPageTrait + Sync>(pages: Vec<T>) -> Vec<T::Data>
+where
+    <T as WebPageTrait>::Data: Send,
+{
+    fetch_all(&pages);
+    scrap_all(pages)
+}
+
 fn fetch_all<T: WebPageTrait>(pages: &[T]) {
     pages
         .iter()
         .progress()
         .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
         .for_each(drop);
+}
+
+fn scrap_all<T: WebPageTrait + Sync>(pages: Vec<T>) -> Vec<T::Data>
+where
+    <T as WebPageTrait>::Data: Send,
+{
+    pages
+        .par_iter()
+        .progress_count(pages.len() as u64)
+        .map(|page| page.scrap())
+        .filter_map(Result::ok)
+        .collect::<Vec<_>>()
 }
 
 fn get_horse_profile(data: horse_profile::Data) -> Option<HorseData> {
