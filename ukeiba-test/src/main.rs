@@ -132,9 +132,10 @@ fn sub() {
 
 //3659958
 
-fn fetch_and_scrap_all<T: WebPageTrait + Sync>(pages: Vec<T>) -> Vec<T::Data>
+fn fetch_and_scrap_all<T>(pages: Vec<T>) -> Vec<T::Data>
 where
-    <T as WebPageTrait>::Data: Send,
+    T::Data: Send,
+    T: WebPageTrait + Sync,
 {
     fetch_all(&pages);
     scrap_all(pages)
@@ -148,9 +149,10 @@ fn fetch_all<T: WebPageTrait>(pages: &[T]) {
         .for_each(drop);
 }
 
-fn scrap_all<T: WebPageTrait + Sync>(pages: Vec<T>) -> Vec<T::Data>
+fn scrap_all<T>(pages: Vec<T>) -> Vec<T::Data>
 where
-    <T as WebPageTrait>::Data: Send,
+    T::Data: Send,
+    T: WebPageTrait + Sync,
 {
     pages
         .par_iter()
