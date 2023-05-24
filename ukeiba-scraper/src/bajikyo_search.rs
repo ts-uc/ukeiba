@@ -1,6 +1,6 @@
 use super::*;
 use anyhow::Result;
-use scraper::Html;
+use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -40,6 +40,20 @@ struct RequestData {
     sortorder: String,
     query: String,
     qtype: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct JsonData {
+    page: String,
+    rp: String,
+    total: i32,
+    rows: Option<Vec<JsonDataRow>>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct JsonDataRow {
+    id: i32,
+    cell: Vec<String>,
 }
 
 impl Default for Query {
@@ -123,7 +137,18 @@ impl WebPageTrait for Query {
     }
 
     fn scrap_string(&self, body: &str) -> Result<Self::Data> {
-        todo!()
+        let d: JsonData = serde_json::from_str(body)?;
+        let hits = d.total;
+        let horse_bajikyo_id_list = d
+            .rows
+            .unwrap_or_default()
+            .iter()
+            .map(|row| extract_bajikyo_id(&row.cell[1]).unwrap_or_default())
+            .collect();
+        Ok(Data {
+            hits,
+            horse_bajikyo_id_list,
+        })
     }
 }
 
@@ -136,4 +161,10 @@ fn make_request_data(query: &Query) -> Result<String> {
     };
     let request_data = serde_qs::to_string(&request_data)?;
     Ok(request_data)
+}
+
+fn extract_bajikyo_id(json_str: &str) -> Option<String> {
+    let re = Regex::new(r#"\&hno=(.+?)""#).unwrap();
+    let r = re.captures(&json_str)?.get(1)?.as_str().to_string();
+    Some(r)
 }
