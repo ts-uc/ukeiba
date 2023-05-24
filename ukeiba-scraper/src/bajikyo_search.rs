@@ -87,7 +87,7 @@ impl Default for RequestData {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Data {
     pub hits: i32,
-    pub horse_nar_id_list: Vec<i64>,
+    pub horse_bajikyo_id_list: Vec<String>,
 }
 
 impl WebPageTrait for Query {
@@ -104,6 +104,7 @@ impl WebPageTrait for Query {
                 self.name, self.ph1, self.ph2, self.date1, self.date2
             ))
     }
+
     fn fetch_string(&self, interval: Duration) -> Result<String> {
         std::thread::sleep(interval);
         let request_data = make_request_data(&self)?;
@@ -117,9 +118,10 @@ impl WebPageTrait for Query {
             .body(request_data)
             .send()?
             .error_for_status()?;
-        let text = res.text().map_err(|e| anyhow!(e))?;
+        let text = res.text()?;
         Ok(text)
     }
+
     fn scrap_string(&self, body: &str) -> Result<Self::Data> {
         todo!()
     }
