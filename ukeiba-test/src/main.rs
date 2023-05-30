@@ -86,7 +86,7 @@ fn sub() {
         .collect::<Vec<Vec<_>>>()
         .concat();
 
-    let pages: Vec<horse_profile::Page> = fetch_and_scrap_all(search_pages)
+    let horse_profile_pages: Vec<horse_profile::Page> = fetch_and_scrap_all(search_pages)
         .into_iter()
         .flat_map(|data| data.data.iter().map(|x| x.horse_nar_id).collect::<Vec<_>>())
         .map(|horse_nar_id| horse_profile::Page {
@@ -94,7 +94,7 @@ fn sub() {
         })
         .collect();
 
-    let horses: Vec<HorseData> = fetch_and_scrap_all(pages)
+    let horse_data: Vec<HorseData> = fetch_and_scrap_all(horse_profile_pages)
         .into_iter()
         .filter(|data| match data.horse_type.as_deref() {
             Some("(アア)") | Some("(サラ系)") | None => false,
@@ -103,19 +103,20 @@ fn sub() {
         .map(|data| get_horse_profile(data).unwrap_or_default())
         .collect();
 
-    write_csv("horses.csv", &horses).unwrap();
+    write_csv("horses.csv", &horse_data).unwrap();
 
-    let pages: Vec<horse_history::Page> = horses
+    let horse_history_pages: Vec<horse_history::Page> = horse_data
         .iter()
         .map(|horse| horse_history::Page {
             horse_nar_id: horse.horse_nar_id,
         })
         .collect();
 
-    let horse_history_data_row: Vec<horse_history::DataRow> = fetch_and_scrap_all(pages)
-        .into_iter()
-        .flat_map(|data| data.data)
-        .collect::<Vec<_>>();
+    let horse_history_data_row: Vec<horse_history::DataRow> =
+        fetch_and_scrap_all(horse_history_pages)
+            .into_iter()
+            .flat_map(|data| data.data)
+            .collect::<Vec<_>>();
 
     write_csv("races.csv", &horse_history_data_row).unwrap();
 }
