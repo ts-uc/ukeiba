@@ -39,11 +39,8 @@ fn sub() {
     })
     .collect();
 
-    let pages = fetch_and_scrap_all(pages);
-
-    let search_pages: Vec<horse_search::Page> = pages
+    let search_pages: Vec<horse_search::Page> = fetch_and_scrap_all(pages)
         .par_iter()
-        .progress_count(pages.len() as u64)
         .map(|page| {
             let hits = page.hits_all;
             match hits {
@@ -69,11 +66,8 @@ fn sub() {
         .collect::<Vec<Vec<_>>>()
         .concat();
 
-    let pages = fetch_and_scrap_all(search_pages);
-
-    let search_pages: Vec<horse_search::Page> = pages
+    let search_pages: Vec<horse_search::Page> = fetch_and_scrap_all(search_pages)
         .par_iter()
-        .progress_count(pages.len() as u64)
         .map(|page| {
             let hits = page.hits_all;
             if hits == 0 {
@@ -92,23 +86,15 @@ fn sub() {
         .collect::<Vec<Vec<_>>>()
         .concat();
 
-    let pages = fetch_and_scrap_all(search_pages);
-
-    let horses: Vec<i64> = pages
+    let pages: Vec<horse_profile::Page> = fetch_and_scrap_all(search_pages)
         .into_iter()
         .flat_map(|data| data.data.iter().map(|x| x.horse_nar_id).collect::<Vec<_>>())
-        .collect::<Vec<_>>();
-
-    let pages: Vec<horse_profile::Page> = horses
-        .iter()
         .map(|horse_nar_id| horse_profile::Page {
-            horse_nar_id: *horse_nar_id,
+            horse_nar_id: horse_nar_id,
         })
         .collect();
 
-    let pages = fetch_and_scrap_all(pages);
-
-    let horses: Vec<HorseData> = pages
+    let horses: Vec<HorseData> = fetch_and_scrap_all(pages)
         .into_iter()
         .filter(|data| match data.horse_type.as_deref() {
             Some("(アア)") | Some("(サラ系)") | None => false,
@@ -126,9 +112,7 @@ fn sub() {
         })
         .collect();
 
-    let pages = fetch_and_scrap_all(pages);
-
-    let horse_history_data_row: Vec<horse_history::DataRow> = pages
+    let horse_history_data_row: Vec<horse_history::DataRow> = fetch_and_scrap_all(pages)
         .into_iter()
         .flat_map(|data| data.data)
         .collect::<Vec<_>>();
