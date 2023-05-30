@@ -23,7 +23,10 @@ pub struct Page {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 
 pub struct Data {
-    pub args: Page,
+    pub page_num: i32,
+    pub horse_name: String,
+    pub horse_belong: HorseBelong,
+    pub birth_year: i32,
     pub hits: i32,
     pub hits_all: i32,
     pub data: Vec<DataRow>,
@@ -88,7 +91,10 @@ impl WebPageTrait for Page {
         .unwrap_or_default();
 
         Ok(Data {
-            args: self.clone(),
+            page_num: self.page_num,
+            horse_name: self.horse_name.clone(),
+            horse_belong: self.horse_belong,
+            birth_year: self.birth_year,
             hits: hits,
             hits_all: scrap(
                 &doc,

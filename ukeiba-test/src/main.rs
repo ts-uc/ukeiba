@@ -48,15 +48,21 @@ fn sub() {
             let hits = page.hits_all;
             match hits {
                 0 => Vec::new(),
-                0..=2000 => [page.args.clone()].to_vec(),
+                0..=2000 => [horse_search::Page {
+                    page_num: 1,
+                    horse_name: "".to_string(),
+                    horse_belong: page.horse_belong,
+                    birth_year: page.birth_year,
+                }]
+                .to_vec(),
                 _ => "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンヴ"
                     .chars()
                     .map(|kana| horse_search::Page {
                         page_num: 1,
                         horse_name: kana.to_string(),
-                        horse_belong: page.args.horse_belong,
-                        birth_year: page.args.birth_year,
-                        })
+                        horse_belong: page.horse_belong,
+                        birth_year: page.birth_year,
+                    })
                     .collect::<Vec<_>>(),
             }
         })
@@ -77,9 +83,9 @@ fn sub() {
             (1..=page_count)
                 .map(|page_num| horse_search::Page {
                     page_num: page_num,
-                    horse_name: page.args.horse_name.clone(),
-                    horse_belong: page.args.horse_belong,
-                    birth_year: page.args.birth_year,
+                    horse_name: page.horse_name.clone(),
+                    horse_belong: page.horse_belong,
+                    birth_year: page.birth_year,
                 })
                 .collect()
         })
