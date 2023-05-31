@@ -5,6 +5,7 @@ use std::io::{Read, Write};
 use std::path::PathBuf;
 use std::time::Duration;
 use xz2::write::{XzDecoder, XzEncoder};
+pub mod bajikyo_auto_search;
 pub mod bajikyo_search;
 pub mod horse_history;
 pub mod horse_profile;

@@ -7,7 +7,9 @@ use itertools::iproduct;
 use rayon::prelude::*;
 use serde::Serialize;
 use std::time::Duration;
-use ukeiba_scraper::{horse_history, horse_profile, horse_search, WebPageTrait};
+use ukeiba_scraper::{
+    bajikyo_auto_search, horse_history, horse_profile, horse_search, WebPageTrait,
+};
 pub mod db;
 
 #[derive(Debug, Clone, Serialize, Default)]
@@ -94,31 +96,35 @@ fn sub() {
         })
         .collect();
 
-    let horse_data: Vec<HorseData> = fetch_and_scrap_all(horse_profile_pages)
+    let horse_data = fetch_and_scrap_all(horse_profile_pages)
         .into_iter()
         .filter(|data| match data.horse_type.as_deref() {
             Some("(アア)") | Some("(サラ系)") | None => false,
             _ => true,
         })
-        .map(|data| get_horse_profile(data).unwrap_or_default())
-        .collect();
+        .map(|data| get_horse_profile(data))
+        .collect::<Vec<_>>();
 
     write_csv("horses.csv", &horse_data).unwrap();
 
-    let horse_history_pages: Vec<horse_history::Page> = horse_data
-        .iter()
-        .map(|horse| horse_history::Page {
-            horse_nar_id: horse.horse_nar_id,
-        })
-        .collect();
+    let bajikyo_searched_data = fetch_and_scrap_all(horse_data);
 
-    let horse_history_data_row: Vec<horse_history::DataRow> =
-        fetch_and_scrap_all(horse_history_pages)
-            .into_iter()
-            .flat_map(|data| data.data)
-            .collect::<Vec<_>>();
+    write_csv("bajikyo_data.csv", &bajikyo_searched_data).unwrap();
 
-    write_csv("races.csv", &horse_history_data_row).unwrap();
+    // let horse_history_pages: Vec<horse_history::Page> = horse_data
+    //     .iter()
+    //     .map(|horse| horse_history::Page {
+    //         horse_nar_id: horse.horse_nar_id,
+    //     })
+    //     .collect();
+
+    // let horse_history_data_row: Vec<horse_history::DataRow> =
+    //     fetch_and_scrap_all(horse_history_pages)
+    //         .into_iter()
+    //         .flat_map(|data| data.data)
+    //         .collect::<Vec<_>>();
+
+    // write_csv("races.csv", &horse_history_data_row).unwrap();
 }
 
 //3659958
@@ -153,14 +159,14 @@ where
         .collect::<Vec<_>>()
 }
 
-fn get_horse_profile(data: horse_profile::Data) -> Option<HorseData> {
-    Some(HorseData {
+fn get_horse_profile(data: horse_profile::Data) -> bajikyo_auto_search::OriginalData {
+    bajikyo_auto_search::OriginalData {
         horse_nar_id: data.horse_nar_id,
         horse_name: data.horse_name,
-        birthdate: data.birthdate,
-        sire_name: data.sire_name,
-        dam_name: data.dam_name,
-    })
+        birthdate: data.birthdate.unwrap_or_default(),
+        sire_name: data.sire_name.unwrap_or_default(),
+        dam_name: data.dam_name.unwrap_or_default(),
+    }
 }
 
 fn write_csv<T>(filename: &str, data: &[T]) -> Result<()>
