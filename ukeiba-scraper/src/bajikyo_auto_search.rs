@@ -204,6 +204,10 @@ impl WebPageTrait for OriginalData {
 fn to_bajikyo_id(nar_id: i64) -> String {
     match nar_id {
         30892409283 => return "20101 2242".to_string(),
+        30823404134 => return "20701 3025".to_string(),
+        30812404324 => return "20501 4282".to_string(),
+        30881201999 => return "16001F0620".to_string(),
+        30882200179 => return "22101F1714".to_string(),
         _ => (),
     }
 
@@ -242,4 +246,5 @@ fn convert_name(from: &str) -> String {
         .replace("ミツト", "ミット")
         .replace("レデイ", "レディ")
         .replace("ホツカイ", "ホッカイ")
+        .replace("シヨウ", "ショウ")
 }
