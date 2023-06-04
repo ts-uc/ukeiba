@@ -196,7 +196,6 @@ impl WebPageTrait for OriginalData {
             horse_bajikyo_id: file_data.horse_bajikyo_id,
             fetch_mode: file_data.fetch_mode,
         };
-        println!("{:?}", data);
         Ok(data)
     }
 }
