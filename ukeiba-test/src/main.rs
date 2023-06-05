@@ -8,7 +8,8 @@ use rayon::prelude::*;
 use serde::Serialize;
 use std::time::Duration;
 use ukeiba_scraper::{
-    bajikyo_auto_search, horse_history, horse_profile, horse_search, WebPageTrait,
+    bajikyo_auto_search, bajikyo_pedigree, bajikyo_profile, horse_history, horse_profile,
+    horse_search, WebPageTrait,
 };
 pub mod db;
 
@@ -109,6 +110,29 @@ fn sub() {
 
     let bajikyo_searched_data = fetch_and_scrap_all(horse_data);
 
+    let bajikyo_ids = bajikyo_searched_data
+        .iter()
+        .filter_map(|x| x.horse_bajikyo_id.clone())
+        .collect::<Vec<_>>();
+
+    let bajikyo_pedigree_pages = bajikyo_ids
+        .iter()
+        .map(|x| bajikyo_pedigree::Page {
+            horse_bajikyo_id: x.clone(),
+        })
+        .collect::<Vec<_>>();
+
+    fetch_all(&bajikyo_pedigree_pages);
+
+    let bajikyo_profile_pages = bajikyo_ids
+        .iter()
+        .map(|x| bajikyo_profile::Page {
+            horse_bajikyo_id: x.clone(),
+        })
+        .collect::<Vec<_>>();
+
+    fetch_all(&bajikyo_profile_pages);
+
     write_csv("bajikyo_data.csv", &bajikyo_searched_data).unwrap();
 
     // let horse_history_pages: Vec<horse_history::Page> = horse_data
@@ -142,7 +166,7 @@ fn fetch_all<T: WebPageTrait>(pages: &[T]) {
     pages
         .iter()
         .progress()
-        .filter_map(|page| page.fetch(Duration::from_secs(1)).ok())
+        .filter_map(|page| page.fetch(Duration::from_secs(2)).ok())
         .for_each(drop);
 }
 
