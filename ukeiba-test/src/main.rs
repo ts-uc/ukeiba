@@ -122,7 +122,8 @@ fn sub() {
         })
         .collect::<Vec<_>>();
 
-    fetch_all(&bajikyo_pedigree_pages);
+    let bajikyo_pedigree_data = fetch_and_scrap_all(bajikyo_pedigree_pages);
+    write_csv("bajikyo_pedigree.csv", &bajikyo_pedigree_data).unwrap();
 
     let bajikyo_profile_pages = bajikyo_ids
         .iter()
@@ -131,7 +132,8 @@ fn sub() {
         })
         .collect::<Vec<_>>();
 
-    fetch_all(&bajikyo_profile_pages);
+    let bajikyo_profile_data = fetch_and_scrap_all(bajikyo_profile_pages);
+    write_csv("bajikyo_profile.csv", &bajikyo_profile_data).unwrap();
 
     write_csv("bajikyo_data.csv", &bajikyo_searched_data).unwrap();
 
