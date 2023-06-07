@@ -27,6 +27,8 @@ fn main() {
 }
 
 fn sub() {
+    // 所属がばんえいか退厩の馬を全取得
+
     let pages: Vec<horse_search::Page> = iproduct!(
         [
             horse_search::HorseBelong::Banei,
@@ -89,21 +91,33 @@ fn sub() {
         .collect::<Vec<Vec<_>>>()
         .concat();
 
-    let horse_profile_pages: Vec<horse_profile::Page> = fetch_and_scrap_all(search_pages)
+    let horse_all_ids = fetch_and_scrap_all(search_pages)
         .into_iter()
         .flat_map(|data| data.data.iter().map(|x| x.horse_nar_id).collect::<Vec<_>>())
-        .map(|horse_nar_id| horse_profile::Page {
-            horse_nar_id: horse_nar_id,
-        })
-        .collect();
+        .collect::<Vec<_>>();
 
-    let horse_data = fetch_and_scrap_all(horse_profile_pages)
+    // 取得した全馬のIDリストから、サラブレッド種・サラブレッド系種・アングロアラブ種を除外した馬情報リストを作成
+
+    let horse_profile_pages = horse_all_ids
+        .iter()
+        .map(|horse_nar_id| horse_profile::Page {
+            horse_nar_id: *horse_nar_id,
+        })
+        .collect::<Vec<_>>();
+
+    let horse_profile_data = fetch_and_scrap_all(horse_profile_pages)
         .into_iter()
         .filter(|data| match data.horse_type.as_deref() {
             Some("(アア)") | Some("(サラ系)") | None => false,
             _ => true,
         })
-        .map(|data| get_horse_profile(data))
+        .collect::<Vec<_>>();
+
+    // 馬情報リストの情報をベースに馬事協会IDを取得
+
+    let horse_data = horse_profile_data
+        .iter()
+        .map(|data| get_horse_profile(data.clone()))
         .collect::<Vec<_>>();
 
     write_csv("horses.csv", &horse_data).unwrap();
@@ -115,6 +129,8 @@ fn sub() {
         .filter_map(|x| x.horse_bajikyo_id.clone())
         .collect::<Vec<_>>();
 
+    // 馬事協会のサイトから父馬ID・母馬ID・母父馬IDを取得
+
     let bajikyo_pedigree_pages = bajikyo_ids
         .iter()
         .map(|x| bajikyo_pedigree::Page {
@@ -124,6 +140,8 @@ fn sub() {
 
     let bajikyo_pedigree_data = fetch_and_scrap_all(bajikyo_pedigree_pages);
     write_csv("bajikyo_pedigree.csv", &bajikyo_pedigree_data).unwrap();
+
+    // 馬事協会のサイトから馬情報を取得
 
     let bajikyo_profile_pages = bajikyo_ids
         .iter()
