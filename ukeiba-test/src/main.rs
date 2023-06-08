@@ -2,11 +2,12 @@ extern crate ukeiba_scraper;
 use anyhow::Result;
 use chrono::NaiveDate;
 use csv::Writer;
+use db::Horses;
 use indicatif::{ParallelProgressIterator, ProgressIterator};
 use itertools::iproduct;
 use rayon::prelude::*;
 use serde::Serialize;
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 use ukeiba_scraper::{
     bajikyo_auto_search, bajikyo_pedigree, bajikyo_profile, horse_history, horse_profile,
     horse_search, WebPageTrait,
@@ -120,40 +121,59 @@ fn sub() {
         .map(|data| get_horse_profile(data.clone()))
         .collect::<Vec<_>>();
 
-    write_csv("horses.csv", &horse_data).unwrap();
-
     let bajikyo_searched_data = fetch_and_scrap_all(horse_data);
 
-    let bajikyo_ids = bajikyo_searched_data
+    let bajikyo_auto_search_dict = bajikyo_searched_data
         .iter()
-        .filter_map(|x| x.horse_bajikyo_id.clone())
-        .collect::<Vec<_>>();
+        .filter_map(|data| Some((data.horse_nar_id.clone(), data.horse_bajikyo_id.clone()?)))
+        .collect::<HashMap<_, _>>();
 
-    // 馬事協会のサイトから父馬ID・母馬ID・母父馬IDを取得
+    // DBへ書き込むデータを作成
 
-    let bajikyo_pedigree_pages = bajikyo_ids
+    let horse_data = horse_profile_data
         .iter()
-        .map(|x| bajikyo_pedigree::Page {
-            horse_bajikyo_id: x.clone(),
+        .map(|data| Horses {
+            horse_nar_id: Some(data.horse_nar_id),
+            horse_bajikyo_id: bajikyo_auto_search_dict.get(&data.horse_nar_id).cloned(),
+            horse_name: Some(data.horse_name.clone()),
+            horse_status: Some(data.horse_status.clone()),
+            horse_birthdate: data.birthdate,
+            ..Default::default()
         })
         .collect::<Vec<_>>();
 
-    let bajikyo_pedigree_data = fetch_and_scrap_all(bajikyo_pedigree_pages);
-    write_csv("bajikyo_pedigree.csv", &bajikyo_pedigree_data).unwrap();
+    write_csv("horse_data", &horse_data).unwrap();
 
-    // 馬事協会のサイトから馬情報を取得
+    // let bajikyo_ids = bajikyo_searched_data
+    //     .iter()
+    //     .filter_map(|x| x.horse_bajikyo_id.clone())
+    //     .collect::<Vec<_>>();
 
-    let bajikyo_profile_pages = bajikyo_ids
-        .iter()
-        .map(|x| bajikyo_profile::Page {
-            horse_bajikyo_id: x.clone(),
-        })
-        .collect::<Vec<_>>();
+    // // 馬事協会のサイトから父馬ID・母馬ID・母父馬IDを取得
 
-    let bajikyo_profile_data = fetch_and_scrap_all(bajikyo_profile_pages);
-    write_csv("bajikyo_profile.csv", &bajikyo_profile_data).unwrap();
+    // let bajikyo_pedigree_pages = bajikyo_ids
+    //     .iter()
+    //     .map(|x| bajikyo_pedigree::Page {
+    //         horse_bajikyo_id: x.clone(),
+    //     })
+    //     .collect::<Vec<_>>();
 
-    write_csv("bajikyo_data.csv", &bajikyo_searched_data).unwrap();
+    // let bajikyo_pedigree_data = fetch_and_scrap_all(bajikyo_pedigree_pages);
+    // write_csv("bajikyo_pedigree.csv", &bajikyo_pedigree_data).unwrap();
+
+    // // 馬事協会のサイトから馬情報を取得
+
+    // let bajikyo_profile_pages = bajikyo_ids
+    //     .iter()
+    //     .map(|x| bajikyo_profile::Page {
+    //         horse_bajikyo_id: x.clone(),
+    //     })
+    //     .collect::<Vec<_>>();
+
+    // let bajikyo_profile_data = fetch_and_scrap_all(bajikyo_profile_pages);
+    // write_csv("bajikyo_profile.csv", &bajikyo_profile_data).unwrap();
+
+    // write_csv("bajikyo_data.csv", &bajikyo_searched_data).unwrap();
 
     // let horse_history_pages: Vec<horse_history::Page> = horse_data
     //     .iter()

@@ -60,12 +60,17 @@ pub struct RaceHorses {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Horses {
-    pub horse_nar_id: i64,
-    pub horse_birthdate: Option<NaiveDate>,
+    pub horse_nar_id: Option<i64>,
+    pub horse_bajikyo_id: Option<String>,
     pub horse_name: Option<String>,
     pub horse_status: Option<String>,
-    pub horse_type: Option<String>,
     pub deregistration_date: Option<NaiveDate>,
+    pub horse_birthdate: Option<NaiveDate>,
+    pub horse_coat_color: Option<String>,
+    pub horse_breed: Option<String>,
+    pub sire_bajikyo_id: Option<String>,
+    pub dam_bajikyo_id: Option<String>,
+    pub bms_bajikyo_id: Option<String>,
 }
 
 pub fn create_table(connection: &Connection) -> Result<()> {
@@ -132,15 +137,22 @@ pub fn create_table(connection: &Connection) -> Result<()> {
 
     // Horsesテーブルの作成
     connection.execute(
-        "CREATE TABLE IF NOT EXISTS horses (
-            horse_nar_id INTEGER NOT NULL PRIMARY KEY,
-            horse_birthdate DATE,
+        "
+        CREATE TABLE IF NOT EXISTS horses (
+            horse_nar_id INTEGER UNIQUE,
+            horse_bajikyo_id TEXT UNIQUE,
             horse_name TEXT,
             horse_status TEXT,
-            horse_type TEXT,
-            deregistration_date DATE
-        )",
-        params![],
+            deregistration_date TEXT,
+            horse_birthdate TEXT,
+            horse_coat_color TEXT,
+            horse_breed TEXT,
+            sire_bajikyo_id TEXT,
+            dam_bajikyo_id TEXT,
+            bms_bajikyo_id TEXT,
+        )
+        ",
+        [],
     )?;
 
     Ok(())
