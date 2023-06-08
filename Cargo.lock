@@ -1902,6 +1902,7 @@ dependencies = [
  "anyhow",
  "chrono",
  "csv",
+ "dirs",
  "indicatif",
  "itertools",
  "rayon",

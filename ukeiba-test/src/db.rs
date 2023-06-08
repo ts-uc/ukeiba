@@ -73,94 +73,104 @@ pub struct Horses {
     pub bms_bajikyo_id: Option<String>,
 }
 
-pub fn create_table(connection: &Connection) -> Result<()> {
-    // Datesテーブルの作成
-    connection.execute(
-        "CREATE TABLE IF NOT EXISTS dates (
-            date DATE NOT NULL PRIMARY KEY,
-            racecourse TEXT,
-            kai TEXT,
-            nichi TEXT
-        )",
-        params![],
-    )?;
-
-    // Racesテーブルの作成
-    connection.execute(
-        "CREATE TABLE IF NOT EXISTS races (
-            date DATE NOT NULL,
-            race_num INTEGER NOT NULL,
-            race_type TEXT,
-            weather TEXT,
-            going REAL,
-            horse_count INTEGER,
-            post_time TEXT,
-            post_time_change INTEGER,
-            race_sub_name TEXT,
-            race_name TEXT,
-            race_weight_type TEXT,
-            PRIMARY KEY (date, race_num),
-            FOREIGN KEY (date) REFERENCES dates (date)
-        )",
-        params![],
-    )?;
-
-    // RaceHorsesテーブルの作成
-    connection.execute(
-        "CREATE TABLE IF NOT EXISTS race_horses (
-            date DATE NOT NULL,
-            race_num INTEGER NOT NULL,
-            horse_num INTEGER NOT NULL,
-            horse_nar_id INTEGER,
-            bracket_num INTEGER,
-            win_fav INTEGER,
-            horse_weight INTEGER,
-            jockey_id INTEGER,
-            weight_to_carry INTEGER,
-            trainer_id INTEGER,
-            arrival INTEGER,
-            arrival_info TEXT,
-            finish_time REAL,
-            prize INTEGER,
-            change TEXT,
-            horse_sex TEXT,
-            weight_mark TEXT,
-            owner_name TEXT,
-            win_odds REAL,
-            place_odds_min REAL,
-            place_odds_max REAL,
-            PRIMARY KEY (date, race_num, horse_num),
-            FOREIGN KEY (date, race_num) REFERENCES races (date, race_num)
-        )",
-        params![],
-    )?;
-
-    // Horsesテーブルの作成
-    connection.execute(
-        "
-        CREATE TABLE IF NOT EXISTS horses (
-            horse_nar_id INTEGER UNIQUE,
-            horse_bajikyo_id TEXT UNIQUE,
-            horse_name TEXT,
-            horse_status TEXT,
-            deregistration_date TEXT,
-            horse_birthdate TEXT,
-            horse_coat_color TEXT,
-            horse_breed TEXT,
-            sire_bajikyo_id TEXT,
-            dam_bajikyo_id TEXT,
-            bms_bajikyo_id TEXT,
-        )
-        ",
-        [],
-    )?;
-
-    Ok(())
+pub struct Db {
+    conn: Connection,
 }
 
-pub fn vacuum_database(connection: &Connection) -> Result<()> {
-    connection.execute("VACUUM", [])?;
-    Ok(())
+impl Db {
+    pub fn new() -> Result<Self> {
+        let db_path = dirs::data_dir().unwrap().join("ukeiba").join("ukeiba.db");
+        let conn = Connection::open(db_path)?;
+        Ok(Db { conn })
+    }
+
+    pub fn create_table(&self) -> Result<()> {
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS dates (
+                date DATE NOT NULL PRIMARY KEY,
+                racecourse TEXT,
+                kai TEXT,
+                nichi TEXT
+            )",
+            params![],
+        )?;
+
+        // Racesテーブルの作成
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS races (
+                date DATE NOT NULL,
+                race_num INTEGER NOT NULL,
+                race_type TEXT,
+                weather TEXT,
+                going REAL,
+                horse_count INTEGER,
+                post_time TEXT,
+                post_time_change INTEGER,
+                race_sub_name TEXT,
+                race_name TEXT,
+                race_weight_type TEXT,
+                PRIMARY KEY (date, race_num),
+                FOREIGN KEY (date) REFERENCES dates (date)
+            )",
+            params![],
+        )?;
+
+        // RaceHorsesテーブルの作成
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS race_horses (
+                date DATE NOT NULL,
+                race_num INTEGER NOT NULL,
+                horse_num INTEGER NOT NULL,
+                horse_nar_id INTEGER,
+                bracket_num INTEGER,
+                win_fav INTEGER,
+                horse_weight INTEGER,
+                jockey_id INTEGER,
+                weight_to_carry INTEGER,
+                trainer_id INTEGER,
+                arrival INTEGER,
+                arrival_info TEXT,
+                finish_time REAL,
+                prize INTEGER,
+                change TEXT,
+                horse_sex TEXT,
+                weight_mark TEXT,
+                owner_name TEXT,
+                win_odds REAL,
+                place_odds_min REAL,
+                place_odds_max REAL,
+                PRIMARY KEY (date, race_num, horse_num),
+                FOREIGN KEY (date, race_num) REFERENCES races (date, race_num)
+            )",
+            params![],
+        )?;
+
+        // Horsesテーブルの作成
+        self.conn.execute(
+            "
+            CREATE TABLE IF NOT EXISTS horses (
+                horse_nar_id INTEGER UNIQUE,
+                horse_bajikyo_id TEXT UNIQUE,
+                horse_name TEXT,
+                horse_status TEXT,
+                deregistration_date TEXT,
+                horse_birthdate TEXT,
+                horse_coat_color TEXT,
+                horse_breed TEXT,
+                sire_bajikyo_id TEXT,
+                dam_bajikyo_id TEXT,
+                bms_bajikyo_id TEXT
+            )",
+            [],
+        )?;
+
+        Ok(())
+    }
+
+    pub fn vacuum_database(&self) -> Result<()> {
+        self.conn.execute("VACUUM", [])?;
+        Ok(())
+    }
 }
 
 pub fn upsert_dates(transaction: &Transaction, dates: &Dates) -> Result<()> {

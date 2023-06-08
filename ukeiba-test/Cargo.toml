@@ -9,6 +9,7 @@ edition = "2021"
 anyhow = "1.0"
 chrono = { version = "0.4", features = ["serde"] }
 csv = "1.1"
+dirs = "5.0"
 indicatif = {version = "0.17", features = ["rayon"]}
 itertools = "0.10"
 rayon = "1.7"
