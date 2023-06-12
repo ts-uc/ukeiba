@@ -11,7 +11,7 @@ pub fn scrap_horse_profile() {
             horse_search::HorseBelong::Banei,
             horse_search::HorseBelong::Left
         ],
-        (1969..=2021).rev()
+        (1976..=2021).rev()
     )
     .map(|(belong, year)| horse_search::Page {
         page_num: 1,
@@ -118,7 +118,7 @@ pub fn scrap_horse_profile() {
         })
         .collect::<Vec<_>>();
 
-    write_csv("horse_data", &horse_data).unwrap();
+    write_csv("horse_data.csv", &horse_data).unwrap();
 }
 
 fn get_horse_profile(data: horse_profile::Data) -> bajikyo_auto_search::OriginalData {
