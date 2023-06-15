@@ -7,6 +7,9 @@ use rayon::prelude::*;
 use serde::Serialize;
 use std::time::Duration;
 use ukeiba_scraper::WebPageTrait;
+pub mod scrap_bajikyo_pedigree;
+pub mod scrap_bajikyo_profile;
+pub mod scrap_horse_history;
 pub mod scrap_horse_profile;
 
 //3659958

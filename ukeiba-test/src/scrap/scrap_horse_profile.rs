@@ -1,9 +1,12 @@
+use crate::db::make_conn;
+
 use super::*;
 use itertools::iproduct;
+use rusqlite::params;
 use std::collections::HashMap;
 use ukeiba_scraper::{bajikyo_auto_search, horse_profile, horse_search};
 
-pub fn scrap_horse_profile() {
+pub fn scrap() {
     // 所属がばんえいか退厩の馬を全取得
 
     let pages: Vec<horse_search::Page> = iproduct!(
@@ -111,14 +114,24 @@ pub fn scrap_horse_profile() {
         .map(|data| Horses {
             horse_nar_id: Some(data.horse_nar_id),
             horse_bajikyo_id: bajikyo_auto_search_dict.get(&data.horse_nar_id).cloned(),
-            horse_name: Some(data.horse_name.clone()),
-            horse_status: Some(data.horse_status.clone()),
-            horse_birthdate: data.birthdate,
             ..Default::default()
         })
         .collect::<Vec<_>>();
 
-    write_csv("horse_data.csv", &horse_data).unwrap();
+    let mut conn = make_conn().unwrap();
+    let tx = conn.transaction().unwrap();
+    for horse_datum in horse_data {
+        tx.execute(
+            "INSERT INTO horses
+            (horse_nar_id, horse_bajikyo_id)
+            VALUES (?1, ?2)
+            ON CONFLICT(horse_nar_id) DO UPDATE SET
+            horse_bajikyo_id = COALESCE(?2, horses.horse_bajikyo_id)",
+            params![horse_datum.horse_nar_id, horse_datum.horse_bajikyo_id],
+        )
+        .unwrap();
+    }
+    tx.commit().unwrap();
 }
 
 fn get_horse_profile(data: horse_profile::Data) -> bajikyo_auto_search::OriginalData {

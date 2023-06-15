@@ -68,9 +68,17 @@ pub struct Horses {
     pub horse_birthdate: Option<NaiveDate>,
     pub horse_coat_color: Option<String>,
     pub horse_breed: Option<String>,
+    pub breeder: Option<String>,
+    pub breeder_address: Option<String>,
     pub sire_bajikyo_id: Option<String>,
     pub dam_bajikyo_id: Option<String>,
     pub bms_bajikyo_id: Option<String>,
+}
+
+pub fn make_conn() -> Result<Connection> {
+    let db_path = dirs::data_dir().unwrap().join("ukeiba").join("ukeiba.db");
+    let conn = Connection::open(db_path)?;
+    Ok(conn)
 }
 
 pub struct Db {
@@ -79,8 +87,7 @@ pub struct Db {
 
 impl Db {
     pub fn new() -> Result<Self> {
-        let db_path = dirs::data_dir().unwrap().join("ukeiba").join("ukeiba.db");
-        let conn = Connection::open(db_path)?;
+        let conn = make_conn()?;
         Ok(Db { conn })
     }
 
@@ -157,6 +164,8 @@ impl Db {
                 horse_birthdate TEXT,
                 horse_coat_color TEXT,
                 horse_breed TEXT,
+                breeder TEXT,
+                breeder_address TEXT,
                 sire_bajikyo_id TEXT,
                 dam_bajikyo_id TEXT,
                 bms_bajikyo_id TEXT
