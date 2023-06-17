@@ -2,7 +2,7 @@ use super::fetch_and_scrap_all;
 use crate::db::{make_conn, Dates, Horses, RaceHorses, Races};
 use rusqlite::params;
 use serde_rusqlite::to_params_named;
-use ukeiba_scraper::horse_history;
+use ukeiba_scraper::scraper::horse_history;
 
 pub fn scrap() {
     let conn = make_conn().unwrap();
