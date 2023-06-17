@@ -4,7 +4,7 @@ use super::*;
 use itertools::iproduct;
 use rusqlite::params;
 use std::collections::HashMap;
-use ukeiba_scraper::scraper::{bajikyo_auto_search, horse_profile, horse_search};
+use ukeiba_common::scraper::{bajikyo_auto_search, horse_profile, horse_search};
 
 pub fn scrap() {
     // 所属がばんえいか退厩の馬を全取得

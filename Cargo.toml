@@ -1,6 +1,6 @@
 [workspace]
 
 members = [
-    "ukeiba-scraper",
+    "ukeiba-common",
     "ukeiba-test"
 ]

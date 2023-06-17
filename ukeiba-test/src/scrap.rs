@@ -1,4 +1,4 @@
-extern crate ukeiba_scraper;
+extern crate ukeiba_common;
 use super::db::Horses;
 use anyhow::Result;
 use csv::Writer;
@@ -6,7 +6,7 @@ use indicatif::{ParallelProgressIterator, ProgressIterator};
 use rayon::prelude::*;
 use serde::Serialize;
 use std::time::Duration;
-use ukeiba_scraper::scraper::WebPageTrait;
+use ukeiba_common::scraper::WebPageTrait;
 pub mod scrap_bajikyo_pedigree;
 pub mod scrap_bajikyo_profile;
 pub mod scrap_horse_history;

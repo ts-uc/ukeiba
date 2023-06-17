@@ -1,7 +1,7 @@
 use super::fetch_and_scrap_all;
 use crate::db::{make_conn, Horses};
 use rusqlite::params;
-use ukeiba_scraper::scraper::bajikyo_profile;
+use ukeiba_common::scraper::bajikyo_profile;
 
 pub fn scrap() {
     let conn = make_conn().unwrap();
