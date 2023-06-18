@@ -83,7 +83,7 @@ pub fn scrap() {
                 status = COALESCE(:status, trainers.status),
                 birthdate = COALESCE(:birthdate, trainers.birthdate),
                 first_run = COALESCE(:first_run, trainers.first_run),
-                first_run = COALESCE(:first_win, trainers.first_win)
+                first_win = COALESCE(:first_win, trainers.first_win)
             ",
             to_params_named(&datum).unwrap().to_slice().as_slice(),
         )
