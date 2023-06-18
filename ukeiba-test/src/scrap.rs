@@ -11,6 +11,8 @@ pub mod scrap_bajikyo_pedigree;
 pub mod scrap_bajikyo_profile;
 pub mod scrap_horse_history;
 pub mod scrap_horse_profile;
+pub mod scrap_jockey;
+pub mod scrap_trainer;
 
 //3659958
 

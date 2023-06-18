@@ -74,6 +74,42 @@ pub struct Horses {
     pub bms_bajikyo_id: Option<String>,
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct Jockeys {
+    pub jockey_nar_id: i64,
+    pub name: String,
+    pub kana: String,
+    pub sex: String,
+    pub status: String,
+    pub birthdate: Option<NaiveDate>,
+    pub first_run: Option<NaiveDate>,
+    pub first_win: Option<NaiveDate>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct Trainers {
+    pub trainer_nar_id: i64,
+    pub name: String,
+    pub kana: String,
+    pub sex: String,
+    pub status: String,
+    pub birthdate: Option<NaiveDate>,
+    pub first_run: Option<NaiveDate>,
+    pub first_win: Option<NaiveDate>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct JockeyShortNames {
+    pub jockey_short_name: String,
+    pub jockey_nar_id: i64,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct TrainerShortNames {
+    pub trainer_short_name: String,
+    pub trainer_nar_id: i64,
+}
+
 pub fn make_conn() -> Result<Connection> {
     let db_path = dirs::data_dir().unwrap().join("ukeiba").join("ukeiba.db");
     let conn = Connection::open(db_path)?;
@@ -160,6 +196,60 @@ pub fn create_table() -> Result<()> {
             dam_bajikyo_id TEXT,
             bms_bajikyo_id TEXT
         )",
+        [],
+    )?;
+
+    conn.execute(
+        "
+        CREATE TABLE IF NOT EXISTS jockeys (
+            jockey_nar_id INTEGER PRIMARY KEY,
+            name TEXT,
+            kana TEXT,
+            sex TEXT,
+            status TEXT,
+            birthdate DATE,
+            first_run DATE,
+            first_win DATE
+        );
+        ",
+        [],
+    )?;
+
+    conn.execute(
+        "
+        CREATE TABLE IF NOT EXISTS trainers (
+            trainer_nar_id INTEGER PRIMARY KEY,
+            name TEXT,
+            kana TEXT,
+            sex TEXT,
+            status TEXT,
+            birthdate DATE,
+            first_run DATE,
+            first_win DATE
+        );
+        ",
+        [],
+    )?;
+
+    conn.execute(
+        "
+        CREATE TABLE IF NOT EXISTS jockey_short_names (
+            jockey_short_name TEXT PRIMARY KEY,
+            jockey_nar_id INTEGER,
+            FOREIGN KEY (jockey_nar_id) REFERENCES jockeys (jockey_nar_id)
+        );
+        ",
+        [],
+    )?;
+
+    conn.execute(
+        "
+        CREATE TABLE IF NOT EXISTS trainer_short_names (
+            trainer_short_name TEXT PRIMARY KEY,
+            trainer_nar_id INTEGER,
+            FOREIGN KEY (trainer_nar_id) REFERENCES trainers (trainer_nar_id)
+        );
+        ",
         [],
     )?;
 

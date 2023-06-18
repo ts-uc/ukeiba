@@ -5,13 +5,14 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub enum HorseBelong {
+    #[default]
     Left = 0,
     Banei = 21,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Page {
     pub page_num: i32,
     pub belong: HorseBelong,
@@ -20,6 +21,8 @@ pub struct Page {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 
 pub struct Data {
+    pub page_num: i32,
+    pub belong: HorseBelong,
     pub hits: i32,
     pub data: Vec<DataRow>,
 }
@@ -75,6 +78,8 @@ impl WebPageTrait for Page {
         }
 
         Ok(Data {
+            page_num: self.page_num,
+            belong: self.belong,
             hits: scrap(
                 &doc,
                 ".searchconditionindex > li:nth-child(1) > span:nth-child(1)",

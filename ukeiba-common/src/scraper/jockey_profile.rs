@@ -14,6 +14,7 @@ pub struct Page {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 
 pub struct Data {
+    pub jockey_nar_id: i64,
     pub name: String,
     pub kana: String,
     pub sex: String,
@@ -52,6 +53,7 @@ impl WebPageTrait for Page {
         let doc = doc.root_element();
 
         Ok(Data {
+            jockey_nar_id: self.jockey_nar_id,
             name: scrap(&doc, ".horseinfo > li:nth-child(1) > h4:nth-child(1)")
                 .map(|s| remove_whitespace(&s))
                 .unwrap_or_default(),
