@@ -124,12 +124,14 @@ impl WebPageTrait for Page {
                     last_3f: scrap(&element, "td:nth-child(17)").and_then(|s| s.parse().ok()),
                     horse_weight: scrap(&element, "td:nth-child(18)").and_then(|s| s.parse().ok()),
                     jockey_name: scrap(&element, "td:nth-child(19)")
-                        .map(|s| split_bracket(&s).0.to_string()),
+                        .map(|s| split_bracket(&s).0.to_string())
+                        .map(|s| remove_whitespace(&s)),
                     jockey_affiliation: scrap(&element, "td:nth-child(19)")
                         .map(|s| split_bracket(&s).1.to_string()),
                     weight_to_carry: scrap(&element, "td:nth-child(20)")
                         .and_then(|s| s.parse().ok()),
-                    trainer_name: scrap(&element, "td:nth-child(21)"),
+                    trainer_name: scrap(&element, "td:nth-child(21)")
+                        .map(|s| remove_whitespace(&s)),
                     prize: scrap(&element, "td:nth-child(22)")
                         .and_then(|s| s.replace(",", "").parse().ok()),
                     win_horse_name: scrap(&element, "td:nth-child(23)"),
