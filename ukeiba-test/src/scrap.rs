@@ -1,6 +1,7 @@
 extern crate ukeiba_common;
 use super::db::Horses;
 use anyhow::Result;
+use chrono::{Datelike, NaiveDate};
 use csv::Writer;
 use indicatif::{ParallelProgressIterator, ProgressIterator};
 use rayon::prelude::*;
@@ -15,7 +16,16 @@ pub mod scrap_jockey;
 pub mod scrap_trainer;
 
 //3659958
+fn get_fiscal_year(date: NaiveDate) -> Option<i32> {
+    let fiscal_year_start = NaiveDate::from_ymd_opt(date.year(), 4, 1)?;
 
+    let fiscal_year = if date < fiscal_year_start {
+        date.year() - 1
+    } else {
+        date.year()
+    };
+    Some(fiscal_year)
+}
 fn fetch_and_scrap_all<T>(pages: Vec<T>) -> Vec<T::Data>
 where
     T::Data: Send,

@@ -1,4 +1,4 @@
-use super::fetch_and_scrap_all;
+use super::{fetch_and_scrap_all, get_fiscal_year};
 use crate::db::{make_conn, Dates, Horses, RaceHorses, Races};
 use rusqlite::params;
 use serde_rusqlite::to_params_named;
@@ -34,6 +34,7 @@ pub fn scrap() {
             dates.push(Dates {
                 date: x.race_date,
                 racecourse: Some(x.racecourse),
+                fiscal_year: get_fiscal_year(x.race_date),
                 ..Default::default()
             });
             races.push(Races {
@@ -78,10 +79,11 @@ pub fn scrap() {
     for datum in dates {
         tx.execute(
             "
-            INSERT INTO dates (date, racecourse, kai, nichi)
-            VALUES (:date, :racecourse, :kai, :nichi)
+            INSERT INTO dates (date, racecourse, fiscal_year, kai, nichi)
+            VALUES (:date, :racecourse, :fiscal_year, :kai, :nichi)
             ON CONFLICT(date) DO UPDATE SET
                 racecourse = COALESCE(:racecourse, dates.racecourse),
+                fiscal_year = COALESCE(:fiscal_year, dates.fiscal_year),
                 kai = COALESCE(:kai, dates.kai),
                 nichi = COALESCE(:nichi, dates.nichi)
         ",

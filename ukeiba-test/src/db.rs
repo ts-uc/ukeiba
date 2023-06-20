@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 pub struct Dates {
     pub date: NaiveDate,
     pub racecourse: Option<String>,
+    pub fiscal_year: Option<i32>,
     pub kai: Option<String>,
     pub nichi: Option<String>,
 }
@@ -122,6 +123,7 @@ pub fn create_table() -> Result<()> {
         "CREATE TABLE IF NOT EXISTS dates (
             date DATE NOT NULL PRIMARY KEY,
             racecourse TEXT,
+            fiscal_year INTEGER,
             kai TEXT,
             nichi TEXT
         )",
