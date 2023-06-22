@@ -1,14 +1,17 @@
 use super::*;
 use crate::db::{make_conn, Trainers};
 use serde_rusqlite::to_params_named;
-use ukeiba_common::scraper::{trainer_profile, trainer_search};
+use ukeiba_common::{
+    common::HorseBelong,
+    scraper::{trainer_profile, trainer_search},
+};
 
 pub fn scrap() {
     // 所属がばんえいか退厩の馬を全取得
 
     let pages: Vec<trainer_search::Page> = [trainer_search::Page {
         page_num: 1,
-        belong: trainer_search::HorseBelong::Banei,
+        belong: HorseBelong::Banei,
     }]
     .to_vec();
 

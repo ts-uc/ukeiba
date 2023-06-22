@@ -39,7 +39,7 @@ fn fetch_all<T: WebPageTrait>(pages: &[T]) {
     pages
         .iter()
         .progress()
-        .filter_map(|page| page.fetch(Duration::from_secs(2)).ok())
+        .filter_map(|page| page.fetch(Duration::from_millis(700)).ok())
         .for_each(drop);
 }
 

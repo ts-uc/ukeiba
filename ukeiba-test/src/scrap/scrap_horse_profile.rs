@@ -4,25 +4,23 @@ use super::*;
 use itertools::iproduct;
 use rusqlite::params;
 use std::collections::HashMap;
-use ukeiba_common::scraper::{bajikyo_auto_search, horse_profile, horse_search};
+use ukeiba_common::{
+    common::HorseBelong,
+    scraper::{bajikyo_auto_search, horse_profile, horse_search},
+};
 
 pub fn scrap() {
     // 所属がばんえいか退厩の馬を全取得
 
-    let pages: Vec<horse_search::Page> = iproduct!(
-        [
-            horse_search::HorseBelong::Banei,
-            horse_search::HorseBelong::Left
-        ],
-        (1976..=2021).rev()
-    )
-    .map(|(belong, year)| horse_search::Page {
-        page_num: 1,
-        horse_name: "".to_string(),
-        horse_belong: belong,
-        birth_year: year,
-    })
-    .collect();
+    let pages: Vec<horse_search::Page> =
+        iproduct!([HorseBelong::Banei, HorseBelong::Left], (1976..=2021).rev())
+            .map(|(belong, year)| horse_search::Page {
+                page_num: 1,
+                horse_name: "".to_string(),
+                horse_belong: belong,
+                birth_year: year,
+            })
+            .collect();
 
     let search_pages: Vec<horse_search::Page> = fetch_and_scrap_all(pages)
         .par_iter()

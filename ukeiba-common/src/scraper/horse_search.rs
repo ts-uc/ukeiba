@@ -1,16 +1,10 @@
 use super::*;
+use crate::common::HorseBelong;
 use anyhow::{bail, Result};
 use scraper::Html;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
-
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
-pub enum HorseBelong {
-    #[default]
-    Left = 0,
-    Banei = 21,
-}
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Page {
