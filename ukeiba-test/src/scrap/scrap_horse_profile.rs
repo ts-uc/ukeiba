@@ -71,7 +71,7 @@ pub fn scrap() {
 
     let horse_all_ids = fetch_and_scrap_all(search_pages)
         .into_iter()
-        .flat_map(|data| data.data.iter().map(|x| x.horse_nar_id).collect::<Vec<_>>())
+        .flat_map(|data| data.horse_nar_ids)
         .collect::<Vec<_>>();
 
     // 取得した全馬のIDリストから、サラブレッド種・サラブレッド系種・アングロアラブ種を除外した馬情報リストを作成

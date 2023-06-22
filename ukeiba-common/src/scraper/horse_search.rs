@@ -23,14 +23,7 @@ pub struct Data {
     pub birth_year: i32,
     pub hits: i32,
     pub hits_all: i32,
-    pub data: Vec<DataRow>,
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-
-pub struct DataRow {
-    pub horse_nar_id: i64,
-    pub horse_name: String,
+    pub horse_nar_ids: Vec<i64>,
 }
 
 impl WebPageTrait for Page {
@@ -69,12 +62,11 @@ impl WebPageTrait for Page {
             &Selector::parse("table.databasesearch_table:nth-child(3) > tbody:nth-child(2) > tr")
                 .unwrap(),
         ) {
-            data.push(DataRow {
-                horse_name: scrap(&element, "td:nth-child(2) > a:nth-child(1)").unwrap_or_default(),
-                horse_nar_id: scrap_link(&element, "td:nth-child(2) > a:nth-child(1)")
+            data.push(
+                scrap_link(&element, "td:nth-child(2) > a:nth-child(1)")
                     .and_then(|s| get_query(&s, "k_lineageLoginCode")?.parse().ok())
                     .unwrap_or_default(),
-            });
+            );
         }
 
         let hits: i32 = scrap(
@@ -96,7 +88,7 @@ impl WebPageTrait for Page {
             )
             .and_then(|s| s.replace("件", "").parse().ok())
             .unwrap_or(hits),
-            data: data,
+            horse_nar_ids: data,
         })
     }
 }
