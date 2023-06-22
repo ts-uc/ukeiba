@@ -35,12 +35,7 @@ pub fn scrap() {
 
     let trainer_all_ids = fetch_and_scrap_all(search_pages)
         .into_iter()
-        .flat_map(|data| {
-            data.data
-                .iter()
-                .map(|x| x.trainer_nar_id)
-                .collect::<Vec<_>>()
-        })
+        .flat_map(|data| data.trainer_ids)
         .collect::<Vec<_>>();
 
     let trainer_profile_pages = trainer_all_ids

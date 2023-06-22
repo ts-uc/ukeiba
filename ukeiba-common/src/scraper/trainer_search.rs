@@ -18,14 +18,7 @@ pub struct Data {
     pub page_num: i32,
     pub belong: HorseBelong,
     pub hits: i32,
-    pub data: Vec<DataRow>,
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
-
-pub struct DataRow {
-    pub trainer_nar_id: i32,
-    pub trainer_name: String,
+    pub trainer_ids: Vec<i32>,
 }
 
 impl WebPageTrait for Page {
@@ -61,14 +54,11 @@ impl WebPageTrait for Page {
             &Selector::parse("li.DRListsItem > table:nth-child(1) > tbody:nth-child(2) > tr")
                 .unwrap(),
         ) {
-            data.push(DataRow {
-                trainer_name: scrap(&element, "td:nth-child(2) > a:nth-child(1)")
-                    .map(|s| remove_whitespace(&s))
-                    .unwrap_or_default(),
-                trainer_nar_id: scrap_link(&element, "td:nth-child(2) > a:nth-child(1)")
+            data.push(
+                scrap_link(&element, "td:nth-child(2) > a:nth-child(1)")
                     .and_then(|s| get_query(&s, "k_trainerLicenseNo")?.parse().ok())
                     .unwrap_or_default(),
-            });
+            );
         }
 
         Ok(Data {
@@ -80,7 +70,7 @@ impl WebPageTrait for Page {
             )
             .and_then(|s| s.parse().ok())
             .unwrap_or_default(),
-            data: data,
+            trainer_ids: data,
         })
     }
 }

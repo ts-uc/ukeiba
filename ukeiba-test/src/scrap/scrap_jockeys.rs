@@ -35,12 +35,7 @@ pub fn scrap() {
 
     let jockey_all_ids = fetch_and_scrap_all(search_pages)
         .into_iter()
-        .flat_map(|data| {
-            data.data
-                .iter()
-                .map(|x| x.jockey_nar_id)
-                .collect::<Vec<_>>()
-        })
+        .flat_map(|data| data.jockey_ids)
         .collect::<Vec<_>>();
 
     let jockey_profile_pages = jockey_all_ids
