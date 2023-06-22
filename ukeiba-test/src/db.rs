@@ -77,7 +77,7 @@ pub struct Horses {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Jockeys {
-    pub jockey_nar_id: i64,
+    pub jockey_nar_id: i32,
     pub name: String,
     pub kana: String,
     pub sex: String,
@@ -89,7 +89,7 @@ pub struct Jockeys {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Trainers {
-    pub trainer_nar_id: i64,
+    pub trainer_nar_id: i32,
     pub name: String,
     pub kana: String,
     pub sex: String,

@@ -24,7 +24,7 @@ pub struct Data {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 
 pub struct DataRow {
-    pub trainer_nar_id: i64,
+    pub trainer_nar_id: i32,
     pub trainer_name: String,
 }
 

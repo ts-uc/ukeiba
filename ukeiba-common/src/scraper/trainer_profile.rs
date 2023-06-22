@@ -8,13 +8,13 @@ use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug, Clone)]
 pub struct Page {
-    pub trainer_nar_id: i64,
+    pub trainer_nar_id: i32,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 
 pub struct Data {
-    pub trainer_nar_id: i64,
+    pub trainer_nar_id: i32,
     pub name: String,
     pub kana: String,
     pub sex: String,
