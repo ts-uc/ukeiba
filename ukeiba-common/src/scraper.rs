@@ -12,6 +12,7 @@ pub mod bajikyo_search;
 pub mod horse_history;
 pub mod horse_profile;
 pub mod horse_search;
+pub mod horse_table;
 pub mod jockey_profile;
 pub mod jockey_search;
 pub mod trainer_profile;
@@ -130,6 +131,12 @@ fn scrap(html: &ElementRef, selector_str: &str) -> Option<String> {
         .next()
         .map(|x| x.inner_html().trim().to_string())
         .filter(|s| !s.is_empty())
+}
+
+fn scrap_count(html: &ElementRef, selector_str: &str) -> Option<i32> {
+    let selector = Selector::parse(selector_str).unwrap();
+    let count = html.select(&selector).count() as i32;
+    Some(count)
 }
 
 fn scrap_remove_tag(html: &ElementRef, selector_str: &str) -> Option<String> {

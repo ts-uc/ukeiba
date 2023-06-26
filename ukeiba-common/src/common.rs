@@ -6,8 +6,9 @@ pub enum HorseBelong {
     Left = 0,
     Banei = 21,
 }
-
+#[derive(Debug, Clone, Copy, Default)]
 pub enum Racecourse {
+    #[default]
     Other,
     Kitami,
     Iwamizawa,
