@@ -56,6 +56,7 @@ where
         .collect::<Vec<_>>()
 }
 
+#[allow(dead_code)]
 fn write_csv<T>(filename: &str, data: &[T]) -> Result<()>
 where
     T: Serialize,
