@@ -1,5 +1,6 @@
 use super::*;
 use crate::db::{make_conn, Jockeys};
+use rusqlite::Transaction;
 use serde_rusqlite::to_params_named;
 use ukeiba_common::{
     common::HorseBelong,
@@ -66,26 +67,30 @@ pub fn scrap() {
     let mut conn = make_conn().unwrap();
     let tx = conn.transaction().unwrap();
     for datum in jockeys {
-        tx.execute(
-            "
-                INSERT INTO jockeys
-                (jockey_nar_id, name, kana, sex, status,
-                    birthdate, first_run, first_win)
-                VALUES 
-                (:jockey_nar_id, :name, :kana, :sex, :status,
-                :birthdate, :first_run, :first_win)
-                ON CONFLICT(jockey_nar_id) DO UPDATE SET
-                name = COALESCE(jockeys.name, :name),
-                kana = COALESCE(:kana, jockeys.kana),
-                sex = COALESCE(:sex, jockeys.sex),
-                status = COALESCE(:status, jockeys.status),
-                birthdate = COALESCE(:birthdate, jockeys.birthdate),
-                first_run = COALESCE(:first_run, jockeys.first_run),
-                first_win = COALESCE(:first_win, jockeys.first_win)
-            ",
-            to_params_named(&datum).unwrap().to_slice().as_slice(),
-        )
-        .unwrap();
+        jockeys_to_jockeys(&tx, &datum);
     }
     tx.commit().unwrap();
+}
+
+fn jockeys_to_jockeys(tx: &Transaction, datum: &Jockeys) {
+    tx.execute(
+        "
+            INSERT INTO jockeys
+            (jockey_nar_id, name, kana, sex, status,
+                birthdate, first_run, first_win)
+            VALUES 
+            (:jockey_nar_id, :name, :kana, :sex, :status,
+            :birthdate, :first_run, :first_win)
+            ON CONFLICT(jockey_nar_id) DO UPDATE SET
+            name = COALESCE(jockeys.name, :name),
+            kana = COALESCE(:kana, jockeys.kana),
+            sex = COALESCE(:sex, jockeys.sex),
+            status = COALESCE(:status, jockeys.status),
+            birthdate = COALESCE(:birthdate, jockeys.birthdate),
+            first_run = COALESCE(:first_run, jockeys.first_run),
+            first_win = COALESCE(:first_win, jockeys.first_win)
+        ",
+        to_params_named(&datum).unwrap().to_slice().as_slice(),
+    )
+    .unwrap();
 }

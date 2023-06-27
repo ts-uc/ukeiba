@@ -2,7 +2,7 @@ use crate::db::make_conn;
 
 use super::*;
 use itertools::iproduct;
-use rusqlite::params;
+use rusqlite::{params, Transaction};
 use std::collections::HashMap;
 use ukeiba_common::{
     common::HorseBelong,
@@ -119,17 +119,21 @@ pub fn scrap() {
     let mut conn = make_conn().unwrap();
     let tx = conn.transaction().unwrap();
     for horse_datum in horse_data {
-        tx.execute(
-            "INSERT INTO horses
-            (horse_nar_id, horse_bajikyo_id)
-            VALUES (?1, ?2)
-            ON CONFLICT(horse_nar_id) DO UPDATE SET
-            horse_bajikyo_id = COALESCE(?2, horses.horse_bajikyo_id)",
-            params![horse_datum.horse_nar_id, horse_datum.horse_bajikyo_id],
-        )
-        .unwrap();
+        horse_profile_to_horses(&tx, &horse_datum)
     }
     tx.commit().unwrap();
+}
+
+fn horse_profile_to_horses(tx: &Transaction, datum: &Horses) {
+    tx.execute(
+        "INSERT INTO horses
+        (horse_nar_id, horse_bajikyo_id)
+        VALUES (?1, ?2)
+        ON CONFLICT(horse_nar_id) DO UPDATE SET
+        horse_bajikyo_id = COALESCE(?2, horses.horse_bajikyo_id)",
+        params![datum.horse_nar_id, datum.horse_bajikyo_id],
+    )
+    .unwrap();
 }
 
 fn get_horse_profile(data: horse_profile::Data) -> bajikyo_auto_search::OriginalData {

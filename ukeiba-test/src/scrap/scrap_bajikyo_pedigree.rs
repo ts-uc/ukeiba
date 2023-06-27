@@ -1,6 +1,6 @@
 use super::fetch_and_scrap_all;
 use crate::db::{make_conn, Horses};
-use rusqlite::params;
+use rusqlite::{params, Transaction};
 use ukeiba_common::scraper::bajikyo_pedigree;
 
 pub fn scrap() {
@@ -38,24 +38,28 @@ pub fn scrap() {
     let mut conn = make_conn().unwrap();
     let tx = conn.transaction().unwrap();
     for horse_datum in horse_data {
-        tx.execute(
-            "INSERT INTO horses
-            (horse_bajikyo_id, sire_bajikyo_id, dam_bajikyo_id, bms_bajikyo_id)
-            VALUES (?1, ?2, ?3, ?4)
-            ON CONFLICT(horse_bajikyo_id) DO UPDATE SET
-            sire_bajikyo_id = COALESCE(?2, horses.sire_bajikyo_id),
-            dam_bajikyo_id = COALESCE(?3, horses.dam_bajikyo_id),
-            bms_bajikyo_id = COALESCE(?4, horses.bms_bajikyo_id)",
-            params![
-                horse_datum.horse_bajikyo_id,
-                horse_datum.sire_bajikyo_id,
-                horse_datum.dam_bajikyo_id,
-                horse_datum.bms_bajikyo_id,
-            ],
-        )
-        .unwrap();
+        bajikyo_pedigree_to_horses(&tx, &horse_datum)
     }
     tx.commit().unwrap();
 
     // horse_bajikyo_idsを利用する
+}
+
+fn bajikyo_pedigree_to_horses(tx: &Transaction, datum: &Horses) {
+    tx.execute(
+        "INSERT INTO horses
+        (horse_bajikyo_id, sire_bajikyo_id, dam_bajikyo_id, bms_bajikyo_id)
+        VALUES (?1, ?2, ?3, ?4)
+        ON CONFLICT(horse_bajikyo_id) DO UPDATE SET
+        sire_bajikyo_id = COALESCE(?2, horses.sire_bajikyo_id),
+        dam_bajikyo_id = COALESCE(?3, horses.dam_bajikyo_id),
+        bms_bajikyo_id = COALESCE(?4, horses.bms_bajikyo_id)",
+        params![
+            datum.horse_bajikyo_id,
+            datum.sire_bajikyo_id,
+            datum.dam_bajikyo_id,
+            datum.bms_bajikyo_id,
+        ],
+    )
+    .unwrap();
 }

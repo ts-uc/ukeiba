@@ -1,6 +1,6 @@
 use super::fetch_and_scrap_all;
 use crate::db::{make_conn, Horses};
-use rusqlite::params;
+use rusqlite::{params, Transaction};
 use ukeiba_common::scraper::bajikyo_profile;
 
 pub fn scrap() {
@@ -41,19 +41,30 @@ pub fn scrap() {
     let mut conn = make_conn().unwrap();
     let tx = conn.transaction().unwrap();
     for horse_datum in horse_data {
-        tx.execute(
-            "INSERT INTO horses
-            (horse_bajikyo_id, horse_birthdate, horse_coat_color, horse_breed, breeder, breeder_address)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6)
-            ON CONFLICT(horse_bajikyo_id) DO UPDATE SET
-            horse_birthdate = COALESCE(?2, horses.horse_birthdate),
-            horse_coat_color = COALESCE(?3, horses.horse_coat_color),
-            horse_breed = COALESCE(?4, horses.horse_breed),
-            breeder = COALESCE(?5, horses.breeder),
-            breeder_address = COALESCE(?6, horses.breeder_address)",
-            params![horse_datum.horse_bajikyo_id, horse_datum.horse_birthdate, horse_datum.horse_coat_color, horse_datum.horse_breed, horse_datum.breeder, horse_datum.breeder_address],
-        )
-        .unwrap();
+        bajikyo_profile_to_horses(&tx, &horse_datum);
     }
     tx.commit().unwrap();
+}
+
+fn bajikyo_profile_to_horses(tx: &Transaction, datum: &Horses) {
+    tx.execute(
+        "INSERT INTO horses
+        (horse_bajikyo_id, horse_birthdate, horse_coat_color, horse_breed, breeder, breeder_address)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+        ON CONFLICT(horse_bajikyo_id) DO UPDATE SET
+        horse_birthdate = COALESCE(?2, horses.horse_birthdate),
+        horse_coat_color = COALESCE(?3, horses.horse_coat_color),
+        horse_breed = COALESCE(?4, horses.horse_breed),
+        breeder = COALESCE(?5, horses.breeder),
+        breeder_address = COALESCE(?6, horses.breeder_address)",
+        params![
+            datum.horse_bajikyo_id,
+            datum.horse_birthdate,
+            datum.horse_coat_color,
+            datum.horse_breed,
+            datum.breeder,
+            datum.breeder_address
+        ],
+    )
+    .unwrap();
 }
