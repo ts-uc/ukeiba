@@ -52,6 +52,7 @@ pub struct RacePrize {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct DataRow {
     pub horse_num: i32,
+    pub bracket_num: Option<i32>,
     pub horse_nar_id: i64,
     pub horse_sex: Option<String>,
     pub horse_age: Option<i32>,
@@ -107,6 +108,12 @@ impl WebPageTrait for Page {
             for horse_num in 1..=horse_count {
                 let selector_str = format!("tr.tBorder:nth-child({}) > td", horse_num * 5 - 2);
                 let row_count = scrap_count(&doc, &selector_str).unwrap_or_default();
+
+                let selector_str = format!(
+                    "tr.tBorder:nth-child({}) > td:nth-child(1)",
+                    (horse_num - (11 - row_count)) * 5 - 2,
+                );
+                let bracket_num = scrap(&doc, &selector_str).and_then(|x| x.parse::<i32>().ok());
 
                 let selector_str = format!(
                     "tr.tBorder:nth-child({}) > td:nth-child({}) > a:nth-child(1)",
@@ -172,6 +179,7 @@ impl WebPageTrait for Page {
 
                 data.push(DataRow {
                     horse_num: horse_num,
+                    bracket_num: bracket_num,
                     horse_nar_id: horse_nar_id.unwrap_or_default(),
                     horse_sex: sex,
                     horse_age: age,
@@ -182,7 +190,6 @@ impl WebPageTrait for Page {
                     owner_name: owner_name,
                     horse_weight: horse_weight,
                     horse_change: horse_change,
-                    ..Default::default()
                 });
             }
 
