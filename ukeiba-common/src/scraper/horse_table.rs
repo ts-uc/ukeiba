@@ -5,8 +5,7 @@ use anyhow::{bail, Result};
 use chrono::NaiveDate;
 use scraper::Html;
 use serde::{Deserialize, Serialize};
-use serde_json::to_string;
-use std::{alloc::handle_alloc_error, path::PathBuf};
+use std::path::PathBuf;
 use unicode_normalization::UnicodeNormalization;
 
 #[derive(Debug, Clone)]
@@ -19,14 +18,38 @@ pub struct Page {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 
 pub struct Data {
+    pub post_time: Option<String>,
+    pub post_time_change: Option<bool>,
     pub race_sub_title: Option<String>,
     pub race_title: String,
+    pub race_detail: RaceDetail,
+    pub race_prize: RacePrize,
     pub registered_horse_count: i32,
     pub data: Vec<DataRow>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct RaceDetail {
+    pub surface: Option<String>,
+    pub distance: Option<String>,
+    pub direction: Option<String>,
+    pub weather: Option<String>,
+    pub going: Option<String>,
+    pub race_breed: Option<String>,
+    pub race_age: Option<String>,
+    pub race_weight_type: Option<String>,
+}
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct RacePrize {
+    pub prize1: Option<i32>,
+    pub prize2: Option<i32>,
+    pub prize3: Option<i32>,
+    pub prize4: Option<i32>,
+    pub prize5: Option<i32>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct DataRow {
     pub horse_num: i32,
     pub horse_nar_id: i64,
@@ -163,14 +186,40 @@ impl WebPageTrait for Page {
                 });
             }
 
+            let (post_time, post_time_change) =
+                scrap(&doc, ".raceCard > div:nth-child(1) > h4:nth-child(1)")
+                    .map(|x| split_post_time(&x))
+                    .unwrap_or_default();
+
             Ok(Data {
+                post_time: post_time,
+                post_time_change: post_time_change,
                 race_sub_title: scrap(&doc, ".subTitle"),
                 race_title: scrap(&doc, ".raceTitle > h3:nth-child(4)").unwrap_or_default(),
+                race_detail: scrap(&doc, "ul.dataArea:nth-child(5) > li:nth-child(1)")
+                    .map(|x| split_race_detail(&x))
+                    .unwrap_or_default(),
+                race_prize: scrap(&doc, "ul.dataArea:nth-child(5) > li:nth-child(2)")
+                    .map(|x| split_prize(&x))
+                    .unwrap_or_default(),
                 registered_horse_count: horse_count,
                 data: data,
             })
         }
     }
+}
+
+fn split_post_time(raw: &str) -> (Option<String>, Option<bool>) {
+    let re = regex::Regex::new(r"(\d+:\d+)発走(\(変更\))?$").unwrap();
+
+    if let Some(captures) = re.captures(raw) {
+        let group1 = captures.get(1).map(|m| m.as_str().to_string());
+        let group2 = Some(captures.get(2).is_some());
+
+        return (group1, group2);
+    }
+
+    (None, None)
 }
 
 fn split_sexage(raw: &str) -> (Option<String>, Option<i32>) {
@@ -203,4 +252,64 @@ fn split_weight(raw: &str) -> (Option<String>, Option<i32>) {
     }
 
     (None, None)
+}
+
+fn split_race_detail(raw: &str) -> RaceDetail {
+    let re = regex::Regex::new(
+        r"^(\S+)\s+(\S+)m\((\S+)\)\s*(天候:(\S*))?\s*(馬場:(\S*))?\s+(\S+)\s+(\S+)\s+(\S+)\s+\S+$",
+    )
+    .unwrap();
+
+    if let Some(captures) = re.captures(raw) {
+        return RaceDetail {
+            surface: captures.get(1).map(|m| m.as_str().to_string()),
+            distance: captures.get(2).map(|m| m.as_str().to_string()),
+            direction: captures.get(3).map(|m| m.as_str().to_string()),
+            weather: captures.get(5).map(|m| m.as_str().to_string()),
+            going: captures.get(7).map(|m| m.as_str().to_string()),
+            race_breed: captures.get(8).map(|m| m.as_str().to_string()),
+            race_age: captures.get(9).map(|m| m.as_str().to_string()),
+            race_weight_type: captures.get(10).map(|m| m.as_str().to_string()),
+        };
+    }
+
+    RaceDetail {
+        ..Default::default()
+    }
+}
+
+fn split_prize(raw: &str) -> RacePrize {
+    let re = regex::Regex::new(
+        r"1着([\d,]+)円\s*(2着([\d,]+)円)?\s*(3着([\d,]+)円)?\s*(4着([\d,]+)円)?\s*(5着([\d,]+)円)?",
+    )
+    .unwrap();
+
+    if let Some(captures) = re.captures(raw) {
+        return RacePrize {
+            prize1: captures
+                .get(1)
+                .map(|m| m.as_str().to_string())
+                .and_then(|s| s.replace(",", "").parse().ok()),
+            prize2: captures
+                .get(3)
+                .map(|m| m.as_str().to_string())
+                .and_then(|s| s.replace(",", "").parse().ok()),
+            prize3: captures
+                .get(5)
+                .map(|m| m.as_str().to_string())
+                .and_then(|s| s.replace(",", "").parse().ok()),
+            prize4: captures
+                .get(7)
+                .map(|m| m.as_str().to_string())
+                .and_then(|s| s.replace(",", "").parse().ok()),
+            prize5: captures
+                .get(9)
+                .map(|m| m.as_str().to_string())
+                .and_then(|s| s.replace(",", "").parse().ok()),
+        };
+    }
+
+    RacePrize {
+        ..Default::default()
+    }
 }
