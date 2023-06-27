@@ -1,7 +1,8 @@
 use super::*;
-use crate::db::{make_conn, Trainers};
-use rusqlite::Transaction;
-use serde_rusqlite::to_params_named;
+use crate::db::{
+    writer::{write_to_db, DbWriter},
+    Trainers,
+};
 use ukeiba_common::{
     common::HorseBelong,
     scraper::{trainer_profile, trainer_search},
@@ -64,33 +65,10 @@ pub fn scrap() {
         })
         .collect::<Vec<_>>();
 
-    let mut conn = make_conn().unwrap();
-    let tx = conn.transaction().unwrap();
-    for datum in trainers {
-        trainers_to_trainers(&tx, &datum)
-    }
-    tx.commit().unwrap();
-}
+    let db_writer = trainers
+        .into_iter()
+        .map(|x| DbWriter::TrainersToTrainers(x))
+        .collect::<Vec<_>>();
 
-fn trainers_to_trainers(tx: &Transaction, datum: &Trainers) {
-    tx.execute(
-        "
-            INSERT INTO trainers
-            (trainer_nar_id, name, kana, sex, status,
-                birthdate, first_run, first_win)
-            VALUES 
-            (:trainer_nar_id, :name, :kana, :sex, :status,
-            :birthdate, :first_run, :first_win)
-            ON CONFLICT(trainer_nar_id) DO UPDATE SET
-            name = COALESCE(trainers.name, :name),
-            kana = COALESCE(:kana, trainers.kana),
-            sex = COALESCE(:sex, trainers.sex),
-            status = COALESCE(:status, trainers.status),
-            birthdate = COALESCE(:birthdate, trainers.birthdate),
-            first_run = COALESCE(:first_run, trainers.first_run),
-            first_win = COALESCE(:first_win, trainers.first_win)
-        ",
-        to_params_named(&datum).unwrap().to_slice().as_slice(),
-    )
-    .unwrap();
+    write_to_db(&db_writer);
 }

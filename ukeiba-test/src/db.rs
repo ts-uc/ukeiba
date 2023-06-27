@@ -2,6 +2,7 @@ use anyhow::Result;
 use chrono::{NaiveDate, NaiveTime};
 use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
+pub mod writer;
 
 // 以下の構造体に基づいて、rusqliteでcreate tableする関数を作成してください。
 // なお、サロゲートキーは使わず、optionのついていないメンバ変数を主キーにしてください。
