@@ -42,9 +42,9 @@ impl DbWriter {
 fn horse_history_to_dates(tx: &Transaction, datum: &Dates) {
     tx.execute(
         "
-        INSERT INTO dates (date, racecourse, fiscal_year, kai, nichi)
-        VALUES (:date, :racecourse, :fiscal_year, :kai, :nichi)
-        ON CONFLICT(date) DO UPDATE SET
+        INSERT INTO dates (race_date, racecourse, fiscal_year, kai, nichi)
+        VALUES (:race_date, :racecourse, :fiscal_year, :kai, :nichi)
+        ON CONFLICT(race_date) DO UPDATE SET
             racecourse = COALESCE(:racecourse, dates.racecourse),
             fiscal_year = COALESCE(:fiscal_year, dates.fiscal_year),
             kai = COALESCE(:kai, dates.kai),
@@ -59,13 +59,13 @@ fn horse_history_to_races(tx: &Transaction, datum: &Races) {
     tx.execute(
         "
         INSERT INTO races 
-        (date, race_num, race_type, weather, going,
+        (race_date, race_num, race_type, weather, going,
         horse_count_run, post_time, post_time_change, race_sub_name, race_name,
         race_weight_type)
-        VALUES (:date, :race_num, :race_type, :weather, :going,
+        VALUES (:race_date, :race_num, :race_type, :weather, :going,
         :horse_count_run, :post_time, :post_time_change, :race_sub_name, :race_name,
         :race_weight_type)
-        ON CONFLICT(date, race_num) DO UPDATE SET
+        ON CONFLICT(race_date, race_num) DO UPDATE SET
         race_type = COALESCE(:race_type, races.race_type),
         weather = COALESCE(:weather, races.weather),
         going = COALESCE(:going, races.going),
@@ -85,17 +85,17 @@ fn horse_history_to_race_horses(tx: &Transaction, datum: &RaceHorses) {
     tx.execute(
         "
         INSERT INTO race_horses 
-        (date, race_num, horse_num, horse_nar_id, bracket_num,
+        (race_date, race_num, horse_num, horse_nar_id, bracket_num,
             win_fav, horse_weight, jockey_nar_id, weight_to_carry, trainer_nar_id,
             arrival, arrival_info, finish_time, prize, change,
             horse_sex, weight_mark, owner_name, win_odds, place_odds_min,
             place_odds_max)
-        VALUES (:date, :race_num, :horse_num, :horse_nar_id, :bracket_num,
+        VALUES (:race_date, :race_num, :horse_num, :horse_nar_id, :bracket_num,
             :win_fav, :horse_weight, :jockey_nar_id, :weight_to_carry, :trainer_nar_id,
             :arrival, :arrival_info, :finish_time, :prize, :change,
             :horse_sex, :weight_mark, :owner_name, :win_odds, :place_odds_min,
             :place_odds_max)
-        ON CONFLICT(date, race_num, horse_num) DO UPDATE SET
+        ON CONFLICT(race_date, race_num, horse_num) DO UPDATE SET
         horse_nar_id = COALESCE(:horse_nar_id, race_horses.horse_nar_id),
         bracket_num = COALESCE(:bracket_num, race_horses.bracket_num),
 

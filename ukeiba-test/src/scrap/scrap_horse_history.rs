@@ -34,13 +34,13 @@ pub fn scrap() {
     for datum in data {
         for x in datum.data {
             db_writer.push(DbWriter::HorseHistoryToDates(Dates {
-                date: x.race_date,
+                race_date: x.race_date,
                 racecourse: Some(x.racecourse),
                 fiscal_year: get_fiscal_year(x.race_date),
                 ..Default::default()
             }));
             db_writer.push(DbWriter::HorseHistoryToRaces(Races {
-                date: x.race_date,
+                race_date: x.race_date,
                 race_num: x.race_num,
                 race_type: x.race_type,
                 weather: x.weather,
@@ -50,7 +50,7 @@ pub fn scrap() {
                 ..Default::default()
             }));
             db_writer.push(DbWriter::HorseHistoryToRaceHorses(RaceHorses {
-                date: x.race_date,
+                race_date: x.race_date,
                 race_num: x.race_num,
                 horse_num: x.horse_num.unwrap_or_default(),
                 horse_nar_id: Some(x.horse_nar_id),

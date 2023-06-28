@@ -16,7 +16,7 @@ pub mod writer;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Dates {
-    pub date: NaiveDate, // 主キー
+    pub race_date: NaiveDate, // 主キー
     pub racecourse: Option<String>,
     pub fiscal_year: Option<i32>,
     pub kai: Option<i32>,
@@ -25,8 +25,8 @@ pub struct Dates {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Races {
-    pub date: NaiveDate, // 主キー・datesテーブルの外部キー
-    pub race_num: i32,   // 主キー
+    pub race_date: NaiveDate, // 主キー・datesテーブルの外部キー
+    pub race_num: i32,        // 主キー
     pub post_time: Option<NaiveTime>,
     pub post_time_change: Option<bool>,
     pub race_sub_name: Option<String>,
@@ -40,9 +40,9 @@ pub struct Races {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct RaceHorses {
-    pub date: NaiveDate, // 主キー・racesテーブルの外部キー
-    pub race_num: i32,   // 主キー・racesテーブルの外部キー
-    pub horse_num: i32,  // 主キー
+    pub race_date: NaiveDate, // 主キー・racesテーブルの外部キー
+    pub race_num: i32,        // 主キー・racesテーブルの外部キー
+    pub horse_num: i32,       // 主キー
     pub horse_nar_id: Option<i64>,
     pub bracket_num: Option<i32>,
     pub horse_sex: Option<String>,
@@ -115,7 +115,7 @@ pub fn create_table() -> Result<()> {
     conn.execute_batch(
         "
         CREATE TABLE IF NOT EXISTS dates (
-            date TEXT PRIMARY KEY,
+            race_date TEXT PRIMARY KEY,
             racecourse TEXT,
             fiscal_year INTEGER,
             kai INTEGER,
@@ -123,7 +123,7 @@ pub fn create_table() -> Result<()> {
         );
         
         CREATE TABLE IF NOT EXISTS races (
-            date TEXT,
+            race_date TEXT,
             race_num INTEGER,
             post_time TEXT,
             post_time_change INTEGER,
@@ -134,12 +134,12 @@ pub fn create_table() -> Result<()> {
             race_weight_type TEXT,
             race_type TEXT,
             horse_count_run INTEGER,
-            PRIMARY KEY (date, race_num),
-            FOREIGN KEY (date) REFERENCES dates(date)
+            PRIMARY KEY (race_date, race_num),
+            FOREIGN KEY (race_date) REFERENCES dates(race_date)
         );
         
         CREATE TABLE IF NOT EXISTS race_horses (
-            date TEXT,
+            race_date TEXT,
             race_num INTEGER,
             horse_num INTEGER,
             horse_nar_id INTEGER,
@@ -160,8 +160,8 @@ pub fn create_table() -> Result<()> {
             win_odds REAL,
             place_odds_min REAL,
             place_odds_max REAL,
-            PRIMARY KEY (date, race_num, horse_num),
-            FOREIGN KEY (date, race_num) REFERENCES races(date, race_num)
+            PRIMARY KEY (race_date, race_num, horse_num),
+            FOREIGN KEY (race_date, race_num) REFERENCES races(race_date, race_num)
         );
         
         CREATE TABLE IF NOT EXISTS horses (
