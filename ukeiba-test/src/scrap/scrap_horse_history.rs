@@ -45,7 +45,7 @@ pub fn scrap() {
                 race_type: x.race_type,
                 weather: x.weather,
                 going: x.going.and_then(|x| x.parse().ok()),
-                horse_count: x.horse_count,
+                horse_count_run: x.horse_count,
                 race_name: x.race_name,
                 ..Default::default()
             }));
@@ -57,11 +57,11 @@ pub fn scrap() {
                 bracket_num: x.bracket_num,
                 win_fav: x.win_fav,
                 horse_weight: x.horse_weight,
-                jockey_id: x
+                jockey_nar_id: x
                     .jockey_name
                     .and_then(|v| jockey_hashmap.get(&v).map(|&value| value)),
                 weight_to_carry: x.weight_to_carry,
-                trainer_id: x
+                trainer_nar_id: x
                     .trainer_name
                     .and_then(|v| trainer_hashmap.get(&v).map(|&value| value)),
                 arrival: x.arrival,

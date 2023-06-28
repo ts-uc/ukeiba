@@ -60,16 +60,16 @@ fn horse_history_to_races(tx: &Transaction, datum: &Races) {
         "
         INSERT INTO races 
         (date, race_num, race_type, weather, going,
-        horse_count, post_time, post_time_change, race_sub_name, race_name,
+        horse_count_run, post_time, post_time_change, race_sub_name, race_name,
         race_weight_type)
         VALUES (:date, :race_num, :race_type, :weather, :going,
-        :horse_count, :post_time, :post_time_change, :race_sub_name, :race_name,
+        :horse_count_run, :post_time, :post_time_change, :race_sub_name, :race_name,
         :race_weight_type)
         ON CONFLICT(date, race_num) DO UPDATE SET
         race_type = COALESCE(:race_type, races.race_type),
         weather = COALESCE(:weather, races.weather),
         going = COALESCE(:going, races.going),
-        horse_count = COALESCE(:horse_count, races.horse_count),
+        horse_count_run = COALESCE(:horse_count_run, races.horse_count_run),
         post_time = COALESCE(races.post_time, :post_time),
         post_time_change = COALESCE(races.post_time_change, :post_time_change),
         race_sub_name = COALESCE(races.race_sub_name, :race_sub_name),
@@ -86,12 +86,12 @@ fn horse_history_to_race_horses(tx: &Transaction, datum: &RaceHorses) {
         "
         INSERT INTO race_horses 
         (date, race_num, horse_num, horse_nar_id, bracket_num,
-            win_fav, horse_weight, jockey_id, weight_to_carry, trainer_id,
+            win_fav, horse_weight, jockey_nar_id, weight_to_carry, trainer_nar_id,
             arrival, arrival_info, finish_time, prize, change,
             horse_sex, weight_mark, owner_name, win_odds, place_odds_min,
             place_odds_max)
         VALUES (:date, :race_num, :horse_num, :horse_nar_id, :bracket_num,
-            :win_fav, :horse_weight, :jockey_id, :weight_to_carry, :trainer_id,
+            :win_fav, :horse_weight, :jockey_nar_id, :weight_to_carry, :trainer_nar_id,
             :arrival, :arrival_info, :finish_time, :prize, :change,
             :horse_sex, :weight_mark, :owner_name, :win_odds, :place_odds_min,
             :place_odds_max)
@@ -101,9 +101,9 @@ fn horse_history_to_race_horses(tx: &Transaction, datum: &RaceHorses) {
 
         win_fav = COALESCE(:win_fav, race_horses.win_fav),
         horse_weight = COALESCE(:horse_weight, race_horses.horse_weight),
-        jockey_id = COALESCE(:jockey_id, race_horses.jockey_id),
+        jockey_nar_id = COALESCE(:jockey_nar_id, race_horses.jockey_nar_id),
         weight_to_carry = COALESCE(:weight_to_carry, race_horses.weight_to_carry),
-        trainer_id = COALESCE(:trainer_id, race_horses.trainer_id),
+        trainer_nar_id = COALESCE(:trainer_nar_id, race_horses.trainer_nar_id),
 
         arrival = COALESCE(:arrival, race_horses.arrival),
         arrival_info = COALESCE(:arrival_info, race_horses.arrival_info),
@@ -146,21 +146,21 @@ fn bajikyo_pedigree_to_horses(tx: &Transaction, datum: &Horses) {
 fn bajikyo_profile_to_horses(tx: &Transaction, datum: &Horses) {
     tx.execute(
         "INSERT INTO horses
-        (horse_bajikyo_id, horse_birthdate, horse_coat_color, horse_breed, breeder, breeder_address)
+        (horse_bajikyo_id, horse_birthdate, horse_coat_color, horse_breed, breeder, breeder_location)
         VALUES (?1, ?2, ?3, ?4, ?5, ?6)
         ON CONFLICT(horse_bajikyo_id) DO UPDATE SET
         horse_birthdate = COALESCE(?2, horses.horse_birthdate),
         horse_coat_color = COALESCE(?3, horses.horse_coat_color),
         horse_breed = COALESCE(?4, horses.horse_breed),
         breeder = COALESCE(?5, horses.breeder),
-        breeder_address = COALESCE(?6, horses.breeder_address)",
+        breeder_location = COALESCE(?6, horses.breeder_location)",
         params![
             datum.horse_bajikyo_id,
             datum.horse_birthdate,
             datum.horse_coat_color,
             datum.horse_breed,
             datum.breeder,
-            datum.breeder_address
+            datum.breeder_location
         ],
     )
     .unwrap();

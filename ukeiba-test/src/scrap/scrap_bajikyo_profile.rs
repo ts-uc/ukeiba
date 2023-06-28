@@ -36,7 +36,7 @@ pub fn scrap() {
             horse_coat_color: data.horse_coat_color,
             horse_breed: data.horse_breed,
             breeder: data.horse_breeder,
-            breeder_address: data.horse_breeder_address,
+            breeder_location: data.horse_breeder_address,
             ..Default::default()
         })
         .collect::<Vec<_>>();

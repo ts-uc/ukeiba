@@ -30,7 +30,7 @@ pub struct Races {
     pub going: Option<f64>,
     pub race_weight_type: Option<String>,
     pub race_type: Option<String>,
-    pub horse_count: Option<i32>,
+    pub horse_count_run: Option<i32>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -41,10 +41,10 @@ pub struct RaceHorses {
     pub horse_nar_id: Option<i64>,
     pub bracket_num: Option<i32>,
     pub horse_sex: Option<String>,
-    pub jockey_id: Option<i32>,
+    pub jockey_nar_id: Option<i32>,
     pub weight_mark: Option<String>,
     pub weight_to_carry: Option<i32>,
-    pub trainer_id: Option<i32>,
+    pub trainer_nar_id: Option<i32>,
     pub owner_name: Option<String>,
     pub horse_weight: Option<i32>,
     pub change: Option<String>,
@@ -69,7 +69,7 @@ pub struct Horses {
     pub horse_coat_color: Option<String>,
     pub horse_breed: Option<String>,
     pub breeder: Option<String>,
-    pub breeder_address: Option<String>,
+    pub breeder_location: Option<String>,
     pub sire_bajikyo_id: Option<String>,
     pub dam_bajikyo_id: Option<String>,
     pub bms_bajikyo_id: Option<String>,
@@ -128,7 +128,7 @@ pub fn create_table() -> Result<()> {
             going REAL,
             race_weight_type TEXT,
             race_type TEXT,
-            horse_count INTEGER,
+            horse_count_run INTEGER,
             PRIMARY KEY (date, race_num),
             FOREIGN KEY (date) REFERENCES dates(date)
         );
@@ -140,10 +140,10 @@ pub fn create_table() -> Result<()> {
             horse_nar_id INTEGER,
             bracket_num INTEGER,
             horse_sex TEXT,
-            jockey_id INTEGER,
+            jockey_nar_id INTEGER,
             weight_mark TEXT,
             weight_to_carry INTEGER,
-            trainer_id INTEGER,
+            trainer_nar_id INTEGER,
             owner_name TEXT,
             horse_weight INTEGER,
             change TEXT,
@@ -169,7 +169,7 @@ pub fn create_table() -> Result<()> {
             horse_coat_color TEXT,
             horse_breed TEXT,
             breeder TEXT,
-            breeder_address TEXT,
+            breeder_location TEXT,
             sire_bajikyo_id TEXT,
             dam_bajikyo_id TEXT,
             bms_bajikyo_id TEXT
