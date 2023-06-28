@@ -201,19 +201,19 @@ fn jockeys_to_jockeys(tx: &Transaction, datum: &Jockeys) {
     tx.execute(
         "
             INSERT INTO jockeys
-            (jockey_nar_id, name, kana, sex, status,
-                birthdate, first_run, first_win)
+            (jockey_nar_id, jockey_name, jockey_kana, jockey_sex, jockey_status,
+                jockey_birthdate, jockey_first_run, jockey_first_win)
             VALUES 
-            (:jockey_nar_id, :name, :kana, :sex, :status,
-            :birthdate, :first_run, :first_win)
+            (:jockey_nar_id, :jockey_name, :jockey_kana, :jockey_sex, :jockey_status,
+            :jockey_birthdate, :jockey_first_run, :jockey_first_win)
             ON CONFLICT(jockey_nar_id) DO UPDATE SET
-            name = COALESCE(jockeys.name, :name),
-            kana = COALESCE(:kana, jockeys.kana),
-            sex = COALESCE(:sex, jockeys.sex),
-            status = COALESCE(:status, jockeys.status),
-            birthdate = COALESCE(:birthdate, jockeys.birthdate),
-            first_run = COALESCE(:first_run, jockeys.first_run),
-            first_win = COALESCE(:first_win, jockeys.first_win)
+            jockey_name = COALESCE(jockeys.jockey_name, :jockey_name),
+            jockey_kana = COALESCE(:jockey_kana, jockeys.jockey_kana),
+            jockey_sex = COALESCE(:jockey_sex, jockeys.jockey_sex),
+            jockey_status = COALESCE(:jockey_status, jockeys.jockey_status),
+            jockey_birthdate = COALESCE(:jockey_birthdate, jockeys.jockey_birthdate),
+            jockey_first_run = COALESCE(:jockey_first_run, jockeys.jockey_first_run),
+            jockey_first_win = COALESCE(:jockey_first_win, jockeys.jockey_first_win)
         ",
         to_params_named(&datum).unwrap().to_slice().as_slice(),
     )
@@ -224,19 +224,19 @@ fn trainers_to_trainers(tx: &Transaction, datum: &Trainers) {
     tx.execute(
         "
             INSERT INTO trainers
-            (trainer_nar_id, name, kana, sex, status,
-                birthdate, first_run, first_win)
+            (trainer_nar_id, trainer_name, trainer_kana, trainer_sex, trainer_status,
+                trainer_birthdate, trainer_first_run, trainer_first_win)
             VALUES 
-            (:trainer_nar_id, :name, :kana, :sex, :status,
-            :birthdate, :first_run, :first_win)
+            (:trainer_nar_id, :trainer_name, :trainer_kana, :trainer_sex, :trainer_status,
+            :trainer_birthdate, :trainer_first_run, :trainer_first_win)
             ON CONFLICT(trainer_nar_id) DO UPDATE SET
-            name = COALESCE(trainers.name, :name),
-            kana = COALESCE(:kana, trainers.kana),
-            sex = COALESCE(:sex, trainers.sex),
-            status = COALESCE(:status, trainers.status),
-            birthdate = COALESCE(:birthdate, trainers.birthdate),
-            first_run = COALESCE(:first_run, trainers.first_run),
-            first_win = COALESCE(:first_win, trainers.first_win)
+            trainer_name = COALESCE(trainers.trainer_name, :trainer_name),
+            trainer_kana = COALESCE(:trainer_kana, trainers.trainer_kana),
+            trainer_sex = COALESCE(:trainer_sex, trainers.trainer_sex),
+            trainer_status = COALESCE(:trainer_status, trainers.trainer_status),
+            trainer_birthdate = COALESCE(:trainer_birthdate, trainers.trainer_birthdate),
+            trainer_first_run = COALESCE(:trainer_first_run, trainers.trainer_first_run),
+            trainer_first_win = COALESCE(:trainer_first_win, trainers.trainer_first_win)
         ",
         to_params_named(&datum).unwrap().to_slice().as_slice(),
     )

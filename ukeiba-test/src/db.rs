@@ -78,25 +78,25 @@ pub struct Horses {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Jockeys {
     pub jockey_nar_id: i32, // 主キー
-    pub name: String,
-    pub kana: String,
-    pub sex: String,
-    pub status: String,
-    pub birthdate: Option<NaiveDate>,
-    pub first_run: Option<NaiveDate>,
-    pub first_win: Option<NaiveDate>,
+    pub jockey_name: String,
+    pub jockey_kana: String,
+    pub jockey_sex: String,
+    pub jockey_status: String,
+    pub jockey_birthdate: Option<NaiveDate>,
+    pub jockey_first_run: Option<NaiveDate>,
+    pub jockey_first_win: Option<NaiveDate>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Trainers {
     pub trainer_nar_id: i32, // 主キー
-    pub name: String,
-    pub kana: String,
-    pub sex: String,
-    pub status: String,
-    pub birthdate: Option<NaiveDate>,
-    pub first_run: Option<NaiveDate>,
-    pub first_win: Option<NaiveDate>,
+    pub trainer_name: String,
+    pub trainer_kana: String,
+    pub trainer_sex: String,
+    pub trainer_status: String,
+    pub trainer_birthdate: Option<NaiveDate>,
+    pub trainer_first_run: Option<NaiveDate>,
+    pub trainer_first_win: Option<NaiveDate>,
 }
 
 pub fn make_conn() -> Result<Connection> {
@@ -177,24 +177,24 @@ pub fn create_table() -> Result<()> {
         
         CREATE TABLE IF NOT EXISTS jockeys (
             jockey_nar_id INTEGER PRIMARY KEY,
-            name TEXT,
-            kana TEXT,
-            sex TEXT,
-            status TEXT,
-            birthdate TEXT,
-            first_run TEXT,
-            first_win TEXT
+            jockey_name TEXT,
+            jockey_kana TEXT,
+            jockey_sex TEXT,
+            jockey_status TEXT,
+            jockey_birthdate TEXT,
+            jockey_first_run TEXT,
+            jockey_first_win TEXT
         );
         
         CREATE TABLE IF NOT EXISTS trainers (
             trainer_nar_id INTEGER PRIMARY KEY,
-            name TEXT,
-            kana TEXT,
-            sex TEXT,
-            status TEXT,
-            birthdate TEXT,
-            first_run TEXT,
-            first_win TEXT
+            trainer_name TEXT,
+            trainer_kana TEXT,
+            trainer_sex TEXT,
+            trainer_status TEXT,
+            trainer_birthdate TEXT,
+            trainer_first_run TEXT,
+            trainer_first_win TEXT
         );
         ",
     )?;

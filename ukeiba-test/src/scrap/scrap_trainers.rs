@@ -55,13 +55,13 @@ pub fn scrap() {
         .into_iter()
         .map(|data| Trainers {
             trainer_nar_id: data.trainer_nar_id,
-            name: data.name,
-            kana: data.kana,
-            sex: data.sex,
-            status: data.status,
-            birthdate: data.birthdate,
-            first_run: data.first_run,
-            first_win: data.first_win,
+            trainer_name: data.name,
+            trainer_kana: data.kana,
+            trainer_sex: data.sex,
+            trainer_status: data.status,
+            trainer_birthdate: data.birthdate,
+            trainer_first_run: data.first_run,
+            trainer_first_win: data.first_win,
         })
         .collect::<Vec<_>>();
 
