@@ -4,10 +4,15 @@ use rusqlite::{params, Connection};
 use serde::{Deserialize, Serialize};
 pub mod writer;
 
-// 以下の構造体に基づいて、SQLITE でCREATE TABLE をするSQL文を作成してください。
-// なお、サロゲートキーは使わないでください。
+// 生成AI用コメント
+
+// 以下の構造体に基づいて、SQLite でCREATE TABLE をするSQL文を作成してください。
+// サロゲートキーは使わないでください。
 // CREATE TABLE文は、IF NOT EXISTS を使ったものにしてください。
 // テーブル名、およびカラム名はすべてスネークケースにしてください。
+// 外部キー制約は、各テーブルのCREATE文の最後の方に、
+// FOREIGN KEY (カラム名) REFERENCES テーブル名(カラム名) のようにして書いてください。
+// NaiveDate、およびNaiveTime は TEXT型として扱ってください。
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Dates {
