@@ -21,6 +21,9 @@ pub struct Dates {
     pub fiscal_year: Option<i32>,
     pub kai: Option<i32>,
     pub nichi: Option<i32>,
+    pub capability_test: Option<i32>,
+    pub heating: Option<bool>,
+    pub sand_obstacle: Option<bool>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -33,9 +36,17 @@ pub struct Races {
     pub race_name: Option<String>,
     pub weather: Option<String>,
     pub going: Option<f64>,
+    pub race_class: Option<String>,
+    pub race_kumi: Option<String>,
+    pub race_mixed: Option<String>,
+    pub race_age: Option<String>,
+    pub race_sex: Option<String>,
+    pub race_horse_select_type: Option<String>,
     pub race_weight_type: Option<String>,
     pub race_type: Option<String>,
     pub horse_count_run: Option<i32>,
+    pub horse_count_entered: Option<i32>,
+    pub race_align: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -45,6 +56,7 @@ pub struct RaceHorses {
     pub horse_num: i32,       // 主キー
     pub horse_nar_id: Option<i64>,
     pub bracket_num: Option<i32>,
+    pub gate_num: Option<i32>,
     pub horse_sex: Option<String>,
     pub jockey_nar_id: Option<i32>,
     pub weight_mark: Option<String>,
@@ -113,13 +125,17 @@ pub fn make_conn() -> Result<Connection> {
 pub fn create_table() -> Result<()> {
     let conn = make_conn()?;
     conn.execute_batch(
+        //下記のようなCREATE文で定義される SQLITE DBがあります
         "
         CREATE TABLE IF NOT EXISTS dates (
             race_date TEXT PRIMARY KEY,
             racecourse TEXT,
             fiscal_year INTEGER,
             kai INTEGER,
-            nichi INTEGER
+            nichi INTEGER,
+            capability_test INTEGER,
+            heating INTEGER,
+            sand_obstacle INTEGER      
         );
         
         CREATE TABLE IF NOT EXISTS races (
@@ -131,11 +147,19 @@ pub fn create_table() -> Result<()> {
             race_name TEXT,
             weather TEXT,
             going REAL,
+            race_class TEXT,
+            race_kumi TEXT,
+            race_mixed TEXT,
+            race_age TEXT,
+            race_sex TEXT,
+            race_horse_select_type TEXT,
             race_weight_type TEXT,
             race_type TEXT,
             horse_count_run INTEGER,
+            horse_count_entered INTEGER,
+            race_align TEXT,
             PRIMARY KEY (race_date, race_num),
-            FOREIGN KEY (race_date) REFERENCES dates(race_date)
+            FOREIGN KEY (race_date) REFERENCES dates (race_date)
         );
         
         CREATE TABLE IF NOT EXISTS race_horses (
@@ -144,6 +168,7 @@ pub fn create_table() -> Result<()> {
             horse_num INTEGER,
             horse_nar_id INTEGER,
             bracket_num INTEGER,
+            gate_num INTEGER,
             horse_sex TEXT,
             jockey_nar_id INTEGER,
             weight_mark TEXT,
@@ -161,7 +186,7 @@ pub fn create_table() -> Result<()> {
             place_odds_min REAL,
             place_odds_max REAL,
             PRIMARY KEY (race_date, race_num, horse_num),
-            FOREIGN KEY (race_date, race_num) REFERENCES races(race_date, race_num)
+            FOREIGN KEY (race_date, race_num) REFERENCES races (race_date, race_num)
         );
         
         CREATE TABLE IF NOT EXISTS horses (
