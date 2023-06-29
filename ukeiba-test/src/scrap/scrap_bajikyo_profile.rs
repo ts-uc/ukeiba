@@ -1,4 +1,4 @@
-use super::fetch_and_scrap_all;
+use crate::common::*;
 use crate::db::{
     make_conn,
     writer::{write_to_db, DbWriter},

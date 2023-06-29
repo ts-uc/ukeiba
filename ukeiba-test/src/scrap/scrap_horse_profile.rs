@@ -1,6 +1,8 @@
-use super::*;
+use crate::common::*;
 use crate::db::writer::{write_to_db, DbWriter};
+use crate::db::Horses;
 use itertools::iproduct;
+use rayon::prelude::*;
 use std::collections::HashMap;
 use ukeiba_common::{
     common::HorseBelong,

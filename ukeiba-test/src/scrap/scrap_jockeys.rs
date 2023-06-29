@@ -1,8 +1,10 @@
 use super::*;
+use crate::common::*;
 use crate::db::{
     writer::{write_to_db, DbWriter},
     Jockeys,
 };
+use rayon::prelude::*;
 use ukeiba_common::{
     common::HorseBelong,
     scraper::{jockey_profile, jockey_search},
