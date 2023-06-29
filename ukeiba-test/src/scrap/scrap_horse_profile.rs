@@ -1,78 +1,12 @@
 use crate::common::*;
 use crate::db::writer::{write_to_db, DbWriter};
 use crate::db::Horses;
-use itertools::iproduct;
-use rayon::prelude::*;
+use crate::get::get_horse_nar_id;
 use std::collections::HashMap;
-use ukeiba_common::{
-    common::HorseBelong,
-    scraper::{bajikyo_auto_search, horse_profile, horse_search},
-};
+use ukeiba_common::scraper::{bajikyo_auto_search, horse_profile};
 
 pub fn scrap() {
-    // 所属がばんえいか退厩の馬を全取得
-
-    let pages: Vec<horse_search::Page> =
-        iproduct!([HorseBelong::Banei, HorseBelong::Left], (1976..=2021).rev())
-            .map(|(belong, year)| horse_search::Page {
-                page_num: 1,
-                horse_name: "".to_string(),
-                horse_belong: belong,
-                birth_year: year,
-            })
-            .collect();
-
-    let search_pages: Vec<horse_search::Page> = fetch_and_scrap_all(pages)
-        .par_iter()
-        .map(|page| {
-            let hits = page.hits_all;
-            match hits {
-                0 => Vec::new(),
-                0..=2000 => [horse_search::Page {
-                    page_num: 1,
-                    horse_name: "".to_string(),
-                    horse_belong: page.horse_belong,
-                    birth_year: page.birth_year,
-                }]
-                .to_vec(),
-                _ => "アイウエオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモヤユヨラリルレロワヲンヴ"
-                    .chars()
-                    .map(|kana| horse_search::Page {
-                        page_num: 1,
-                        horse_name: kana.to_string(),
-                        horse_belong: page.horse_belong,
-                        birth_year: page.birth_year,
-                    })
-                    .collect::<Vec<_>>(),
-            }
-        })
-        .collect::<Vec<Vec<_>>>()
-        .concat();
-
-    let search_pages: Vec<horse_search::Page> = fetch_and_scrap_all(search_pages)
-        .par_iter()
-        .map(|page| {
-            let hits = page.hits_all;
-            if hits == 0 {
-                return Vec::new();
-            }
-            let page_count = (hits - 1) / 50 + 1;
-            (1..=page_count)
-                .map(|page_num| horse_search::Page {
-                    page_num: page_num,
-                    horse_name: page.horse_name.clone(),
-                    horse_belong: page.horse_belong,
-                    birth_year: page.birth_year,
-                })
-                .collect()
-        })
-        .collect::<Vec<Vec<_>>>()
-        .concat();
-
-    let horse_all_ids = fetch_and_scrap_all(search_pages)
-        .into_iter()
-        .flat_map(|data| data.horse_nar_ids)
-        .collect::<Vec<_>>();
+    let horse_all_ids = get_horse_nar_id::get_all_from_nar();
 
     // 取得した全馬のIDリストから、サラブレッド種・サラブレッド系種・アングロアラブ種を除外した馬情報リストを作成
 

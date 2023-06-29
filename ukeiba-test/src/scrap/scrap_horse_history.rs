@@ -1,24 +1,14 @@
 use crate::common::*;
 use crate::db::{
-    make_conn,
     writer::{write_to_db, DbWriter},
     Dates, Horses, RaceHorses, Races,
 };
+use crate::get::get_horse_nar_id;
 use hashbrown::HashMap;
 use ukeiba_common::scraper::horse_history;
 
 pub fn scrap() {
-    let conn = make_conn().unwrap();
-
-    // horse_bajikyo_idを取得するクエリ
-    let query = "SELECT horse_nar_id FROM horses";
-
-    // クエリを実行し、結果を取得
-    let mut stmt = conn.prepare(query).unwrap();
-    let rows = stmt.query_map([], |row| row.get(0)).unwrap();
-
-    // horse_nar_ids<String>に格納
-    let horse_nar_ids: Vec<i64> = rows.map(|row| row.unwrap()).collect();
+    let horse_nar_ids = get_horse_nar_id::get_all_from_db();
 
     let pages = horse_nar_ids
         .iter()

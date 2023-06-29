@@ -1,23 +1,13 @@
 use crate::common::*;
 use crate::db::{
-    make_conn,
     writer::{write_to_db, DbWriter},
     Horses,
 };
+use crate::get::get_horse_bajikyo_id;
 use ukeiba_common::scraper::bajikyo_profile;
 
 pub fn scrap() {
-    let conn = make_conn().unwrap();
-
-    // horse_bajikyo_idを取得するクエリ
-    let query = "SELECT horse_bajikyo_id FROM horses";
-
-    // クエリを実行し、結果を取得
-    let mut stmt = conn.prepare(query).unwrap();
-    let rows = stmt.query_map([], |row| row.get(0)).unwrap();
-
-    // horse_bajikyo_idの値をVec<String>に格納
-    let horse_bajikyo_ids: Vec<String> = rows.map(|row| row.unwrap()).collect();
+    let horse_bajikyo_ids = get_horse_bajikyo_id::get_from_db();
 
     let bajikyo_profile_pages = horse_bajikyo_ids
         .iter()

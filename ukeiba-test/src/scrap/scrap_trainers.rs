@@ -3,43 +3,11 @@ use crate::db::{
     writer::{write_to_db, DbWriter},
     Trainers,
 };
-use rayon::prelude::*;
-use ukeiba_common::{
-    common::HorseBelong,
-    scraper::{trainer_profile, trainer_search},
-};
+use crate::get::get_trainer_nar_id;
+use ukeiba_common::scraper::trainer_profile;
 
 pub fn scrap() {
-    // 所属がばんえいか退厩の馬を全取得
-
-    let pages: Vec<trainer_search::Page> = [trainer_search::Page {
-        page_num: 1,
-        belong: HorseBelong::Banei,
-    }]
-    .to_vec();
-
-    let search_pages: Vec<trainer_search::Page> = fetch_and_scrap_all(pages)
-        .par_iter()
-        .map(|page| {
-            let hits = page.hits;
-            if hits == 0 {
-                return Vec::new();
-            }
-            let page_count = (hits - 1) / 50 + 1;
-            (1..=page_count)
-                .map(|page_num| trainer_search::Page {
-                    page_num: page_num,
-                    belong: page.belong,
-                })
-                .collect()
-        })
-        .collect::<Vec<Vec<_>>>()
-        .concat();
-
-    let trainer_all_ids = fetch_and_scrap_all(search_pages)
-        .into_iter()
-        .flat_map(|data| data.trainer_ids)
-        .collect::<Vec<_>>();
+    let trainer_all_ids = get_trainer_nar_id::get_all_from_nar();
 
     let trainer_profile_pages = trainer_all_ids
         .iter()

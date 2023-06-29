@@ -2,6 +2,7 @@ extern crate ukeiba_common;
 use db::{create_table, vacuum_database};
 pub mod common;
 pub mod db;
+pub mod get;
 pub mod scrap;
 
 fn main() {
