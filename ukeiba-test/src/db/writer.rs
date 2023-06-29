@@ -12,7 +12,7 @@ pub fn write_to_db(db_writers: &[DbWriter]) {
 }
 
 pub enum DbWriter {
-    HorseHistoryToDates(Dates),
+    UpsertDates(Dates),
     HorseHistoryToRaces(Races),
     HorseHistoryToRaceHorses(RaceHorses),
     BajikyoPedigreeToHorses(Horses),
@@ -26,7 +26,7 @@ pub enum DbWriter {
 impl DbWriter {
     fn execute(&self, tx: &Transaction) {
         match self {
-            Self::HorseHistoryToDates(datum) => horse_history_to_dates(tx, &datum),
+            Self::UpsertDates(datum) => upsert_dates(tx, &datum),
             Self::HorseHistoryToRaces(datum) => horse_history_to_races(tx, &datum),
             Self::HorseHistoryToRaceHorses(datum) => horse_history_to_race_horses(tx, &datum),
             Self::BajikyoPedigreeToHorses(datum) => bajikyo_pedigree_to_horses(tx, &datum),
@@ -325,7 +325,7 @@ impl DbWriter {
 //     .unwrap();
 // }
 
-fn horse_history_to_dates(tx: &Transaction, datum: &Dates) {
+fn upsert_dates(tx: &Transaction, datum: &Dates) {
     tx.execute(
         "
         INSERT INTO dates (

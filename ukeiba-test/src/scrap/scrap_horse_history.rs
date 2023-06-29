@@ -33,7 +33,7 @@ pub fn scrap() {
     let trainer_hashmap = create_trainer_hashmap();
     for datum in data {
         for x in datum.data {
-            db_writer.push(DbWriter::HorseHistoryToDates(Dates {
+            db_writer.push(DbWriter::UpsertDates(Dates {
                 race_date: x.race_date,
                 racecourse: Some(x.racecourse),
                 fiscal_year: get_fiscal_year(x.race_date),
