@@ -13,5 +13,6 @@ fn main() {
     scrap::scrap_bajikyo_profile::scrap();
     scrap::scrap_bajikyo_pedigree::scrap();
     scrap::scrap_horse_history::scrap();
+    scrap::scrap_horse_table::scrap();
     vacuum_database().unwrap();
 }

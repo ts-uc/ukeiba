@@ -18,6 +18,9 @@ pub struct Page {
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 
 pub struct Data {
+    pub race_date: NaiveDate,
+    pub racecourse: Racecourse,
+    pub race_num: i32,
     pub post_time: Option<String>,
     pub post_time_change: Option<bool>,
     pub race_sub_title: Option<String>,
@@ -199,6 +202,9 @@ impl WebPageTrait for Page {
                     .unwrap_or_default();
 
             Ok(Data {
+                race_date: self.race_date,
+                racecourse: self.racecourse,
+                race_num: self.race_num,
                 post_time: post_time,
                 post_time_change: post_time_change,
                 race_sub_title: scrap(&doc, ".subTitle"),
@@ -230,7 +236,7 @@ fn split_post_time(raw: &str) -> (Option<String>, Option<bool>) {
 }
 
 fn split_sexage(raw: &str) -> (Option<String>, Option<i32>) {
-    let re = regex::Regex::new(r"^\s*(牡|牝|セン)(\d)\s*$").unwrap();
+    let re = regex::Regex::new(r"^\s*(牡|牝|セン)(\d+)\s*$").unwrap();
 
     if let Some(captures) = re.captures(raw) {
         let group1 = captures.get(1).map(|m| m.as_str().to_string());

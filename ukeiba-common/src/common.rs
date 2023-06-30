@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
@@ -6,7 +7,7 @@ pub enum HorseBelong {
     Left = 0,
     Banei = 21,
 }
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize)]
 pub enum Racecourse {
     #[default]
     Other,
@@ -53,4 +54,11 @@ impl Racecourse {
             Self::Asahikawa => 5,
         }
     }
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct RaceData {
+    pub race_date: NaiveDate,
+    pub racecourse: Racecourse,
+    pub race_num: i32,
 }
