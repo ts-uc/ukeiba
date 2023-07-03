@@ -355,18 +355,21 @@ fn upsert_dates(tx: &Transaction, datum: &Dates) {
 fn horse_history_to_races(tx: &Transaction, datum: &Races) {
     tx.execute(
         "
-        INSERT INTO races (race_date, race_num, post_time, post_time_change, race_sub_name, race_name, weather, going, race_class, race_kumi, race_mixed, race_age, race_sex, race_horse_select_type, race_weight_type, race_type, horse_count_run, horse_count_entered, race_align)
-        VALUES (:race_date, :race_num, :post_time, :post_time_change, :race_sub_name, :race_name, :weather, :going, :race_class, :race_kumi, :race_mixed, :race_age, :race_sex, :race_horse_select_type, :race_weight_type, :race_type, :horse_count_run, :horse_count_entered, :race_align)
+        INSERT INTO races (race_date, race_num, post_time, post_time_change, race_sub_name, race_name, race_detail, weather, going, race_class, race_kumi, race_class_mixed, race_kumi_mixed, race_final, race_age, race_sex, race_horse_select_type, race_weight_type, race_type, horse_count_run, horse_count_entered, race_align)
+        VALUES (:race_date, :race_num, :post_time, :post_time_change, :race_sub_name, :race_name, :race_detail, :weather, :going, :race_class, :race_kumi, :race_class_mixed, :race_kumi_mixed, :race_final, :race_age, :race_sex, :race_horse_select_type, :race_weight_type, :race_type, :horse_count_run, :horse_count_entered, :race_align)
         ON CONFLICT(race_date, race_num) DO UPDATE SET
             post_time = COALESCE(races.post_time, :post_time),
             post_time_change = COALESCE(races.post_time_change, :post_time_change),
             race_sub_name = COALESCE(races.race_sub_name, :race_sub_name),
             race_name = COALESCE(races.race_name, :race_name),
+            race_detail = COALESCE(races.race_detail, :race_detail),
             weather = COALESCE(races.weather, :weather),
             going = COALESCE(races.going, :going),
             race_class = COALESCE(races.race_class, :race_class),
             race_kumi = COALESCE(races.race_kumi, :race_kumi),
-            race_mixed = COALESCE(races.race_mixed, :race_mixed),
+            race_class_mixed = COALESCE(races.race_class_mixed, :race_class_mixed),
+            race_kumi_mixed = COALESCE(races.race_kumi_mixed, :race_kumi_mixed),
+            race_final = COALESCE(races.race_final, :race_final),
             race_age = COALESCE(races.race_age, :race_age),
             race_sex = COALESCE(races.race_sex, :race_sex),
             race_horse_select_type = COALESCE(races.race_horse_select_type, :race_horse_select_type),
@@ -384,18 +387,21 @@ to_params_named(&datum).unwrap().to_slice().as_slice(),
 fn horse_table_to_races(tx: &Transaction, datum: &Races) {
     tx.execute(
         "
-        INSERT INTO races (race_date, race_num, post_time, post_time_change, race_sub_name, race_name, weather, going, race_class, race_kumi, race_mixed, race_age, race_sex, race_horse_select_type, race_weight_type, race_type, horse_count_run, horse_count_entered, race_align)
-        VALUES (:race_date, :race_num, :post_time, :post_time_change, :race_sub_name, :race_name, :weather, :going, :race_class, :race_kumi, :race_mixed, :race_age, :race_sex, :race_horse_select_type, :race_weight_type, :race_type, :horse_count_run, :horse_count_entered, :race_align)
+        INSERT INTO races (race_date, race_num, post_time, post_time_change, race_sub_name, race_name, race_detail, weather, going, race_class, race_kumi, race_class_mixed, race_kumi_mixed, race_final, race_age, race_sex, race_horse_select_type, race_weight_type, race_type, horse_count_run, horse_count_entered, race_align)
+        VALUES (:race_date, :race_num, :post_time, :post_time_change, :race_sub_name, :race_name, :race_detail, :weather, :going, :race_class, :race_kumi, :race_class_mixed, :race_kumi_mixed, :race_final, :race_age, :race_sex, :race_horse_select_type, :race_weight_type, :race_type, :horse_count_run, :horse_count_entered, :race_align)
         ON CONFLICT(race_date, race_num) DO UPDATE SET
             post_time = COALESCE(:post_time, races.post_time),
             post_time_change = COALESCE(:post_time_change, races.post_time_change),
             race_sub_name = COALESCE(:race_sub_name, races.race_sub_name),
             race_name = COALESCE(:race_name, races.race_name),
+            race_detail = COALESCE(:race_detail, races.race_detail),
             weather = COALESCE(:weather, races.weather),
             going = COALESCE(:going, races.going),
             race_class = COALESCE(:race_class, races.race_class),
             race_kumi = COALESCE(:race_kumi, races.race_kumi),
-            race_mixed = COALESCE(:race_mixed, races.race_mixed),
+            race_class_mixed = COALESCE(:race_class_mixed, races.race_class_mixed),
+            race_kumi_mixed = COALESCE(:race_kumi_mixed, races.race_kumi_mixed),
+            race_final = COALESCE(:race_final, races.race_final),
             race_age = COALESCE(:race_age, races.race_age),
             race_sex = COALESCE(:race_sex, races.race_sex),
             race_horse_select_type = COALESCE(:race_horse_select_type, races.race_horse_select_type),
