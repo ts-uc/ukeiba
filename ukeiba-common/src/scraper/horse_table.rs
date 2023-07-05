@@ -25,10 +25,16 @@ pub struct Data {
     pub post_time_change: Option<bool>,
     pub race_sub_title: Option<String>,
     pub race_title: String,
+    pub race_name_info: RaceNameInfo,
     pub race_detail: RaceDetail,
     pub race_prize: RacePrize,
     pub registered_horse_count: i32,
     pub data: Vec<DataRow>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct RaceNameInfo {
+    pub race_detail: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -209,6 +215,9 @@ impl WebPageTrait for Page {
                 post_time_change: post_time_change,
                 race_sub_title: scrap(&doc, ".subTitle"),
                 race_title: scrap(&doc, ".raceTitle > h3:nth-child(4)").unwrap_or_default(),
+                race_name_info: scrap(&doc, ".raceTitle > h3:nth-child(4)")
+                    .map(|x| split_race_name_info(&x))
+                    .unwrap_or_default(),
                 race_detail: scrap(&doc, "ul.dataArea:nth-child(5) > li:nth-child(1)")
                     .map(|x| split_race_detail(&x))
                     .unwrap_or_default(),
@@ -323,6 +332,83 @@ fn split_prize(raw: &str) -> RacePrize {
     }
 
     RacePrize {
+        ..Default::default()
+    }
+}
+
+fn split_race_name_info(raw: &str) -> RaceNameInfo {
+    let re = regex::Regex::new(
+        r"(2歳|3歳)\s*(A|B|C|D|新馬|受賞|未受賞|受賞・未受賞|新馬・受賞・未受賞|新馬未受賞|新馬・未受賞)(?:-(\d+))?(?:・(\d+))?\s*(選抜)?(決勝|勝入)?(別定)?$",
+    )
+    .unwrap();
+
+    if let Some(captures) = re.captures(raw) {
+        return RaceNameInfo {
+            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
+        };
+    }
+
+    let re = regex::Regex::new(
+        r"(2歳|3歳|4歳|5歳|5 歳|3歳以上|4歳以上|5歳以上|3・4歳|4・5歳)\s*(牡馬|牝馬)?(?:(オープン重馬体重|指定特別競走優勝馬?|重賞競走優勝馬|特別競走優勝馬|ファン投票選抜|騎手指定選抜|重馬体重馬選抜|重馬体重|産駒特別選抜|馬齢選抜|指定選抜|選抜)|(.+毛馬選抜)|(産地限定.+管内(?:産駒)?|.+育成馬選抜|.+産駒選抜|産地限定|駒選抜)|(オープン))?\s*(決勝|勝入)?(混合)?(別定定量|別定|別 定|定量|定 量|馬齢)?$").unwrap();
+    if let Some(captures) = re.captures(raw) {
+        return RaceNameInfo {
+            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
+        };
+    }
+
+    let re = regex::Regex::new(
+        r"(?:(オープン|A1|A2|B1|B2|B3|B4|C1|C2|C3|C4)(?:[-ー](\d+))?)(?:・(?:(オープン|A1|A2|B1|B2|B3|B4|C1|C2|C3|C4)(?:-(\d+))?|(\d+)))?(?:・(\d+))?\s*(選抜)?(決勝)?\s*(混合?)?(?:-\d+)?(別定)?$",
+    )
+    .unwrap();
+
+    if let Some(captures) = re.captures(raw) {
+        return RaceNameInfo {
+            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
+        };
+    }
+
+    let re = regex::Regex::new(r"(?:(\d+)万円未満?)(選抜)?(決勝|勝入)?(混合)?(別定)?$").unwrap();
+
+    if let Some(captures) = re.captures(raw) {
+        return RaceNameInfo {
+            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
+        };
+    }
+
+    let re = regex::Regex::new(
+        r"(A|B|C|D|新馬|受賞|未受賞|受賞・未受賞|新馬・受賞・未受賞|新馬未受賞|新馬・未受賞)(?:-(\d+))?(?:・(\d+))?(選抜)?(決勝)?(別定|定量)?$",
+    )
+    .unwrap();
+
+    if let Some(captures) = re.captures(raw) {
+        return RaceNameInfo {
+            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
+        };
+    }
+
+    // let re = regex::Regex::new(
+    //     r"(A|B|C|D|新馬|受賞|未受賞|受賞・未受賞|新馬・受賞・未受賞|新馬未受賞|新馬・未受賞)\s*(?:-(\d+))?\s*(?:・(\d+))?\s*(選抜)?\s*(決勝)?\s*(混合)?\s*(別定|定量)?\s*$",
+    // )
+    // .unwrap();
+
+    // if let Some(captures) = re.captures(raw) {
+    //     return RaceNameInfo {
+    //         race_detail: captures.get(0).map(|m| m.as_str().to_string()),
+    //     };
+    // }
+
+    // let re = regex::Regex::new(
+    //     r"(牡馬|牝馬)?\s*(重馬体重馬選抜|選抜)?\s*(決勝)?\s*(混合)?\s*(別定定量|別定|定量|馬齢)?$",
+    // )
+    // .unwrap();
+
+    // if let Some(captures) = re.captures(raw) {
+    //     return RaceNameInfo {
+    //         race_detail: captures.get(0).map(|m| m.as_str().to_string()),
+    //     };
+    // }
+
+    RaceNameInfo {
         ..Default::default()
     }
 }
