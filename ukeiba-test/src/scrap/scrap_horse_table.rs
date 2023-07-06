@@ -1,4 +1,4 @@
-use chrono::NaiveTime;
+use chrono::{NaiveDate, NaiveTime};
 use ukeiba_common::scraper::horse_table;
 
 use crate::{
@@ -11,7 +11,7 @@ use crate::{
 };
 
 pub fn scrap() {
-    let race_data = get_race_data::get_after_1997_01_from_db();
+    let race_data = get_race_data::get_all_from_db(NaiveDate::from_ymd_opt(1998, 01, 01).unwrap());
     let pages = race_data
         .into_iter()
         .map(|x| horse_table::Page {
