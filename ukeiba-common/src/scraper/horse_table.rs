@@ -338,75 +338,33 @@ fn split_prize(raw: &str) -> RacePrize {
 
 fn split_race_name_info(raw: &str) -> RaceNameInfo {
     let re = regex::Regex::new(
-        r"(2歳|3歳)\s*(A|B|C|D|新馬|受賞|未受賞|受賞・未受賞|新馬・受賞・未受賞|新馬未受賞|新馬・未受賞)(?:-(\d+))?(?:・(\d+))?\s*(選抜)?(決勝|勝入)?(別定)?$",
-    )
-    .unwrap();
-
+        r"(?x)
+        ((\d{1,2})(・\d{1,2})?\s?[才歳](以?上)?(?:\d{1,2}[才歳]以?下)?)?
+        \s*(?:([牡牝雄雌])馬?)?
+        \s*(勝入)?
+        \s*(混\s?合)?
+        \s*(別定)?
+        (?:((オー|オープン|オープン父競走経歴馬|オールカマー|OP)|A1|A2|B1|B2|B3|B4|C1|C2|C3|C4|A|B|C|D|新馬|受賞|未受賞|受賞・未受賞|受賞未受賞|新馬・受賞・未受賞|新馬未受賞|新馬・未受賞|優勝馬)(?:[-ー](\d+))?(?:・(?:(A1|A2|B1|B2|B3|B4|C1|C2|C3|C4)(?:-(\d+))?|(\d+))(?:・(\d+))?)?)?
+        (?:(\d{1,3}0)万?円?未?満?)?
+        \s*
+        (?:
+        ([青栗鹿芦]毛馬?選抜|産駒特別(?:競走)?選抜|(?:オープン)?[高重]馬体重馬?(?:選抜)?|(?:指定)?(?:重賞)?・?(?:特別)?競走優勝馬?|騎手指定選抜|指定選抜|トライアル選抜|馬齢選抜|ファン投票選抜|ヤングジョッキー選抜|選\s?抜)|
+        ((?:産地限定)?(?:足寄町?|網走|石狩後志渡島桧山胆振日高|石狩空知後志上川留萌宗谷|渡島桧山胆振日高|釧路・?(?:根室)?|空知上川留萌宗谷|大樹町|十勝|南北海道)(?:育成馬)?(?:管内)?(?:産駒)?(?:選抜)?|産地限定|駒選抜)
+        )?
+        \s*(決勝|勝入)?
+        \s*(混\s?合?)?
+        (?:-\d+(?:・\d+)?)?
+        \s*(別定定量|別\s?定|定\s?量|馬齢)?$
+        "
+    ).unwrap();
     if let Some(captures) = re.captures(raw) {
         return RaceNameInfo {
-            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
+            race_detail: captures
+                .get(0)
+                .map(|m| m.as_str().to_string())
+                .filter(|s| !s.is_empty()),
         };
     }
-
-    let re = regex::Regex::new(
-        r"(2歳|3歳|4歳|5歳|5 歳|3歳以上|4歳以上|5歳以上|3・4歳|4・5歳)\s*(牡馬|牝馬)?(?:(オープン重馬体重|指定特別競走優勝馬?|重賞競走優勝馬|特別競走優勝馬|ファン投票選抜|騎手指定選抜|重馬体重馬選抜|重馬体重|産駒特別選抜|馬齢選抜|指定選抜|選抜)|(.+毛馬選抜)|(産地限定.+管内(?:産駒)?|.+育成馬選抜|.+産駒選抜|産地限定|駒選抜)|(オープン))?\s*(決勝|勝入)?(混合)?(別定定量|別定|別 定|定量|定 量|馬齢)?$").unwrap();
-    if let Some(captures) = re.captures(raw) {
-        return RaceNameInfo {
-            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
-        };
-    }
-
-    let re = regex::Regex::new(
-        r"(?:(オープン|A1|A2|B1|B2|B3|B4|C1|C2|C3|C4)(?:[-ー](\d+))?)(?:・(?:(オープン|A1|A2|B1|B2|B3|B4|C1|C2|C3|C4)(?:-(\d+))?|(\d+)))?(?:・(\d+))?\s*(選抜)?(決勝)?\s*(混合?)?(?:-\d+)?(別定)?$",
-    )
-    .unwrap();
-
-    if let Some(captures) = re.captures(raw) {
-        return RaceNameInfo {
-            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
-        };
-    }
-
-    let re = regex::Regex::new(r"(?:(\d+)万円未満?)(選抜)?(決勝|勝入)?(混合)?(別定)?$").unwrap();
-
-    if let Some(captures) = re.captures(raw) {
-        return RaceNameInfo {
-            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
-        };
-    }
-
-    let re = regex::Regex::new(
-        r"(A|B|C|D|新馬|受賞|未受賞|受賞・未受賞|新馬・受賞・未受賞|新馬未受賞|新馬・未受賞)(?:-(\d+))?(?:・(\d+))?(選抜)?(決勝)?(別定|定量)?$",
-    )
-    .unwrap();
-
-    if let Some(captures) = re.captures(raw) {
-        return RaceNameInfo {
-            race_detail: captures.get(0).map(|m| m.as_str().to_string()),
-        };
-    }
-
-    // let re = regex::Regex::new(
-    //     r"(A|B|C|D|新馬|受賞|未受賞|受賞・未受賞|新馬・受賞・未受賞|新馬未受賞|新馬・未受賞)\s*(?:-(\d+))?\s*(?:・(\d+))?\s*(選抜)?\s*(決勝)?\s*(混合)?\s*(別定|定量)?\s*$",
-    // )
-    // .unwrap();
-
-    // if let Some(captures) = re.captures(raw) {
-    //     return RaceNameInfo {
-    //         race_detail: captures.get(0).map(|m| m.as_str().to_string()),
-    //     };
-    // }
-
-    // let re = regex::Regex::new(
-    //     r"(牡馬|牝馬)?\s*(重馬体重馬選抜|選抜)?\s*(決勝)?\s*(混合)?\s*(別定定量|別定|定量|馬齢)?$",
-    // )
-    // .unwrap();
-
-    // if let Some(captures) = re.captures(raw) {
-    //     return RaceNameInfo {
-    //         race_detail: captures.get(0).map(|m| m.as_str().to_string()),
-    //     };
-    // }
 
     RaceNameInfo {
         ..Default::default()
