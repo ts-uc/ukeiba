@@ -4,6 +4,7 @@ use crate::db::{
     Dates, Horses, RaceHorses, Races,
 };
 use crate::get::get_horse_nar_id;
+use chrono::NaiveDate;
 use hashbrown::HashMap;
 use ukeiba_common::scraper::horse_history;
 
@@ -23,6 +24,9 @@ pub fn scrap() {
     let trainer_hashmap = create_trainer_hashmap();
     for datum in data {
         for x in datum.data {
+            if x.race_date == NaiveDate::from_ymd_opt(2009, 06, 13).unwrap() {
+                continue;
+            }
             db_writer.push(DbWriter::UpsertDates(Dates {
                 race_date: x.race_date,
                 racecourse: Some(x.racecourse),
