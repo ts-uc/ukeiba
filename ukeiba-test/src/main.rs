@@ -14,5 +14,6 @@ fn main() {
     scrap::scrap_bajikyo_pedigree::scrap();
     scrap::scrap_horse_history::scrap();
     scrap::scrap_horse_table::scrap();
+    scrap::scrap_rakuten_racelist::scrap();
     vacuum_database().unwrap();
 }
