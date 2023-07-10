@@ -1,5 +1,5 @@
 extern crate ukeiba_common;
-use db::{create_table, vacuum_database};
+use db::{create_table, update_race_align, vacuum_database};
 pub mod common;
 pub mod db;
 pub mod get;
@@ -15,5 +15,6 @@ fn main() {
     scrap::scrap_horse_history::scrap();
     scrap::scrap_horse_table::scrap();
     scrap::scrap_rakuten_racelist::scrap();
+    update_race_align().unwrap();
     vacuum_database().unwrap();
 }

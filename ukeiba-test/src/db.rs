@@ -238,6 +238,51 @@ pub fn create_table() -> Result<()> {
     Ok(())
 }
 
+pub fn update_race_align() -> Result<()> {
+    let conn = make_conn()?;
+    conn.execute_batch(
+        "
+        UPDATE races
+        SET race_align = 
+            CASE
+                -- 2013年6月7日以前は常に「内詰め」
+                WHEN races.race_date <= '2013-06-07' THEN '内詰め'
+                
+                -- 2013年6月8日以降2014年10月24日以前
+                WHEN races.race_date <= '2014-10-24' THEN
+                    CASE
+                        -- nichiが1〜3のときは「内詰め」
+                        WHEN dates.nichi BETWEEN 1 AND 3 THEN '内詰め'
+                        -- nichiが4〜6のときは「外詰め」
+                        WHEN dates.nichi BETWEEN 4 AND 6 THEN '外詰め'
+                    END
+                    
+                -- 2014年10月25日以降
+                ELSE
+                    CASE
+                        -- nichiが奇数かつrace_numが奇数、または、nichiが偶数かつrace_numが偶数のときは「内詰め」
+                        WHEN (dates.nichi % 2 = 1 AND races.race_num % 2 = 1) OR (dates.nichi % 2 = 0 AND races.race_num % 2 = 0) THEN '内詰め'
+                        -- nichiが奇数かつrace_numが偶数、または、nichiが偶数かつrace_numが奇数のときは「外詰め」
+                        WHEN (dates.nichi % 2 = 1 AND races.race_num % 2 = 0) OR (dates.nichi % 2 = 0 AND races.race_num % 2 = 1) THEN '外詰め'
+                    END
+            END
+        FROM dates
+        WHERE dates.race_date = races.race_date
+            AND races.race_align IS NULL; -- race_alignが未設定のレコードにのみ適用
+
+        UPDATE race_horses
+        SET gate_num = CASE
+            WHEN (SELECT race_align FROM races WHERE races.race_date = race_horses.race_date AND races.race_num = race_horses.race_num) = '内詰め' THEN race_horses.horse_num
+            WHEN (SELECT race_align FROM races WHERE races.race_date = race_horses.race_date AND races.race_num = race_horses.race_num) = '外詰め' THEN 10 - (SELECT horse_count_entered FROM races WHERE races.race_date = race_horses.race_date AND races.race_num = race_horses.race_num) + race_horses.horse_num
+            ELSE gate_num
+            END
+        WHERE gate_num IS NULL;
+            ",
+    )?;
+
+    Ok(())
+}
+
 pub fn vacuum_database() -> Result<()> {
     let conn = make_conn()?;
     conn.execute("VACUUM", [])?;
