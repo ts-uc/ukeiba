@@ -25,10 +25,16 @@ pub struct Data {
     pub post_time_change: Option<bool>,
     pub race_sub_title: Option<String>,
     pub race_title: String,
+    pub race_name_info: RaceNameInfo,
     pub race_detail: RaceDetail,
     pub race_prize: RacePrize,
     pub registered_horse_count: i32,
     pub data: Vec<DataRow>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct RaceNameInfo {
+    pub race_detail: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -209,6 +215,9 @@ impl WebPageTrait for Page {
                 post_time_change: post_time_change,
                 race_sub_title: scrap(&doc, ".subTitle"),
                 race_title: scrap(&doc, ".raceTitle > h3:nth-child(4)").unwrap_or_default(),
+                race_name_info: scrap(&doc, ".raceTitle > h3:nth-child(4)")
+                    .map(|x| split_race_name_info(&x))
+                    .unwrap_or_default(),
                 race_detail: scrap(&doc, "ul.dataArea:nth-child(5) > li:nth-child(1)")
                     .map(|x| split_race_detail(&x))
                     .unwrap_or_default(),
@@ -323,6 +332,41 @@ fn split_prize(raw: &str) -> RacePrize {
     }
 
     RacePrize {
+        ..Default::default()
+    }
+}
+
+fn split_race_name_info(raw: &str) -> RaceNameInfo {
+    let re = regex::Regex::new(
+        r"(?x)
+        ((\d{1,2})(・\d{1,2})?\s?[才歳](以?上)?(?:\d{1,2}[才歳]以?下)?)?
+        \s*(?:([牡牝雄雌])馬?)?
+        \s*(勝入)?
+        \s*(混\s?合)?
+        \s*(別定)?
+        (?:((オー|オープン|オープン父競走経歴馬|オールカマー|OP)|A1|A2|B1|B2|B3|B4|C1|C2|C3|C4|A|B|C|D|新馬|受賞|未受賞|受賞・未受賞|受賞未受賞|新馬・受賞・未受賞|新馬未受賞|新馬・未受賞|優勝馬)(?:[-ー](\d+))?(?:・(?:(A1|A2|B1|B2|B3|B4|C1|C2|C3|C4)(?:-(\d+))?|(\d+))(?:・(\d+))?)?)?
+        (?:(\d{1,3}0)万?円?未?満?)?
+        \s*
+        (?:
+        ([青栗鹿芦]毛馬?選抜|産駒特別(?:競走)?選抜|(?:オープン)?[高重]馬体重馬?(?:選抜)?|(?:指定)?(?:重賞)?・?(?:特別)?競走優勝馬?|騎手指定選抜|指定選抜|トライアル選抜|馬齢選抜|ファン投票選抜|ヤングジョッキー選抜|選\s?抜)|
+        ((?:産地限定)?(?:足寄町?|網走|石狩後志渡島桧山胆振日高|石狩空知後志上川留萌宗谷|渡島桧山胆振日高|釧路・?(?:根室)?|空知上川留萌宗谷|大樹町|十勝|南北海道)(?:育成馬)?(?:管内)?(?:産駒)?(?:選抜)?|産地限定|駒選抜)
+        )?
+        \s*(決勝|勝入)?
+        \s*(混\s?合?)?
+        (?:-\d+(?:・\d+)?)?
+        \s*(別定定量|別\s?定|定\s?量|馬齢)?$
+        "
+    ).unwrap();
+    if let Some(captures) = re.captures(raw) {
+        return RaceNameInfo {
+            race_detail: captures
+                .get(0)
+                .map(|m| m.as_str().to_string())
+                .filter(|s| !s.is_empty()),
+        };
+    }
+
+    RaceNameInfo {
         ..Default::default()
     }
 }

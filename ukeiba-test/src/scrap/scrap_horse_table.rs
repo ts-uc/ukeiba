@@ -39,6 +39,7 @@ pub fn scrap() {
             post_time_change: datum.post_time_change,
             race_sub_name: datum.race_sub_title,
             race_name: Some(datum.race_title),
+            race_detail: datum.race_name_info.race_detail,
             weather: datum.race_detail.weather,
             going: datum.race_detail.going.and_then(|x| x.parse().ok()),
             race_age: datum.race_detail.race_age,
