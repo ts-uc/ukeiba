@@ -393,7 +393,7 @@ fn horse_table_to_races(tx: &Transaction, datum: &Races) {
             post_time = COALESCE(:post_time, races.post_time),
             post_time_change = COALESCE(:post_time_change, races.post_time_change),
             race_sub_name = COALESCE(:race_sub_name, races.race_sub_name),
-            race_name = COALESCE(:race_name, races.race_name),
+            race_name = :race_name,
             race_detail = COALESCE(:race_detail, races.race_detail),
             weather = COALESCE(:weather, races.weather),
             going = COALESCE(:going, races.going),
