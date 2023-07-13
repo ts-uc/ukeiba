@@ -11,6 +11,7 @@ pub fn write_to_db(db_writers: &[DbWriter]) {
     tx.commit().unwrap();
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum DbWriter {
     UpsertDates(Dates),
     HorseHistoryToRaces(Races),
