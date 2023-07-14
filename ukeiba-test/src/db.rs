@@ -203,7 +203,7 @@ pub fn create_table() -> Result<()> {
             horse_status TEXT,
             deregistration_date TEXT,
             horse_birthdate TEXT,
-            horse_birth_year TEXT,
+            horse_birth_year INTEGER,
             horse_coat_color TEXT,
             horse_breed TEXT,
             breeder TEXT,
