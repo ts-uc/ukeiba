@@ -4,6 +4,7 @@ use crate::db::{
     Horses,
 };
 use crate::get::get_horse_bajikyo_id;
+use chrono::Datelike;
 use ukeiba_common::scraper::bajikyo_profile;
 
 pub fn scrap() {
@@ -23,6 +24,7 @@ pub fn scrap() {
         .map(|data| Horses {
             horse_bajikyo_id: Some(data.horse_bajikyo_id),
             horse_birthdate: data.horse_birthdate,
+            horse_birth_year: data.horse_birthdate.map(|x| x.year()),
             horse_coat_color: data.horse_coat_color,
             horse_breed: data.horse_breed,
             breeder: data.horse_breeder,

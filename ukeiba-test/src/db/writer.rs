@@ -500,17 +500,19 @@ fn bajikyo_pedigree_to_horses(tx: &Transaction, datum: &Horses) {
 fn bajikyo_profile_to_horses(tx: &Transaction, datum: &Horses) {
     tx.execute(
         "INSERT INTO horses
-        (horse_bajikyo_id, horse_birthdate, horse_coat_color, horse_breed, breeder, breeder_location)
-        VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+        (horse_bajikyo_id, horse_birthdate, horse_birth_year, horse_coat_color, horse_breed, breeder, breeder_location)
+        VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
         ON CONFLICT(horse_bajikyo_id) DO UPDATE SET
         horse_birthdate = COALESCE(?2, horses.horse_birthdate),
-        horse_coat_color = COALESCE(?3, horses.horse_coat_color),
-        horse_breed = COALESCE(?4, horses.horse_breed),
-        breeder = COALESCE(?5, horses.breeder),
-        breeder_location = COALESCE(?6, horses.breeder_location)",
+        horse_birth_year = COALESCE(?3, horses.horse_birth_year),
+        horse_coat_color = COALESCE(?4, horses.horse_coat_color),
+        horse_breed = COALESCE(?5, horses.horse_breed),
+        breeder = COALESCE(?6, horses.breeder),
+        breeder_location = COALESCE(?7, horses.breeder_location)",
         params![
             datum.horse_bajikyo_id,
             datum.horse_birthdate,
+            datum.horse_birth_year,
             datum.horse_coat_color,
             datum.horse_breed,
             datum.breeder,
