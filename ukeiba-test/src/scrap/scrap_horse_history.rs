@@ -12,10 +12,8 @@ pub fn scrap() {
     let horse_nar_ids = get_horse_nar_id::get_all_from_db();
 
     let pages = horse_nar_ids
-        .iter()
-        .map(|x| horse_history::Page {
-            horse_nar_id: x.clone(),
-        })
+        .into_iter()
+        .map(|x| horse_history::Page { horse_nar_id: x.0 })
         .collect::<Vec<_>>();
 
     let data = fetch_and_scrap_all(pages);

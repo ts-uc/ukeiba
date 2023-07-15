@@ -11,9 +11,9 @@ pub fn scrap() {
     // 取得した全馬のIDリストから、サラブレッド種・サラブレッド系種・アングロアラブ種を除外した馬情報リストを作成
 
     let horse_profile_pages = horse_all_ids
-        .iter()
+        .into_iter()
         .map(|horse_nar_id| horse_profile::Page {
-            horse_nar_id: *horse_nar_id,
+            horse_nar_id: horse_nar_id.0,
         })
         .collect::<Vec<_>>();
 

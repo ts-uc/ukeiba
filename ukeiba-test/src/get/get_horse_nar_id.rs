@@ -2,9 +2,12 @@ use crate::common::*;
 use crate::db::make_conn;
 use itertools::iproduct;
 use rayon::prelude::*;
-use ukeiba_common::{common::HorseBelong, scraper::horse_search};
+use ukeiba_common::{
+    common::{HorseBelong, HorseNarId},
+    scraper::horse_search,
+};
 
-pub fn get_all_from_db() -> Vec<i64> {
+pub fn get_all_from_db() -> Vec<HorseNarId> {
     let conn = make_conn().unwrap();
 
     // horse_bajikyo_idを取得するクエリ
@@ -15,11 +18,11 @@ pub fn get_all_from_db() -> Vec<i64> {
     let rows = stmt.query_map([], |row| row.get(0)).unwrap();
 
     // horse_nar_ids<String>に格納
-    let horse_nar_ids: Vec<i64> = rows.map(|row| row.unwrap()).collect();
+    let horse_nar_ids = rows.map(|row| HorseNarId(row.unwrap())).collect();
     horse_nar_ids
 }
 
-pub fn get_all_from_nar() -> Vec<i64> {
+pub fn get_all_from_nar() -> Vec<HorseNarId> {
     // 所属がばんえいか退厩の馬を全取得
 
     let pages: Vec<horse_search::Page> =
@@ -82,6 +85,7 @@ pub fn get_all_from_nar() -> Vec<i64> {
     let horse_all_ids = fetch_and_scrap_all(search_pages)
         .into_iter()
         .flat_map(|data| data.horse_nar_ids)
+        .map(|x| HorseNarId(x))
         .collect::<Vec<_>>();
 
     horse_all_ids

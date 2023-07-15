@@ -1,8 +1,11 @@
 use crate::common::*;
 use rayon::prelude::*;
-use ukeiba_common::{common::HorseBelong, scraper::jockey_search};
+use ukeiba_common::{
+    common::{HorseBelong, JockeyNarId},
+    scraper::jockey_search,
+};
 
-pub fn get_all_from_nar() -> Vec<i32> {
+pub fn get_all_from_nar() -> Vec<JockeyNarId> {
     let pages: Vec<jockey_search::Page> = [jockey_search::Page {
         page_num: 1,
         belong: HorseBelong::Banei,
@@ -30,6 +33,7 @@ pub fn get_all_from_nar() -> Vec<i32> {
     let jockey_all_ids = fetch_and_scrap_all(search_pages)
         .into_iter()
         .flat_map(|data| data.jockey_ids)
+        .map(|x| JockeyNarId(x))
         .collect::<Vec<_>>();
 
     jockey_all_ids

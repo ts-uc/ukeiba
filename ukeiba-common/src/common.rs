@@ -68,3 +68,15 @@ pub struct DateRacecourse {
     pub race_date: NaiveDate,
     pub racecourse: Racecourse,
 }
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct HorseBajikyoId(pub String);
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct HorseNarId(pub i64);
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct JockeyNarId(pub i32);
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct TrainerNarId(pub i32);

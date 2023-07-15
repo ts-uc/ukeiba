@@ -1,6 +1,8 @@
+use ukeiba_common::common::HorseBajikyoId;
+
 use crate::db::make_conn;
 
-pub fn get_from_db() -> Vec<String> {
+pub fn get_from_db() -> Vec<HorseBajikyoId> {
     let conn = make_conn().unwrap();
 
     // horse_bajikyo_idを取得するクエリ
@@ -11,7 +13,9 @@ pub fn get_from_db() -> Vec<String> {
     let rows = stmt.query_map([], |row| row.get(0)).unwrap();
 
     // horse_bajikyo_idの値をVec<String>に格納
-    let horse_bajikyo_ids: Vec<String> = rows.map(|row| row.unwrap()).collect();
+    let horse_bajikyo_ids = rows
+        .map(|row| HorseBajikyoId(row.unwrap()))
+        .collect::<Vec<_>>();
 
     horse_bajikyo_ids
 }

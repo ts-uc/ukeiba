@@ -10,9 +10,9 @@ pub fn scrap() {
     let trainer_all_ids = get_trainer_nar_id::get_all_from_nar();
 
     let trainer_profile_pages = trainer_all_ids
-        .iter()
+        .into_iter()
         .map(|trainer_nar_id| trainer_profile::Page {
-            trainer_nar_id: *trainer_nar_id,
+            trainer_nar_id: trainer_nar_id.0,
         })
         .collect::<Vec<_>>();
 

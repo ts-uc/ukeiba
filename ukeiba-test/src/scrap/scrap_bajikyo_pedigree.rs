@@ -12,7 +12,7 @@ pub fn scrap() {
     let bajikyo_pedigree_pages = horse_bajikyo_ids
         .iter()
         .map(|x| bajikyo_pedigree::Page {
-            horse_bajikyo_id: x.clone(),
+            horse_bajikyo_id: x.0.clone(),
         })
         .collect::<Vec<_>>();
 

@@ -10,9 +10,9 @@ pub fn scrap() {
     let jockey_all_ids = get_jockey_nar_id::get_all_from_nar();
 
     let jockey_profile_pages = jockey_all_ids
-        .iter()
+        .into_iter()
         .map(|jockey_nar_id| jockey_profile::Page {
-            jockey_nar_id: *jockey_nar_id,
+            jockey_nar_id: jockey_nar_id.0,
         })
         .collect::<Vec<_>>();
 
