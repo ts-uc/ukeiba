@@ -22,6 +22,20 @@ pub fn get_all_from_db() -> Vec<HorseNarId> {
     horse_nar_ids
 }
 
+pub fn get_active_horses_from_db() -> Vec<HorseNarId> {
+    let conn = make_conn().unwrap();
+
+    // horse_bajikyo_idを取得するクエリ
+    let query = "SELECT horse_nar_id FROM horses WHERE horse_status = '現役'";
+    // クエリを実行し、結果を取得
+    let mut stmt = conn.prepare(query).unwrap();
+    let rows = stmt.query_map([], |row| row.get(0)).unwrap();
+
+    // horse_nar_ids<String>に格納
+    let horse_nar_ids = rows.map(|row| HorseNarId(row.unwrap())).collect();
+    horse_nar_ids
+}
+
 pub fn get_all_from_nar() -> Vec<HorseNarId> {
     // 所属がばんえいか退厩の馬を全取得
 

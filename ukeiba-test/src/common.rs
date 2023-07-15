@@ -27,11 +27,28 @@ where
     scrap_all(pages)
 }
 
+pub fn force_fetch_and_scrap_all<T>(pages: Vec<T>) -> Vec<T::Data>
+where
+    T::Data: Send,
+    T: WebPageTrait + Sync,
+{
+    force_fetch_all(&pages);
+    scrap_all(pages)
+}
+
 pub fn fetch_all<T: WebPageTrait>(pages: &[T]) {
     pages
         .iter()
         .progress()
         .filter_map(|page| page.fetch(Duration::from_millis(700)).ok())
+        .for_each(drop);
+}
+
+pub fn force_fetch_all<T: WebPageTrait>(pages: &[T]) {
+    pages
+        .iter()
+        .progress()
+        .filter_map(|page| page.force_fetch(Duration::from_millis(700)).ok())
         .for_each(drop);
 }
 

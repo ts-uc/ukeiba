@@ -35,7 +35,7 @@ fn main() {
             scrap::scrap_rakuten_racelist::scrap();
         }
         Mode::Tmp => {
-            scrap::scrap_horse_history::scrap();
+            scrap::scrap_horse_history::scrap_active();
             scrap::scrap_horse_table::scrap();
             scrap::scrap_rakuten_racelist::scrap();
         }

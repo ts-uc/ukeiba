@@ -16,7 +16,23 @@ pub fn scrap() {
         .map(|x| horse_history::Page { horse_nar_id: x.0 })
         .collect::<Vec<_>>();
 
-    let data = fetch_and_scrap_all(pages);
+    let data: Vec<horse_history::Data> = fetch_and_scrap_all(pages);
+    process_data(data)
+}
+
+pub fn scrap_active() {
+    let horse_nar_ids = get_horse_nar_id::get_active_horses_from_db();
+
+    let pages = horse_nar_ids
+        .into_iter()
+        .map(|x| horse_history::Page { horse_nar_id: x.0 })
+        .collect::<Vec<_>>();
+
+    let data: Vec<horse_history::Data> = force_fetch_and_scrap_all(pages);
+    process_data(data)
+}
+
+pub fn process_data(data: Vec<horse_history::Data>) {
     let mut db_writer: Vec<DbWriter> = Vec::new();
     let jockey_hashmap = create_jockey_hashmap();
     let trainer_hashmap = create_trainer_hashmap();
