@@ -81,7 +81,11 @@ pub fn scrap() {
                 bracket_num: x.bracket_num,
                 horse_sex: x.horse_sex,
                 jockey_nar_id: x.jockey_nar_id,
-                weight_mark: x.horse_weight_mark,
+                weight_mark: match x.horse_weight_mark.as_deref() {
+                    Some("△") => Some(-20),
+                    Some("☆") => Some(-10),
+                    Some(_) | None => Some(0),
+                },
                 weight_to_carry: x.weight_to_carry,
                 trainer_nar_id: x.trainer_nar_id,
                 owner_name: x.owner_name,
