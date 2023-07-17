@@ -55,7 +55,15 @@ pub fn scrap() {
             race_sub_name: datum.race_sub_title,
             race_name: race_name_info.race_name,
             race_detail: race_name_info.race_detail,
-            weather: datum.race_detail.weather,
+            weather: match datum.race_detail.weather.as_deref() {
+                Some("晴") => Some(1),
+                Some("曇") => Some(2),
+                Some("雨") => Some(3),
+                Some("小雨") => Some(4),
+                Some("雪") => Some(5),
+                Some("小雪") => Some(6),
+                Some(_) | None => None,
+            },
             going: datum.race_detail.going.and_then(|x| x.parse().ok()),
             race_class: race_name_info.race_class,
             race_kumi: race_name_info.race_kumi,
@@ -68,7 +76,13 @@ pub fn scrap() {
             },
             race_sex: race_name_info.race_sex,
             race_final: race_name_info.race_final,
-            race_weight_type: datum.race_detail.race_weight_type,
+            race_weight_type: match datum.race_detail.race_weight_type.as_deref() {
+                Some("規定") => Some(1),
+                Some("別定") => Some(2),
+                Some("馬齢") => Some(3),
+                Some("定量") => Some(4),
+                Some(_) | None => None,
+            },
             horse_count_entered: Some(datum.registered_horse_count),
             ..Default::default()
         }));
@@ -79,7 +93,12 @@ pub fn scrap() {
                 horse_num: x.horse_num,
                 horse_nar_id: Some(x.horse_nar_id),
                 bracket_num: x.bracket_num,
-                horse_sex: x.horse_sex,
+                horse_sex: match x.horse_sex.as_deref() {
+                    Some("牡") => Some(1),
+                    Some("牝") => Some(2),
+                    Some("セン") => Some(3),
+                    Some(_) | None => None,
+                },
                 jockey_nar_id: x.jockey_nar_id,
                 weight_mark: match x.horse_weight_mark.as_deref() {
                     Some("△") => Some(-20),
