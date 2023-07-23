@@ -195,7 +195,8 @@ pub fn create_table() -> Result<()> {
             PRIMARY KEY (race_date, race_num, horse_num),
             FOREIGN KEY (race_date, race_num) REFERENCES races (race_date, race_num)
         );
-        
+        CREATE INDEX IF NOT EXISTS idx_race_horses_horse_nar_id ON race_horses (horse_nar_id);
+
         CREATE TABLE IF NOT EXISTS horses (
             horse_bajikyo_id TEXT PRIMARY KEY,
             horse_nar_id INTEGER UNIQUE,
@@ -234,14 +235,6 @@ pub fn create_table() -> Result<()> {
             trainer_first_run TEXT,
             trainer_first_win TEXT
         );
-
-        CREATE VIEW IF NOT EXISTS joined AS
-            SELECT *
-            FROM dates
-            JOIN races ON dates.race_date = races.race_date
-            JOIN race_horses ON races.race_date = race_horses.race_date AND races.race_num = race_horses.race_num
-            JOIN horses ON race_horses.horse_nar_id = horses.horse_nar_id
-        ORDER BY dates.race_date, races.race_num, race_horses.horse_num;
         ",
     )?;
 
