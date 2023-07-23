@@ -122,7 +122,7 @@ fn split_race_name_info(raw: &str) -> RaceNameInfo {
         r"(?x)
         \s*(.*?)\s*
         (
-        ((?:\d{1,2})(?:・\d{1,2})?\s?[才歳](?:以?上)?(?:\d{1,2}[才歳]以?下)?)?
+        ((?:1?\d)(?:・1?\d)?\s?[才歳](?:以?上)?(?:1?\d[才歳]以?下)?)?
         \s*(?:([牡牝雄雌])馬?)?
         \s*(勝入)?
         \s*(混\s?合)?
@@ -152,7 +152,13 @@ fn split_race_name_info(raw: &str) -> RaceNameInfo {
             .filter(|s| !s.is_empty());
         let race_age = captures
             .get(3)
-            .map(|m| m.as_str().replace("才", "歳"))
+            .map(|m| {
+                m.as_str()
+                    .replace("才", "歳")
+                    .replace("歳上", "歳以上")
+                    .replace("歳下", "歳以下")
+                    .replace(" ", "")
+            })
             .filter(|s| !s.is_empty());
         let race_sex = match captures.get(4).map(|m| m.as_str()) {
             Some("雄") | Some("牡") => Some("牡馬".to_string()),
