@@ -13,6 +13,7 @@ pub fn write_to_db(db_writers: &[DbWriter]) {
 
 pub enum DbWriter {
     UpsertDates(Dates),
+    RaceListToRaces(Races),
     HorseHistoryToRaces(Races),
     HorseTableToRaces(Races),
     HorseHistoryToRaceHorses(RaceHorses),
@@ -29,6 +30,7 @@ impl DbWriter {
     fn execute(&self, tx: &Transaction) {
         match self {
             Self::UpsertDates(datum) => upsert_dates(tx, &datum),
+            Self::RaceListToRaces(datum) => race_list_to_races(tx, &datum),
             Self::HorseHistoryToRaces(datum) => horse_history_to_races(tx, &datum),
             Self::HorseTableToRaces(datum) => horse_table_to_races(tx, &datum),
             Self::HorseHistoryToRaceHorses(datum) => horse_history_to_race_horses(tx, &datum),
@@ -348,6 +350,38 @@ fn upsert_dates(tx: &Transaction, datum: &Dates) {
             sand_obstacle = COALESCE(:sand_obstacle, dates.sand_obstacle)
         ",
         to_params_named(&datum).unwrap().to_slice().as_slice(),
+    )
+    .unwrap();
+}
+
+fn race_list_to_races(tx: &Transaction, datum: &Races) {
+    tx.execute(
+        "
+        INSERT INTO races (race_date, race_num, post_time, post_time_change, race_sub_name, race_name, race_detail, weather, going, race_class, race_kumi, race_class_mixed, race_kumi_mixed, race_final, race_age, race_sex, race_horse_select_type, race_weight_type, race_type, horse_count_run, horse_count_entered, race_align)
+        VALUES (:race_date, :race_num, :post_time, :post_time_change, :race_sub_name, :race_name, :race_detail, :weather, :going, :race_class, :race_kumi, :race_class_mixed, :race_kumi_mixed, :race_final, :race_age, :race_sex, :race_horse_select_type, :race_weight_type, :race_type, :horse_count_run, :horse_count_entered, :race_align)
+        ON CONFLICT(race_date, race_num) DO UPDATE SET
+            post_time = COALESCE(races.post_time, :post_time),
+            post_time_change = COALESCE(races.post_time_change, :post_time_change),
+            race_sub_name = COALESCE(races.race_sub_name, :race_sub_name),
+            race_name = COALESCE(races.race_name, :race_name),
+            race_detail = COALESCE(races.race_detail, :race_detail),
+            weather = COALESCE(races.weather, :weather),
+            going = COALESCE(races.going, :going),
+            race_class = COALESCE(races.race_class, :race_class),
+            race_kumi = COALESCE(races.race_kumi, :race_kumi),
+            race_class_mixed = COALESCE(races.race_class_mixed, :race_class_mixed),
+            race_kumi_mixed = COALESCE(races.race_kumi_mixed, :race_kumi_mixed),
+            race_final = COALESCE(races.race_final, :race_final),
+            race_age = COALESCE(races.race_age, :race_age),
+            race_sex = COALESCE(races.race_sex, :race_sex),
+            race_horse_select_type = COALESCE(races.race_horse_select_type, :race_horse_select_type),
+            race_weight_type = COALESCE(races.race_weight_type, :race_weight_type),
+            race_type = COALESCE(races.race_type, :race_type),
+            horse_count_run = COALESCE(races.horse_count_run, :horse_count_run),
+            horse_count_entered = COALESCE(races.horse_count_entered, :horse_count_entered),
+            race_align = COALESCE(races.race_align, :race_align)
+    ",
+to_params_named(&datum).unwrap().to_slice().as_slice(),
     )
     .unwrap();
 }

@@ -17,6 +17,7 @@ struct Args {
 enum Mode {
     Init,
     Tmp,
+    Tmp2,
 }
 
 fn main() {
@@ -38,6 +39,10 @@ fn main() {
             scrap::scrap_horse_history::scrap_active();
             scrap::scrap_horse_table::scrap();
             scrap::scrap_rakuten_racelist::scrap();
+        }
+        Mode::Tmp2 => {
+            scrap::scrap_race_list::scrap();
+            scrap::scrap_horse_table::scrap();
         }
     }
     update_race_align().unwrap();
