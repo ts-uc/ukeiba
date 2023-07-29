@@ -4,7 +4,7 @@ use crate::{
     common::fetch_and_scrap_all,
     db::{
         writer::{write_to_db, DbWriter},
-        Dates, Races,
+        Dates, RaceHorses, Races,
     },
     get::get_date_racecourse,
 };
@@ -44,6 +44,17 @@ pub fn scrap() {
                     Some("一般") => Some(4),
                     Some(_) | None => None,
                 },
+                ..Default::default()
+            }))
+        }
+
+        for change in datum.change_list {
+            db_writer.push(DbWriter::RaceListToRaceHorses(RaceHorses {
+                race_date: datum.race_date,
+                race_num: change.race_num,
+                horse_num: change.horse_num,
+                change: change.change,
+                change_reason: change.change_reason,
                 ..Default::default()
             }))
         }

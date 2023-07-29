@@ -20,6 +20,7 @@ pub struct Data {
     pub racecourse: Racecourse,
     pub is_race_date: bool,
     pub race_list: Vec<RaceList>,
+    pub change_list: Vec<ChangeList>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -27,6 +28,14 @@ pub struct RaceList {
     pub race_num: i32,
     pub post_time: Option<String>,
     pub race_type: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct ChangeList {
+    pub race_num: i32,
+    pub horse_num: i32,
+    pub change: Option<String>,
+    pub change_reason: Option<String>,
 }
 
 impl WebPageTrait for Page {
@@ -64,7 +73,6 @@ impl WebPageTrait for Page {
         let is_race_date = !doc_str.contains("ご指定のレースの情報がありません");
 
         let mut race_list = Vec::new();
-
         for element in doc.select(
             &Selector::parse(".raceTable > table:nth-child(1) > tbody:nth-child(1) > tr.data")
                 .unwrap(),
@@ -85,12 +93,31 @@ impl WebPageTrait for Page {
                 },
             });
         }
+        let mut change_list = Vec::new();
+        for element in
+            doc.select(&Selector::parse(".changeInfo > tbody:nth-child(1) > tr.data").unwrap())
+        {
+            change_list.push(ChangeList {
+                race_num: scrap(&element, "td:nth-child(1)")
+                    .unwrap_or_default()
+                    .replace("R", "")
+                    .parse()
+                    .unwrap_or_default(),
+                horse_num: scrap(&element, "td:nth-child(2)")
+                    .unwrap_or_default()
+                    .parse()
+                    .unwrap_or_default(),
+                change: scrap(&element, "td:nth-child(4)"),
+                change_reason: scrap(&element, "td:nth-child(5)"),
+            });
+        }
 
         Ok(Data {
             race_date: self.race_date,
             racecourse: self.racecourse,
             is_race_date: is_race_date,
             race_list: race_list,
+            change_list: change_list,
         })
     }
 }
