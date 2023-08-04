@@ -16,7 +16,7 @@ struct Args {
 #[derive(Subcommand, Debug)]
 enum Mode {
     Init,
-    Tmp,
+    DailyBatch,
     Tmp2,
 }
 
@@ -28,17 +28,19 @@ fn main() {
         Mode::Init => {
             scrap::scrap_trainers::scrap();
             scrap::scrap_jockeys::scrap();
+            scrap::scrap_race_list::scrap();
+            scrap::scrap_horse_table::scrap();
+            scrap::scrap_rakuten_racelist::scrap();
             scrap::scrap_horse_profile::scrap();
             scrap::scrap_bajikyo_profile::scrap();
             scrap::scrap_bajikyo_pedigree::scrap();
             scrap::scrap_horse_history::scrap();
-            scrap::scrap_horse_table::scrap();
-            scrap::scrap_rakuten_racelist::scrap();
         }
-        Mode::Tmp => {
-            scrap::scrap_horse_history::scrap_active();
+        Mode::DailyBatch => {
+            scrap::scrap_race_list::scrap();
             scrap::scrap_horse_table::scrap();
             scrap::scrap_rakuten_racelist::scrap();
+            scrap::scrap_horse_history::scrap_active();
         }
         Mode::Tmp2 => {
             scrap::scrap_race_list::scrap();
