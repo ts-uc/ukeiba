@@ -397,7 +397,10 @@ fn horse_history_to_races(tx: &Transaction, datum: &Races) {
             post_time = COALESCE(races.post_time, :post_time),
             post_time_change = COALESCE(races.post_time_change, :post_time_change),
             race_sub_name = COALESCE(races.race_sub_name, :race_sub_name),
-            race_name = COALESCE(races.race_name, :race_name),
+            race_name = CASE
+                WHEN races.race_detail IS NULL THEN COALESCE(races.race_name, :race_name)
+                ELSE races.race_name
+            END,
             race_detail = COALESCE(races.race_detail, :race_detail),
             weather = COALESCE(races.weather, :weather),
             going = COALESCE(races.going, :going),
