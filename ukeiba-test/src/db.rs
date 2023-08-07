@@ -49,7 +49,6 @@ pub struct Races {
     pub race_type: Option<i32>,
     pub horse_count_run: Option<i32>,
     pub horse_count_entered: Option<i32>,
-    pub race_align: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -165,7 +164,6 @@ pub fn create_table() -> Result<()> {
             race_type INTEGER,
             horse_count_run INTEGER,
             horse_count_entered INTEGER,
-            race_align TEXT,
             PRIMARY KEY (race_date, race_num),
             FOREIGN KEY (race_date) REFERENCES dates (race_date)
         );
