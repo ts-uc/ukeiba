@@ -239,7 +239,7 @@ pub fn create_table() -> Result<()> {
         CREATE TABLE IF NOT EXISTS races_extend (
             race_date TEXT,
             race_num INTEGER,
-            race_align TEXT,
+            race_align INTEGER,
             PRIMARY KEY (race_date, race_num),
             FOREIGN KEY (race_date, race_num) REFERENCES races (race_date, race_num)
         );
@@ -254,32 +254,32 @@ pub fn update_race_align() -> Result<()> {
     let conn = make_conn()?;
     conn.execute_batch(
         "
-        INSERT OR IGNORE INTO races_extend (race_date, race_num, race_align)
-        SELECT race_date, race_num, race_align
+        INSERT OR IGNORE INTO races_extend (race_date, race_num)
+        SELECT race_date, race_num
         FROM races;
 
         UPDATE races_extend
         SET race_align = 
             CASE
                 -- 2013年6月7日以前は常に「内詰め」
-                WHEN races_extend.race_date <= '2013-06-07' THEN '内詰め'
+                WHEN races_extend.race_date <= '2013-06-07' THEN 0
                 
                 -- 2013年6月8日以降2014年10月24日以前
                 WHEN races_extend.race_date <= '2014-10-24' THEN
                     CASE
                         -- nichiが1〜3のときは「内詰め」
-                        WHEN dates.nichi BETWEEN 1 AND 3 THEN '内詰め'
+                        WHEN dates.nichi BETWEEN 1 AND 3 THEN 0
                         -- nichiが4〜6のときは「外詰め」
-                        WHEN dates.nichi BETWEEN 4 AND 6 THEN '外詰め'
+                        WHEN dates.nichi BETWEEN 4 AND 6 THEN 1
                     END
                     
                 -- 2014年10月25日以降
                 ELSE
                     CASE
                         -- nichiが奇数かつrace_numが奇数、または、nichiが偶数かつrace_numが偶数のときは「内詰め」
-                        WHEN (dates.nichi % 2 = 1 AND races_extend.race_num % 2 = 1) OR (dates.nichi % 2 = 0 AND races_extend.race_num % 2 = 0) THEN '内詰め'
+                        WHEN (dates.nichi % 2 = 1 AND races_extend.race_num % 2 = 1) OR (dates.nichi % 2 = 0 AND races_extend.race_num % 2 = 0) THEN 0
                         -- nichiが奇数かつrace_numが偶数、または、nichiが偶数かつrace_numが奇数のときは「外詰め」
-                        WHEN (dates.nichi % 2 = 1 AND races_extend.race_num % 2 = 0) OR (dates.nichi % 2 = 0 AND races_extend.race_num % 2 = 1) THEN '外詰め'
+                        WHEN (dates.nichi % 2 = 1 AND races_extend.race_num % 2 = 0) OR (dates.nichi % 2 = 0 AND races_extend.race_num % 2 = 1) THEN 1
                     END
             END
         FROM dates
@@ -289,8 +289,8 @@ pub fn update_race_align() -> Result<()> {
         UPDATE race_horses
         SET gate_num = 
             CASE
-                WHEN (SELECT race_align FROM races_extend WHERE races_extend.race_date = race_horses.race_date AND races_extend.race_num = race_horses.race_num) = '内詰め' THEN race_horses.horse_num
-                WHEN (SELECT race_align FROM races_extend WHERE races_extend.race_date = race_horses.race_date AND races_extend.race_num = race_horses.race_num) = '外詰め' THEN 10 - (SELECT horse_count_entered FROM races WHERE races.race_date = race_horses.race_date AND races.race_num = race_horses.race_num) + race_horses.horse_num
+                WHEN (SELECT race_align FROM races_extend WHERE races_extend.race_date = race_horses.race_date AND races_extend.race_num = race_horses.race_num) = 0 THEN race_horses.horse_num
+                WHEN (SELECT race_align FROM races_extend WHERE races_extend.race_date = race_horses.race_date AND races_extend.race_num = race_horses.race_num) = 1 THEN 10 - (SELECT horse_count_entered FROM races WHERE races.race_date = race_horses.race_date AND races.race_num = race_horses.race_num) + race_horses.horse_num
                 ELSE gate_num
             END
         WHERE gate_num IS NULL;
