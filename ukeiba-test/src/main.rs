@@ -1,5 +1,5 @@
 extern crate ukeiba_common;
-use db::{create_table, update_race_align, vacuum_database};
+use db::{create_table, update_finish_time, update_race_align, vacuum_database};
 pub mod common;
 pub mod db;
 pub mod get;
@@ -48,5 +48,6 @@ fn main() {
         }
     }
     update_race_align().unwrap();
+    update_finish_time().unwrap();
     vacuum_database().unwrap();
 }

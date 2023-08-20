@@ -240,6 +240,11 @@ pub fn create_table() -> Result<()> {
             race_date TEXT,
             race_num INTEGER,
             race_align INTEGER,
+            finish_time_1 REAL,
+            finish_time_2 REAL,
+            finish_time_3 REAL,
+            finish_time_4 REAL,
+            finish_time_5 REAL,
             PRIMARY KEY (race_date, race_num),
             FOREIGN KEY (race_date, race_num) REFERENCES races (race_date, race_num)
         );
@@ -296,7 +301,64 @@ pub fn update_race_align() -> Result<()> {
         WHERE gate_num IS NULL;
             ",
     )?;
+    Ok(())
+}
 
+pub fn update_finish_time() -> Result<()> {
+    let conn = make_conn()?;
+    conn.execute_batch(
+        "
+        UPDATE races_extend
+        SET finish_time_1 = (
+            SELECT race_horses.finish_time
+            FROM race_horses
+            WHERE race_horses.race_date = races_extend.race_date
+              AND race_horses.race_num = races_extend.race_num
+              AND race_horses.arrival = 1
+        )
+        WHERE finish_time_1 IS NULL;
+
+        UPDATE races_extend
+        SET finish_time_2 = (
+            SELECT race_horses.finish_time
+            FROM race_horses
+            WHERE race_horses.race_date = races_extend.race_date
+              AND race_horses.race_num = races_extend.race_num
+              AND race_horses.arrival = 2
+        )
+        WHERE finish_time_2 IS NULL;
+
+        UPDATE races_extend
+        SET finish_time_3 = (
+            SELECT race_horses.finish_time
+            FROM race_horses
+            WHERE race_horses.race_date = races_extend.race_date
+              AND race_horses.race_num = races_extend.race_num
+              AND race_horses.arrival = 3
+        )
+        WHERE finish_time_3 IS NULL;
+
+        UPDATE races_extend
+        SET finish_time_4 = (
+            SELECT race_horses.finish_time
+            FROM race_horses
+            WHERE race_horses.race_date = races_extend.race_date
+              AND race_horses.race_num = races_extend.race_num
+              AND race_horses.arrival = 4
+        )
+        WHERE finish_time_4 IS NULL;
+
+        UPDATE races_extend
+        SET finish_time_5 = (
+            SELECT race_horses.finish_time
+            FROM race_horses
+            WHERE race_horses.race_date = races_extend.race_date
+              AND race_horses.race_num = races_extend.race_num
+              AND race_horses.arrival = 5
+        )
+        WHERE finish_time_5 IS NULL;
+            ",
+    )?;
     Ok(())
 }
 
