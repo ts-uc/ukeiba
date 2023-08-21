@@ -40,7 +40,7 @@ pub fn fetch_all<T: WebPageTrait>(pages: &[T]) {
     pages
         .iter()
         .progress()
-        .filter_map(|page| page.fetch(Duration::from_millis(700)).ok())
+        .filter_map(|page| page.fetch(Duration::from_millis(1500)).ok())
         .for_each(drop);
 }
 

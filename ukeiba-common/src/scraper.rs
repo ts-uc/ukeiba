@@ -15,6 +15,7 @@ pub mod horse_search;
 pub mod horse_table;
 pub mod jockey_profile;
 pub mod jockey_search;
+pub mod oddspark_odds_1;
 pub mod race_list;
 pub mod rakuten_racelist;
 pub mod trainer_profile;

@@ -43,8 +43,7 @@ fn main() {
             scrap::scrap_horse_history::scrap_active();
         }
         Mode::Tmp2 => {
-            scrap::scrap_race_list::scrap();
-            scrap::scrap_horse_table::scrap();
+            scrap::scrap_oddspark_odds_1::scrap();
         }
     }
     update_race_align().unwrap();

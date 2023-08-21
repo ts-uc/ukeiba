@@ -19,6 +19,7 @@ pub enum DbWriter {
     RaceListToRaceHorses(RaceHorses),
     HorseHistoryToRaceHorses(RaceHorses),
     HorseTableToRaceHorses(RaceHorses),
+    OddsParkToRaceHorses(RaceHorses),
     BajikyoPedigreeToHorses(Horses),
     BajikyoProfileToHorses(Horses),
     HorseHistoryToHorses(Horses),
@@ -37,6 +38,7 @@ impl DbWriter {
             Self::RaceListToRaceHorses(datum) => race_list_to_race_horses(tx, &datum),
             Self::HorseHistoryToRaceHorses(datum) => horse_history_to_race_horses(tx, &datum),
             Self::HorseTableToRaceHorses(datum) => horse_table_to_race_horses(tx, &datum),
+            Self::OddsParkToRaceHorses(datum) => oddspark_odds_1_to_race_horses(tx, datum),
             Self::BajikyoPedigreeToHorses(datum) => bajikyo_pedigree_to_horses(tx, &datum),
             Self::BajikyoProfileToHorses(datum) => bajikyo_profile_to_horses(tx, &datum),
             Self::HorseHistoryToHorses(datum) => horse_history_to_horses(tx, &datum),
@@ -256,6 +258,38 @@ fn horse_table_to_race_horses(tx: &Transaction, datum: &RaceHorses) {
             win_odds = COALESCE(race_horses.win_odds, :win_odds),
             place_odds_min = COALESCE(race_horses.place_odds_min, :place_odds_min),
             place_odds_max = COALESCE(race_horses.place_odds_max, :place_odds_max)
+    ",
+to_params_named(&datum).unwrap().to_slice().as_slice(),
+    )
+    .unwrap();
+}
+
+fn oddspark_odds_1_to_race_horses(tx: &Transaction, datum: &RaceHorses) {
+    tx.execute(
+        "
+        INSERT INTO race_horses (race_date, race_num, horse_num, horse_nar_id, bracket_num, gate_num, horse_sex, jockey_nar_id, weight_mark, weight_to_carry, trainer_nar_id, owner_name, horse_weight, change, change_reason, win_fav, arrival, arrival_info, finish_time, prize, win_odds, place_odds_min, place_odds_max)
+        VALUES (:race_date, :race_num, :horse_num, :horse_nar_id, :bracket_num, :gate_num, :horse_sex, :jockey_nar_id, :weight_mark, :weight_to_carry, :trainer_nar_id, :owner_name, :horse_weight, :change, :change_reason, :win_fav, :arrival, :arrival_info, :finish_time, :prize, :win_odds, :place_odds_min, :place_odds_max)
+        ON CONFLICT(race_date, race_num, horse_num) DO UPDATE SET
+            horse_nar_id = COALESCE(race_horses.horse_nar_id, :horse_nar_id),
+            bracket_num = COALESCE(race_horses.bracket_num, :bracket_num),
+            gate_num = COALESCE(race_horses.gate_num, :gate_num),
+            horse_sex = COALESCE(race_horses.horse_sex, :horse_sex),
+            jockey_nar_id = COALESCE(race_horses.jockey_nar_id, :jockey_nar_id),
+            weight_mark = COALESCE(race_horses.weight_mark, :weight_mark),
+            weight_to_carry = COALESCE(race_horses.weight_to_carry, :weight_to_carry),
+            trainer_nar_id = COALESCE(race_horses.trainer_nar_id, :trainer_nar_id),
+            owner_name = COALESCE(race_horses.owner_name, :owner_name),
+            horse_weight = COALESCE(race_horses.horse_weight, :horse_weight),
+            change = COALESCE(race_horses.change, :change),
+            change_reason = COALESCE(race_horses.change_reason, :change_reason),
+            win_fav = COALESCE(race_horses.win_fav, :win_fav),
+            arrival = COALESCE(race_horses.arrival, :arrival),
+            arrival_info = COALESCE(race_horses.arrival_info, :arrival_info),
+            finish_time = COALESCE(race_horses.finish_time, :finish_time),
+            prize = COALESCE(race_horses.prize, :prize),
+            win_odds = COALESCE(:win_odds, race_horses.win_odds),
+            place_odds_min = COALESCE(:place_odds_min, race_horses.place_odds_min),
+            place_odds_max = COALESCE(:place_odds_max, race_horses.place_odds_max)
     ",
 to_params_named(&datum).unwrap().to_slice().as_slice(),
     )
