@@ -17,7 +17,7 @@ struct Args {
 enum Mode {
     Init,
     DailyBatch,
-    Tmp2,
+    Tmp,
 }
 
 fn main() {
@@ -31,6 +31,7 @@ fn main() {
             scrap::scrap_race_list::scrap();
             scrap::scrap_horse_table::scrap();
             scrap::scrap_rakuten_racelist::scrap();
+            scrap::scrap_oddspark_odds_1::scrap();
             scrap::scrap_horse_profile::scrap();
             scrap::scrap_bajikyo_profile::scrap();
             scrap::scrap_bajikyo_pedigree::scrap();
@@ -40,11 +41,10 @@ fn main() {
             scrap::scrap_race_list::scrap();
             scrap::scrap_horse_table::scrap();
             scrap::scrap_rakuten_racelist::scrap();
+            scrap::scrap_oddspark_odds_1::scrap();
             scrap::scrap_horse_history::scrap_active();
         }
-        Mode::Tmp2 => {
-            scrap::scrap_oddspark_odds_1::scrap();
-        }
+        Mode::Tmp => {}
     }
     update_race_align().unwrap();
     update_finish_time().unwrap();
